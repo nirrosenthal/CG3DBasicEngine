@@ -1,5 +1,6 @@
 # Directories
 build
 external
+/cmake-build-debug
 
 # Files

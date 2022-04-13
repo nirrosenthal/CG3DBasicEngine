@@ -4,7 +4,6 @@
 #include "Assignment1.h"
 #include "imgui/imgui.h"
 
-
 	void glfw_mouse_callback(GLFWwindow* window,int button, int action, int mods)
 	{	
 		if (action == GLFW_PRESS)
@@ -46,7 +45,7 @@
 		}
 		else
 		{
-			rndr->MoveCamera(0, rndr->zTranslate, (float)yoffset);
+			rndr->MoveCamera(0, rndr->zTranslate, -(float)yoffset);
 		}
 		
 	}
@@ -56,7 +55,7 @@
 		Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
 		Assignment1* scn = (Assignment1*)rndr->GetScene();
 
-		rndr->UpdatePosition((float)xpos,(float)ypos);
+		rndr->UpdatePosition(-(float)xpos,-(float)ypos);
 
 		if (rndr->CheckViewport(xpos,ypos, 0))
 		{
@@ -105,21 +104,16 @@
 				break;
 
 			case GLFW_KEY_UP:
-				rndr->MoveCamera(0, scn->xRotate, 0.05f);
-				
+				scn->increase_chosen_coefficient();
 				break;
 			case GLFW_KEY_DOWN:
-				//scn->shapeTransformation(scn->xGlobalRotate,-5.f);
-				//cout<< "down: "<<endl;
-				rndr->MoveCamera(0, scn->xRotate, -0.05f);
+				scn->decrease_chosen_coefficient();
 				break;
 			case GLFW_KEY_LEFT:
-				rndr->MoveCamera(0, scn->yRotate, 0.05f);
+				scn->increment_IterationNum();
 				break;
 			case GLFW_KEY_RIGHT:
-				//scn->shapeTransformation(scn->xGlobalRotate,-5.f);
-				//cout<< "down: "<<endl;
-				rndr->MoveCamera(0, scn->yRotate, -0.05f);
+				scn->decrement_IterationNum();
 				break;
 			case GLFW_KEY_U:
 				rndr->MoveCamera(0, scn->yTranslate, 0.25f);
@@ -141,6 +135,18 @@
 			case GLFW_KEY_F:
 				rndr->MoveCamera(0, scn->zTranslate, -0.5f);
 				break;
+            case GLFW_KEY_1:
+                scn->choose_coefficient(Coefficient::A);
+                break;
+            case GLFW_KEY_2:
+                scn->choose_coefficient(Coefficient::B);
+                break;
+             case GLFW_KEY_3:
+                 scn->choose_coefficient(Coefficient::C);
+                 break;
+             case GLFW_KEY_4:
+                 scn->choose_coefficient(Coefficient::D);
+                 break;
 			default:
 				break;
 

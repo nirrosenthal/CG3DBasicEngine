@@ -1,4 +1,4 @@
-#version 330
+#version 410
 
 attribute vec3 position;
 attribute vec3 color;
@@ -13,6 +13,8 @@ out vec3 position0;
 uniform mat4 Proj;
 uniform mat4 View;
 uniform mat4 Model;
+//uniform vec4 colors[960000];
+
 
 void main()
 {

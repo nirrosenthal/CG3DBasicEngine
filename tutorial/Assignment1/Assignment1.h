@@ -1,21 +1,35 @@
 #pragma once
 #include "igl/opengl/glfw/Viewer.h"
 
+enum Coefficient {A=0, B=1, C=2, D=3};
+
 class Assignment1 : public igl::opengl::glfw::Viewer
 {
-	
 public:
-	
-	Assignment1();
-//	Assignment1(float angle,float relationWH,float near, float far);
+	Assignment1(int width, int height);
 	void Init();
 	void Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, const Eigen::Matrix4f& Model, unsigned int  shaderIndx, unsigned int shapeIndx);
 	void WhenRotate();
 	void WhenTranslate();
 	void Animate() override;
 	void ScaleAllShapes(float amt, int viewportIndx);
-	
-	~Assignment1(void);
+    void increment_IterationNum();
+    void decrement_IterationNum();
+    void choose_coefficient(Coefficient val);
+    void increase_chosen_coefficient();
+    void decrease_chosen_coefficient();
+	~Assignment1();
+
+
+private:
+    int width;
+    int height;
+    int iterationNum;
+    Coefficient chosen_coefficient;
+    float a;
+    float b;
+    float c;
+    float d;
 };
 
 
