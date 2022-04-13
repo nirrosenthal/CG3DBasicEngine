@@ -96,26 +96,15 @@ vec2 der(vec2 z)
 void main()
 {
 	const vec3[3] colors = vec3[3](vec3(255, 0, 0) / 255, vec3(0, 255, 0) / 255 , vec3(0, 0, 255) / 255);
-	const double tolerance = 0.000000000001;
 	vec2[3] roots = get_roots();
 	vec2 z = position0.xy;
 
-	for(int j=0; j < num_of_iterations; j++){
+	for(int i=0; i < num_of_iterations; i++)
+	{
 		vec2 step = complex_div(func(z), der(z));
 		z = z - a * step;
-
-		for(int i = 0; i < 3; i++){
-			vec2 diff = z - roots[i];
-
-			//If the current iteration is close enough to a root, color the pixel. No need for more iterations
-			if (sqrt(pow(diff.x, 2) + pow(diff.y, 2)) < tolerance){
-				gl_FragColor = vec4(colors[i], 0);
-				return;
-			}
-		}
 	}
 
-	// if no root was close enough - searching for the closest:
 	int closest_root = 0;
 	vec2 diff = z - roots[0];
 	float min_dist = sqrt(pow(diff.x, 2) + pow(diff.y, 2));
