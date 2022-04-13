@@ -98,8 +98,7 @@ void main()
 	const vec3[3] colors = vec3[3](vec3(255, 0, 0) / 255, vec3(0, 255, 0) / 255 , vec3(0, 0, 255) / 255);
 	const double tolerance = 0.000000000001;
 	vec2[3] roots = get_roots();
-	vec2 coordinates = ((gl_FragCoord.xy) - 0.5) / resolution.xy;
-	vec2 z = coordinates;
+	vec2 z = position0.xy;
 
 	for(int j=0; j < num_of_iterations; j++){
 		vec2 step = complex_div(func(z), der(z));
