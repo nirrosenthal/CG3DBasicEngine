@@ -13,8 +13,25 @@ uniform float a;
 uniform float b;
 uniform float c;
 uniform float d;
-
+uniform float zoom_ratio;
 uniform int num_of_iterations;
+
+struct Rectangle
+{
+	vec2 bottom_left;
+	vec2 top_right;
+};
+
+vec2 center(Rectangle r)
+{
+	return (r.bottom_left + r.top_right) / 2;
+}
+
+bool contains(Rectangle r, vec2 point)
+{
+	return r.bottom_left.x <= point.x && point.x <= r.top_right.x &&
+		r.bottom_left.y <= point.y && point.y <= r.top_right.y;
+}
 
 vec2 complex(float num)
 {
@@ -93,11 +110,47 @@ vec2 der(vec2 z)
 	return 3*a*complex_pow(z,2) + 2*b*z + complex(c);
 }
 
+vec2 scaled_position(vec2 pixel_position)
+{
+	float original_x = pixel_position.x+1;
+	float original_y = pixel_position.y+1;
+	float width = resolution.x;
+	float height = resolution.y;
+	float scaled_x, scaled_y;
+
+//	scaled_x = original_x * zoom_ratio - 1;
+//	scaled_y = original_y * zoom_ratio - 1;
+
+	if(original_x < width/2.0)
+	{
+		scaled_x = (original_x*zoom_ratio) - zoom_ratio;
+	}
+	else
+	{
+		scaled_x = (original_x/zoom_ratio) - zoom_ratio;
+	}
+	if(original_y < height/2.0)
+	{
+		scaled_y = original_y*zoom_ratio - zoom_ratio;
+	}
+	else
+	{
+		scaled_y = (original_y/zoom_ratio) - zoom_ratio;
+	}
+
+	return vec2(scaled_x, scaled_y);
+}
+
 void main()
 {
-	const vec3[3] colors = vec3[3](vec3(255, 0, 0) / 255, vec3(0, 255, 0) / 255 , vec3(0, 0, 255) / 255);
+	const vec3[3] colors = vec3[3](
+		vec3(255, 0, 0) / 255, 	  // RED
+		vec3(0, 255, 0) / 255, 	 // GREEN
+		vec3(0, 0, 255) / 255 	// BLUE
+	);
+
 	vec2[3] roots = get_roots();
-	vec2 z = position0.xy;
+	vec2 z = scaled_position(position0.xy);
 
 	for(int i=0; i < num_of_iterations; i++)
 	{
@@ -105,21 +158,20 @@ void main()
 		z = z - a * step;
 	}
 
-	int closest_root = 0;
-	vec2 diff = z - roots[0];
-	float min_dist = sqrt(pow(diff.x, 2) + pow(diff.y, 2));
-
-	for(int i = 1; i < 3; i++)
-	{
+	int closest_root_index;
+	int i=0;
+	float min_dist;
+	do {
 		vec2 diff = z - roots[i];
 		float dist = sqrt(pow(diff.x, 2) + pow(diff.y, 2));
-		if(dist < min_dist)
+		if(i==0 || dist < min_dist)
 		{
-			closest_root = i;
+			closest_root_index = i;
 			min_dist = dist;
 		}
-	}
+		i++;
+	} while(i<3);
 
-	gl_FragColor = vec4(colors[closest_root], 0);
+	gl_FragColor = vec4(colors[closest_root_index], 0);
 
 }

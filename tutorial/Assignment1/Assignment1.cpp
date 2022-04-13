@@ -1,15 +1,16 @@
 #include "Assignment1.h"
-#include <iostream>
+#include <iostream>>
+//these two headers are already included in the <Windows.h> header
 
 
-Assignment1::Assignment1(int width, int height): width(width), height(height), iterationNum(1000),
-    a(1), b(0), c(0), d(-1), chosen_coefficient(Coefficient::A) {}
+Assignment1::Assignment1(int width, int height): width(width), height(height), iterationNum(1),
+    a(1), b(0), c(0), d(-1), chosen_coefficient(Coefficient::A), zoom_ratio(1.0f) {}
 
 
 std::complex<float> NewtonCubicRoot(std::complex<float> num)
 {
     std::complex<float> root = num;
-    const int iter = 100;
+    const int iter = 7;
     for (int k = 0; k < iter && root != 0.0f; k++)
     {
         root = (2.0f*root*root*root + num)/root/root/3.0f;
@@ -58,7 +59,8 @@ Eigen::Vector3cf FindCubicRoots(std::complex<float> a, std::complex<float> b, st
 
 
 void Assignment1::Init()
-{		
+{
+
 	unsigned int texIDs[3] = { 0 , 1, 2};
 	unsigned int slots[3] = { 0 , 1, 2 };
 
@@ -67,9 +69,8 @@ void Assignment1::Init()
     int shader = AddShader("shaders/newton");
 
 
-    int shape = AddShape(Cube, -1, TRIANGLES);
+    int shape = AddShape(Plane, -1, TRIANGLES);
     int met = AddMaterial(texIDs,slots, 1);
-    int snake = AddTexture("textures/snake.jpg", 0);
     SetShapeShader(shape, shader);
     SetShapeMaterial(shape, met);
     shaders[shader]->Bind();
@@ -81,6 +82,7 @@ void Assignment1::Init()
                     roots[2].real(), 0.0f);
     shaders[shader]->SetUniform4f("roots_img", roots[0].imag(), roots[1].imag(),
                     roots[2].imag(), 0.0f);
+    shaders[shader]->SetUniform1f("zoom_ratio", zoom_ratio);
     shaders[shader]->SetUniform1f("a", a);
     shaders[shader]->SetUniform1f("b", b);
     shaders[shader]->SetUniform1f("c", c);
@@ -115,7 +117,8 @@ void Assignment1::Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& Vie
     s->SetUniform1f("c", c);
     s->SetUniform1f("d", d);
     s->SetUniform1i("num_of_iterations", iterationNum);
-	if (data_list[shapeIndx]->GetMaterial() >= 0 && !materials.empty())
+    s->SetUniform1f("zoom_ratio", zoom_ratio);
+    if (data_list[shapeIndx]->GetMaterial() >= 0 && !materials.empty())
 	{
 //		materials[shapes[pickedShape]->GetMaterial()]->Bind(textures);
 		BindMaterial(s, data_list[shapeIndx]->GetMaterial());
@@ -194,5 +197,8 @@ void Assignment1::decrease_chosen_coefficient() {
             break;
     }
 }
+
+void Assignment1::zoom_in() {zoom_ratio*=1.1f;}
+void Assignment1::zoom_out() {zoom_ratio/=1.1f;}
 
 

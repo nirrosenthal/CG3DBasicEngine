@@ -37,17 +37,21 @@
 	{
 		Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
 		Assignment1* scn = (Assignment1*)rndr->GetScene();
+        if(yoffset < 0)
+            scn->zoom_in();
+        else
+            scn->zoom_out();
 		
-		if (rndr->IsPicked())
-		{
-			rndr->UpdateZpos((int)yoffset);
-			rndr->MouseProccessing(GLFW_MOUSE_BUTTON_MIDDLE);
-		}
-		else
-		{
-			rndr->MoveCamera(0, rndr->zTranslate, -(float)yoffset);
-		}
-		
+//		if (rndr->IsPicked())
+//		{
+//			rndr->UpdateZpos((int)yoffset);
+//			rndr->MouseProccessing(GLFW_MOUSE_BUTTON_MIDDLE);
+//		}
+//		else
+//		{
+//			rndr->MoveCamera(0, rndr->zTranslate, -(float)yoffset);
+//		}
+//
 	}
 	
 	void glfw_cursor_position_callback(GLFWwindow* window, double xpos, double ypos)

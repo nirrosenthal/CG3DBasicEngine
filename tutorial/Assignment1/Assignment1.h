@@ -18,6 +18,8 @@ public:
     void choose_coefficient(Coefficient val);
     void increase_chosen_coefficient();
     void decrease_chosen_coefficient();
+    void zoom_in();
+    void zoom_out();
 	~Assignment1();
 
 
@@ -30,6 +32,7 @@ private:
     float b;
     float c;
     float d;
+    float zoom_ratio;
 };
 
 
