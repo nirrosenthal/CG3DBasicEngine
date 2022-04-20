@@ -127,5 +127,4 @@ void main()
 		chosen_color = colors[2];
 
 	gl_FragColor = vec4(chosen_color, 0);
-
 }
