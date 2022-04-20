@@ -1,5 +1,6 @@
 #include "Assignment1.h"
 #include <iostream>
+#include <math.h>
 
 std::complex<float> NewtonCubicRoot(std::complex<float> num)
 {
@@ -19,8 +20,8 @@ Eigen::Vector3cf FindRootsOfReduceEquation(Eigen::Vector2cf reduceCoeffs)
     std::complex<float> p = NewtonCubicRoot(reduceCoeffs[1]/2.0f + sqroot);
     std::complex<float> n = NewtonCubicRoot(reduceCoeffs[1]/2.0f - sqroot);
     roots[0] = p + n;
-    roots[1] = p *std::complex<float>(std::cosf(2.0f*3.14159f/3.0f),std::sinf(2*3.14159f/3.0f)) - n * std::complex<float>(std::cosf(1.0f*3.14159f/3.0f),std::sinf(1*3.14159f/3.0f));
-    roots[2] = -p * std::complex<float>(std::cosf(1.0f*3.14159f/3.0f),std::sinf(1*3.14159f/3.0f)) + n * std::complex<float>(std::cosf(2.0f*3.14159f/3.0f),std::sinf(2*3.14159f/3.0f));
+    roots[1] = p *std::complex<float>(cosf(2.0f*3.14159f/3.0f),sinf(2*3.14159f/3.0f)) - n * std::complex<float>(cosf(1.0f*3.14159f/3.0f),sinf(1*3.14159f/3.0f));
+    roots[2] = -p * std::complex<float>(cosf(1.0f*3.14159f/3.0f),sinf(1*3.14159f/3.0f)) + n * std::complex<float>(cosf(2.0f*3.14159f/3.0f),sinf(2*3.14159f/3.0f));
     return roots;
 }
 
@@ -31,7 +32,6 @@ Eigen::Vector3cf FindCubicRoots(std::complex<float> a, std::complex<float> b, st
     std::complex<float> bOver3a = (b/a)/3.0f;
     reduceCoeffs[0] = c/a - 3.0f*bOver3a*bOver3a;
     reduceCoeffs[1] = c/a*bOver3a - d/a - 2.0f*bOver3a*bOver3a*bOver3a;
-    // std::cout<<"reduced\n"<<reduceCoeffs<<std::endl;
     if(reduceCoeffs.norm()>0.000001)
     {
         roots =	FindRootsOfReduceEquation(reduceCoeffs);
@@ -42,8 +42,8 @@ Eigen::Vector3cf FindCubicRoots(std::complex<float> a, std::complex<float> b, st
     else
     {
         roots[0] = -1.0f*bOver3a;
-        roots[1] = std::complex<float>(std::cosf(3.14159f/3.0f),std::sinf(3.14159f/3.0f))*bOver3a;
-        roots[2] = std::complex<float>(std::cosf(2.0f*3.14159f/3.0f),std::sinf(2*3.14159f/3.0f))*bOver3a;
+        roots[1] = std::complex<float>(cosf(3.14159f/3.0f),sinf(3.14159f/3.0f))*bOver3a;
+        roots[2] = std::complex<float>(cosf(2.0f*3.14159f/3.0f),sinf(2*3.14159f/3.0f))*bOver3a;
     }
 
     return roots;
@@ -187,7 +187,9 @@ void Assignment1::zoom_in()
     zoom_ratio*=ZOOM_EXP_FACTOR;
     print_pixel_width();
 }
-void Assignment1::zoom_out() {
+
+void Assignment1::zoom_out()
+{
     zoom_ratio/=ZOOM_EXP_FACTOR;
     print_pixel_width();
 }
@@ -198,14 +200,12 @@ void Assignment1::move_horizontally(float offset) {x_offset+=offset*zoom_ratio;}
 
 void Assignment1::update_mouse_on_click(float x, float y)
 {
-    move_horizontally((mouse_x-x)/width);
-    move_vertically((y-mouse_y)/height);
+    move_horizontally((mouse_x-x)/(float)width);
+    move_vertically((y-mouse_y)/(float)height);
     update_mouse_coordinates(x, y);
 }
 
-void Assignment1::update_mouse_with_no_click(float x, float y) {
-    update_mouse_coordinates(x, y);
-}
+void Assignment1::update_mouse_with_no_click(float x, float y) {update_mouse_coordinates(x, y);}
 
 void Assignment1::update_mouse_coordinates(float x, float y)
 {
