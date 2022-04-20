@@ -15,23 +15,8 @@ uniform float c;
 uniform float d;
 uniform float zoom_ratio;
 uniform int num_of_iterations;
-
-struct Rectangle
-{
-	vec2 bottom_left;
-	vec2 top_right;
-};
-
-vec2 center(Rectangle r)
-{
-	return (r.bottom_left + r.top_right) / 2;
-}
-
-bool contains(Rectangle r, vec2 point)
-{
-	return r.bottom_left.x <= point.x && point.x <= r.top_right.x &&
-		r.bottom_left.y <= point.y && point.y <= r.top_right.y;
-}
+uniform float x_offset;
+uniform float y_offset;
 
 vec2 complex(float num)
 {
@@ -72,24 +57,6 @@ vec2 complex_div(vec2 num1, vec2 num2)
 	return complex((a*c+b*d)/(c*c+d*d), (b*c-a*d)/(c*c+d*d));
 }
 
-vec2 complex_root(float x)
-{
-	if(x >= 0)
-		return complex(sqrt(x));
-	return complex(0, sqrt(-x));
-}
-
-vec2 complex_root(vec2 x)
-{
-	float a = x[0];
-	float b = x[1];
-	int sign = 1;
-	if(b<0)
-		sign = -1;
-	float size = sqrt(a*a + b*b);
-	return complex(sqrt((size+a)/2), sign * b * sqrt((size-a)/2));
-}
-
 vec2[3] get_roots()
 {
 	vec2 root1 = complex(roots_real[0], roots_img[0]);
@@ -123,19 +90,19 @@ vec2 scaled_position(vec2 pixel_position)
 
 	if(original_x < width/2.0)
 	{
-		scaled_x = (original_x*zoom_ratio) - zoom_ratio;
+		scaled_x = (original_x*zoom_ratio) - zoom_ratio + x_offset*zoom_ratio;
 	}
 	else
 	{
-		scaled_x = (original_x/zoom_ratio) - zoom_ratio;
+		scaled_x = (original_x/zoom_ratio) - zoom_ratio + x_offset*zoom_ratio;
 	}
 	if(original_y < height/2.0)
 	{
-		scaled_y = original_y*zoom_ratio - zoom_ratio;
+		scaled_y = original_y*zoom_ratio - zoom_ratio + y_offset*zoom_ratio;
 	}
 	else
 	{
-		scaled_y = (original_y/zoom_ratio) - zoom_ratio;
+		scaled_y = (original_y/zoom_ratio) - zoom_ratio + y_offset*zoom_ratio;
 	}
 
 	return vec2(scaled_x, scaled_y);

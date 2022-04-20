@@ -20,6 +20,8 @@ public:
     void decrease_chosen_coefficient();
     void zoom_in();
     void zoom_out();
+    void move_vertically(float distance);
+    void move_horizontally(float distance);
 	~Assignment1();
 
 
@@ -33,6 +35,8 @@ private:
     float c;
     float d;
     float zoom_ratio;
+    float x_offset;
+    float y_offset;
 };
 
 
