@@ -71,49 +71,47 @@
 		{
 			switch (key)
 			{
-			case GLFW_KEY_ESCAPE:
-				glfwSetWindowShouldClose(window, GLFW_TRUE);
-				break;
-
-			case GLFW_KEY_UP:
-				scn->increase_chosen_coefficient();
-				break;
-			case GLFW_KEY_DOWN:
-				scn->decrease_chosen_coefficient();
-				break;
-			case GLFW_KEY_LEFT:
-				scn->increment_IterationNum();
-				break;
-			case GLFW_KEY_RIGHT:
-				scn->decrement_IterationNum();
-				break;
-            case GLFW_KEY_A:
-                scn->move_horizontally(-0.15f);
-                break;
-            case GLFW_KEY_D:
-                scn->move_horizontally(0.15f);
-                break;
-            case GLFW_KEY_S:
-                scn->move_vertically(-0.15f);
-                break;
-            case GLFW_KEY_W:
-                scn->move_vertically(0.15f);
-                break;
-            case GLFW_KEY_1:
-                scn->choose_coefficient(Coefficient::A);
-                break;
-            case GLFW_KEY_2:
-                scn->choose_coefficient(Coefficient::B);
-                break;
-             case GLFW_KEY_3:
-                 scn->choose_coefficient(Coefficient::C);
-                 break;
-             case GLFW_KEY_4:
-                 scn->choose_coefficient(Coefficient::D);
-                 break;
-			default:
-				break;
-
+                case GLFW_KEY_ESCAPE:
+                    glfwSetWindowShouldClose(window, GLFW_TRUE);
+                    break;
+                case GLFW_KEY_UP:
+                    scn->increase_chosen_coefficient();
+                    break;
+                case GLFW_KEY_DOWN:
+                    scn->decrease_chosen_coefficient();
+                    break;
+                case GLFW_KEY_LEFT:
+                    scn->increment_IterationNum();
+                    break;
+                case GLFW_KEY_RIGHT:
+                    scn->decrement_IterationNum();
+                    break;
+                case GLFW_KEY_A:
+                    scn->move_horizontally(-0.15f);
+                    break;
+                case GLFW_KEY_D:
+                    scn->move_horizontally(0.15f);
+                    break;
+                case GLFW_KEY_S:
+                    scn->move_vertically(-0.15f);
+                    break;
+                case GLFW_KEY_W:
+                    scn->move_vertically(0.15f);
+                    break;
+                case GLFW_KEY_1:
+                    scn->choose_coefficient(Coefficient::A);
+                    break;
+                case GLFW_KEY_2:
+                    scn->choose_coefficient(Coefficient::B);
+                    break;
+                 case GLFW_KEY_3:
+                     scn->choose_coefficient(Coefficient::C);
+                     break;
+                 case GLFW_KEY_4:
+                     scn->choose_coefficient(Coefficient::D);
+                     break;
+                default:
+                    break;
 			}
 		}
 	}

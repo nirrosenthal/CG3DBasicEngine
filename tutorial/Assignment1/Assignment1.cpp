@@ -59,8 +59,6 @@ void Assignment1::Init()
 	unsigned int texIDs[3] = { 0 , 1, 2};
 	unsigned int slots[3] = { 0 , 1, 2 };
 
-//    Eigen::Vector4f *colorMat = colorMatrix(width, height, a, b, c, d);
-
     int shader = AddShader("shaders/newton");
 
 
@@ -84,7 +82,6 @@ void Assignment1::Init()
     shaders[shader]->SetUniform1i("num_of_iterations", iterationNum);
     shaders[shader]->Unbind();
     SetShapeStatic(shape);
-//	ReadPixel(); //uncomment when you are reading from the z-buffer
 }
 
 void Assignment1::Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, const Eigen::Matrix4f& Model,
@@ -217,7 +214,8 @@ void Assignment1::update_mouse_coordinates(float x, float y)
 }
 
 
-void Assignment1::resize(int width, int height) {
+void Assignment1::resize(int width, int height)
+{
     this->width = width;
     this->height = height;
 }
