@@ -5,14 +5,10 @@ in vec3 normal0;
 in vec3 color0;
 in vec3 position0;
 
-
 uniform vec4 resolution;
 uniform vec4 roots_real;
 uniform vec4 roots_img;
-uniform float a;
-uniform float b;
-uniform float c;
-uniform float d;
+uniform vec4 coefficients;
 uniform float zoom_ratio;
 uniform int num_of_iterations;
 uniform float x_offset;
@@ -69,11 +65,19 @@ vec2[3] get_roots()
 
 vec2 func(vec2 z)
 {
+	float a = coefficients[0];
+	float b = coefficients[1];
+	float c = coefficients[2];
+	float d = coefficients[3];
 	return a * complex_pow(z,3) + b * complex_pow(z,2) + c * z + complex(d);
 }
 
 vec2 der(vec2 z)
 {
+	float a = coefficients[0];
+	float b = coefficients[1];
+	float c = coefficients[2];
+	float d = coefficients[3];
 	return 3*a*complex_pow(z,2) + 2*b*z + complex(c);
 }
 
@@ -84,9 +88,6 @@ vec2 scaled_position(vec2 pixel_position)
 	float width = resolution.x;
 	float height = resolution.y;
 	float scaled_x, scaled_y;
-
-//	scaled_x = original_x * zoom_ratio - 1;
-//	scaled_y = original_y * zoom_ratio - 1;
 
 	if(original_x < width/2.0)
 	{
@@ -115,6 +116,11 @@ void main()
 		vec3(0, 255, 0) / 255, 	 // GREEN
 		vec3(0, 0, 255) / 255 	// BLUE
 	);
+
+	float a = coefficients[0];
+	float b = coefficients[1];
+	float c = coefficients[2];
+	float d = coefficients[3];
 
 	vec2[3] roots = get_roots();
 	vec2 z = scaled_position(position0.xy);

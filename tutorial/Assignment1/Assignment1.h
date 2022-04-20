@@ -8,7 +8,8 @@ class Assignment1 : public igl::opengl::glfw::Viewer
 public:
 	Assignment1(int width, int height);
 	void Init();
-	void Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, const Eigen::Matrix4f& Model, unsigned int  shaderIndx, unsigned int shapeIndx);
+	void Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, const Eigen::Matrix4f& Model,
+                unsigned int  shaderIndx, unsigned int shapeIndx);
 	void WhenRotate();
 	void WhenTranslate();
 	void Animate() override;
@@ -18,6 +19,7 @@ public:
     void choose_coefficient(Coefficient val);
     void increase_chosen_coefficient();
     void decrease_chosen_coefficient();
+    void print_pixel_width();
     void zoom_in();
     void zoom_out();
     void move_vertically(float distance);
