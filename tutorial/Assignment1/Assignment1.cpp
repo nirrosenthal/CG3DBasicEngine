@@ -1,6 +1,5 @@
 #include "Assignment1.h"
 #include <iostream>
-#include <math.h>
 
 std::complex<float> NewtonCubicRoot(std::complex<float> num)
 {

@@ -15,7 +15,7 @@ int main(int argc,char *argv[])
 	x.push_back(DISPLAY_WIDTH*WIDTH_RATIO);
 	x.push_back(DISPLAY_WIDTH);
 	y.push_back(DISPLAY_HEIGHT);
-    Display disp = Display(DISPLAY_WIDTH, DISPLAY_HEIGHT, "OPENGL");
+    Display disp = Display(DISPLAY_WIDTH, DISPLAY_HEIGHT, "Newton's Fractal");
     igl::opengl::glfw::imgui::ImGuiMenu* menu = new igl::opengl::glfw::imgui::ImGuiMenu();
     Renderer* rndr = new Renderer(CAMERA_ANGLE, (float)DISPLAY_WIDTH*WIDTH_RATIO/(float)DISPLAY_HEIGHT, NEAR, FAR);
 	Assignment1 *scn = new Assignment1((int)(DISPLAY_WIDTH*WIDTH_RATIO), DISPLAY_HEIGHT);  //initializing scene
@@ -30,7 +30,7 @@ int main(int argc,char *argv[])
 	delete scn;
 	delete rndr;
 	delete menu;
-	
+
 	return 0;
 }
 
