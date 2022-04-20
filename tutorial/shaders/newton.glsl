@@ -1,4 +1,4 @@
-#version 410
+#version 330
 
 in vec2 texCoord0;
 in vec3 normal0;
@@ -32,6 +32,13 @@ vec2 complex_mult(vec2 num1, vec2 num2)
 
 	return complex((a*c-b*d),(a*d+b*c));
 }
+
+float complex_distance(vec2 num1, vec2 num2)
+{
+	vec2 diff = num1 - num2;
+	return sqrt(pow(diff.x, 2) + pow(diff.y, 2));
+}
+
 
 vec2 complex_pow(vec2 num, int pow)
 {
@@ -88,6 +95,7 @@ vec2 scaled_position(vec2 pixel_position)
 	return vec2(scaled_x, scaled_y);
 }
 
+
 void main()
 {
 	const vec3[3] colors = vec3[3](
@@ -105,20 +113,19 @@ void main()
 		z = z - coefficients[0] * step;
 	}
 
-	int closest_root_index;
-	int i=0;
-	float min_dist;
-	do {
-		vec2 diff = z - roots[i];
-		float dist = sqrt(pow(diff.x, 2) + pow(diff.y, 2));
-		if(i==0 || dist < min_dist)
-		{
-			closest_root_index = i;
-			min_dist = dist;
-		}
-		i++;
-	} while(i<3);
+	vec3 chosen_color;
+	float dist_0 = complex_distance(z, roots[0]);
+	float dist_1 = complex_distance(z, roots[1]);
+	float dist_2 = complex_distance(z, roots[2]);
+	float min_dist = min(min(dist_0, dist_1), dist_2);
 
-	gl_FragColor = vec4(colors[closest_root_index], 0);
+	if(min_dist == dist_0)
+		chosen_color = colors[0];
+	else if(min_dist == dist_1)
+		chosen_color = colors[1];
+	else
+		chosen_color = colors[2];
+
+	gl_FragColor = vec4(chosen_color, 0);
 
 }
