@@ -2,7 +2,6 @@
 build
 external
 /cmake-build-debug
+/.idea/
 
 # Files
-.idea/EngineForAnimationCourse-rework.iml
-.idea/copy_enviroment_files.py.iml
