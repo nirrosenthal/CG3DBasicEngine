@@ -5,7 +5,6 @@ in vec3 normal0;
 in vec3 color0;
 in vec3 position0;
 
-uniform vec4 resolution;
 uniform vec4 roots_real;
 uniform vec4 roots_img;
 uniform vec4 coefficients;
@@ -83,28 +82,8 @@ vec2 der(vec2 z)
 
 vec2 scaled_position(vec2 pixel_position)
 {
-	float original_x = pixel_position.x+1;
-	float original_y = pixel_position.y+1;
-	float width = resolution.x;
-	float height = resolution.y;
-	float scaled_x, scaled_y;
-
-	if(original_x < width/2.0)
-	{
-		scaled_x = (original_x*zoom_ratio) - zoom_ratio + x_offset*zoom_ratio;
-	}
-	else
-	{
-		scaled_x = (original_x/zoom_ratio) - zoom_ratio + x_offset*zoom_ratio;
-	}
-	if(original_y < height/2.0)
-	{
-		scaled_y = original_y*zoom_ratio - zoom_ratio + y_offset*zoom_ratio;
-	}
-	else
-	{
-		scaled_y = (original_y/zoom_ratio) - zoom_ratio + y_offset*zoom_ratio;
-	}
+	float scaled_x = pixel_position.x*zoom_ratio + x_offset;
+	float scaled_y = pixel_position.y*zoom_ratio + y_offset;
 
 	return vec2(scaled_x, scaled_y);
 }
@@ -117,18 +96,13 @@ void main()
 		vec3(0, 0, 255) / 255 	// BLUE
 	);
 
-	float a = coefficients[0];
-	float b = coefficients[1];
-	float c = coefficients[2];
-	float d = coefficients[3];
-
 	vec2[3] roots = get_roots();
 	vec2 z = scaled_position(position0.xy);
 
 	for(int i=0; i < num_of_iterations; i++)
 	{
 		vec2 step = complex_div(func(z), der(z));
-		z = z - a * step;
+		z = z - coefficients[0] * step;
 	}
 
 	int closest_root_index;

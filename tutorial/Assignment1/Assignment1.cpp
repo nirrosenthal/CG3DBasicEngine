@@ -5,7 +5,7 @@ std::complex<float> NewtonCubicRoot(std::complex<float> num)
 {
     std::complex<float> root = num;
     const int iter = 7;
-    for (int k = 0; k < iter && root != 0.0f; k++)
+    for (size_t k = 0; k < iter && root != 0.0f; k++)
     {
         root = (2.0f*root*root*root + num)/root/root/3.0f;
     }
@@ -50,8 +50,8 @@ Eigen::Vector3cf FindCubicRoots(std::complex<float> a, std::complex<float> b, st
 }
 
 
-Assignment1::Assignment1(int width, int height): width(width), height(height), iterationNum(1),
-    a(1), b(0), c(0), d(-1), chosen_coefficient(Coefficient::A), zoom_ratio(1.0f), x_offset(0.0f), y_offset(0.0f) {}
+Assignment1::Assignment1(int width, int height): width(width), height(height), iterationNum(1), a(1), b(0), c(0), d(-1),
+    chosen_coefficient(Coefficient::A), zoom_ratio(1.0f), x_offset(0.0f), y_offset(0.0f), mouse_x(0.0f), mouse_y(0.0f) {}
 
 void Assignment1::Init()
 {
@@ -71,7 +71,6 @@ void Assignment1::Init()
     shaders[shader]->Bind();
     Eigen::Vector3cf roots = FindCubicRoots(std::complex<float>(a), std::complex<float>(b),
             std::complex<float>(c), std::complex<float>(d));
-    shaders[shader]->SetUniform4f("resolution", (float)width, (float)height, 0.0f, 0.0f);
 
     shaders[shader]->SetUniform4f("roots_real", roots[0].real(), roots[1].real(),
                     roots[2].real(), 0.0f);
@@ -98,13 +97,10 @@ void Assignment1::Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& Vie
 	s->SetUniformMat4f("View", View);
 	s->SetUniformMat4f("Model", Model);
     Eigen::Vector3cf roots = FindCubicRoots(a, b, c, d);
-    s->SetUniform4f("resolution", (float)width, (float)height, 0.0f, 0.0f);
-
     s->SetUniform4f("roots_real", roots[0].real(), roots[1].real(),
                                   roots[2].real(), 0.0f);
     s->SetUniform4f("roots_img", roots[0].imag(), roots[1].imag(),
                                   roots[2].imag(), 0.0f);
-
     s->SetUniform4f("coefficients", a, b, c, d);
     s->SetUniform1i("num_of_iterations", iterationNum);
     s->SetUniform1f("zoom_ratio", zoom_ratio);
@@ -154,16 +150,16 @@ void Assignment1::decrement_IterationNum() { if(iterationNum > 1) iterationNum--
 void Assignment1::increase_chosen_coefficient() {
     switch(chosen_coefficient) {
         case Coefficient::A:
-            a+=0.1;
+            a+=COEFFICIENT_CHANGE_VALUE;
             break;
         case Coefficient::B:
-            b+=0.1;
+            b+=COEFFICIENT_CHANGE_VALUE;
             break;
         case Coefficient::C:
-            c+=0.1;
+            c+=COEFFICIENT_CHANGE_VALUE;
             break;
         case Coefficient::D:
-            d+=0.1;
+            d+=COEFFICIENT_CHANGE_VALUE;
             break;
     }
 }
@@ -171,16 +167,16 @@ void Assignment1::increase_chosen_coefficient() {
 void Assignment1::decrease_chosen_coefficient() {
     switch(chosen_coefficient) {
         case Coefficient::A:
-            a-=0.1;
+            a-=COEFFICIENT_CHANGE_VALUE;
             break;
         case Coefficient::B:
-            b-=0.1;
+            b-=COEFFICIENT_CHANGE_VALUE;
             break;
         case Coefficient::C:
-            c-=0.1;
+            c-=COEFFICIENT_CHANGE_VALUE;
             break;
         case Coefficient::D:
-            d-=0.1;
+            d-=COEFFICIENT_CHANGE_VALUE;
             break;
     }
 }
@@ -191,17 +187,40 @@ void Assignment1::print_pixel_width()
 
 void Assignment1::zoom_in()
 {
-    zoom_ratio*=1.1f;
+    zoom_ratio*=ZOOM_EXP_FACTOR;
     print_pixel_width();
 }
 void Assignment1::zoom_out() {
-    zoom_ratio/=1.1f;
+    zoom_ratio/=ZOOM_EXP_FACTOR;
     print_pixel_width();
 }
 
-void Assignment1::move_vertically(float offset) {y_offset+=offset;}
+void Assignment1::move_vertically(float offset) {y_offset+=offset*zoom_ratio;}
 
-void Assignment1::move_horizontally(float offset) {x_offset+=offset;}
+void Assignment1::move_horizontally(float offset) {x_offset+=offset*zoom_ratio;}
+
+void Assignment1::update_mouse_on_click(float x, float y)
+{
+    move_horizontally((mouse_x-x)/width);
+    move_vertically((y-mouse_y)/height);
+    update_mouse_coordinates(x, y);
+}
+
+void Assignment1::update_mouse_with_no_click(float x, float y) {
+    update_mouse_coordinates(x, y);
+}
+
+void Assignment1::update_mouse_coordinates(float x, float y)
+{
+    mouse_x = x;
+    mouse_y = y;
+}
+
+
+void Assignment1::resize(int width, int height) {
+    this->width = width;
+    this->height = height;
+}
 
 
 

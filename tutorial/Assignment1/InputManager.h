@@ -41,49 +41,25 @@
             scn->zoom_in();
         else
             scn->zoom_out();
-		
-//		if (rndr->IsPicked())
-//		{
-//			rndr->UpdateZpos((int)yoffset);
-//			rndr->MouseProccessing(GLFW_MOUSE_BUTTON_MIDDLE);
-//		}
-//		else
-//		{
-//			rndr->MoveCamera(0, rndr->zTranslate, -(float)yoffset);
-//		}
-//
 	}
 	
 	void glfw_cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 	{
 		Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
 		Assignment1* scn = (Assignment1*)rndr->GetScene();
-
-		rndr->UpdatePosition(-(float)xpos,-(float)ypos);
-
-		if (rndr->CheckViewport(xpos,ypos, 0))
-		{
-			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
-			{
-
-				rndr->MouseProccessing(GLFW_MOUSE_BUTTON_RIGHT);
-			}
-			else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-			{
-				
-				rndr->MouseProccessing(GLFW_MOUSE_BUTTON_LEFT);
-			}
-			else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE && rndr->IsPicked() && rndr->IsMany())
-					rndr->MouseProccessing(GLFW_MOUSE_BUTTON_RIGHT);
-
-		}
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+            scn->update_mouse_on_click((float)xpos, (float)ypos);
+        else
+            scn->update_mouse_with_no_click((float)xpos, (float)ypos);
 	}
 
 	void glfw_window_size_callback(GLFWwindow* window, int width, int height)
 	{
 		Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
+        Assignment1* scn = (Assignment1*)rndr->GetScene();
 
         rndr->resize(window,width,height);
+        scn->resize(width, height);
 		
 	}
 	
@@ -91,20 +67,12 @@
 	{
 		Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
 		Assignment1* scn = (Assignment1*)rndr->GetScene();
-		//rndr->FreeShapes(2);
 		if (action == GLFW_PRESS || action == GLFW_REPEAT)
 		{
 			switch (key)
 			{
 			case GLFW_KEY_ESCAPE:
 				glfwSetWindowShouldClose(window, GLFW_TRUE);
-				break;
-				
-			case GLFW_KEY_SPACE:
-				if (scn->IsActive())
-					scn->Deactivate();
-				else
-					scn->Activate();
 				break;
 
 			case GLFW_KEY_UP:
@@ -119,26 +87,18 @@
 			case GLFW_KEY_RIGHT:
 				scn->decrement_IterationNum();
 				break;
-			case GLFW_KEY_U:
-				rndr->MoveCamera(0, scn->yTranslate, 0.25f);
-				break;
-			case GLFW_KEY_D:
-				rndr->MoveCamera(0, scn->yTranslate, -0.25f);
-				break;
-			case GLFW_KEY_L:
-				rndr->MoveCamera(0, scn->xTranslate, -0.25f);
-				break;
-			
-			case GLFW_KEY_R:
-				rndr->MoveCamera(0, scn->xTranslate, 0.25f);
-				break;
-			
-			case GLFW_KEY_B:
-				rndr->MoveCamera(0, scn->zTranslate, 0.5f);
-				break;
-			case GLFW_KEY_F:
-				rndr->MoveCamera(0, scn->zTranslate, -0.5f);
-				break;
+            case GLFW_KEY_A:
+                scn->move_horizontally(-0.15f);
+                break;
+            case GLFW_KEY_D:
+                scn->move_horizontally(0.15f);
+                break;
+            case GLFW_KEY_S:
+                scn->move_vertically(-0.15f);
+                break;
+            case GLFW_KEY_W:
+                scn->move_vertically(0.15f);
+                break;
             case GLFW_KEY_1:
                 scn->choose_coefficient(Coefficient::A);
                 break;

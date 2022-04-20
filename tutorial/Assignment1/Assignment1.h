@@ -2,6 +2,8 @@
 #include "igl/opengl/glfw/Viewer.h"
 
 enum Coefficient {A=0, B=1, C=2, D=3};
+const float ZOOM_EXP_FACTOR = 1.2f;
+const float COEFFICIENT_CHANGE_VALUE = 0.1f;
 
 class Assignment1 : public igl::opengl::glfw::Viewer
 {
@@ -24,8 +26,10 @@ public:
     void zoom_out();
     void move_vertically(float distance);
     void move_horizontally(float distance);
+    void update_mouse_on_click(float x, float y);
+    void update_mouse_with_no_click(float x, float y);
+    void resize(int width, int height);
 	~Assignment1();
-
 
 private:
     int width;
@@ -39,6 +43,9 @@ private:
     float zoom_ratio;
     float x_offset;
     float y_offset;
+    float mouse_x;
+    float mouse_y;
+    void update_mouse_coordinates(float x, float y);
 };
 
 
