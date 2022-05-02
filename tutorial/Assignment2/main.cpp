@@ -26,9 +26,10 @@ int main(int argc,char *argv[])
 
     disp.launch_rendering(rndr);
 
-	delete scn;
-	delete rndr;
-	delete menu;
+    delete scn;
+    delete rndr;
+    if(menu != nullptr)
+	    delete menu;
 	
 	return 0;
 }
