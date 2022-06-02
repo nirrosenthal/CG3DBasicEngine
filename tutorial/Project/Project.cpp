@@ -28,10 +28,10 @@ void Project::Init()
 	
 	AddShader("shaders/pickingShader");
 	AddShader("shaders/cubemapShader");
+	AddShader("shaders/basicShaderTex");
 	AddShader("shaders/basicShader");
-	AddShader("shaders/pickingShader");
 	
-	AddTexture("textures/box0.bmp",2);
+	AddTexture("textures/plane.png",2);
 	AddTexture("textures/cubemaps/Daylight Box_", 3);
 	AddTexture("textures/grass.bmp", 2);
 	//AddTexture("../res/textures/Cat_bump.jpg", 2);
@@ -41,39 +41,45 @@ void Project::Init()
 	AddMaterial(texIDs + 2, slots + 2, 1);
 	
 	AddShape(Cube, -2, TRIANGLES);
-	AddShape(Tethrahedron, -1, TRIANGLES);
-	
-	AddShape(Octahedron, -1, TRIANGLES);
-	AddShape(Octahedron, 2, LINE_LOOP);
-    AddShape(Tethrahedron, 1, LINE_LOOP);
-
-//    AddShape(Cube, -1, TRIANGLES);
-	AddShapeFromFile("data/sphere.obj", -1, TRIANGLES);
+	AddShape(zCylinder, -1, TRIANGLES);
+	AddShape(zCylinder, 1, TRIANGLES);
+	AddShape(zCylinder, 2, TRIANGLES);
+	AddShape(Axis, -1, LINES);
 	//AddShapeFromFile("../res/objs/Cat_v1.obj", -1, TRIANGLES);
-	AddShape(Plane, -2, TRIANGLES,3);
-
+	
 	SetShapeShader(1, 2);
 	SetShapeShader(2, 2);
-	SetShapeShader(5, 2);
-	SetShapeShader(6, 3);
+	SetShapeShader(3, 2);
+	SetShapeShader(4, 2);
+
+
 	SetShapeMaterial(1, 0);
+	SetShapeMaterial(2, 0);	
+	SetShapeMaterial(3, 0);	
+	SetShapeMaterial(4, 0);
+
 	SetShapeMaterial(0, 1);
-	SetShapeMaterial(2, 2);
-	SetShapeMaterial(5, 2);
-	SetShapeMaterial(6, 0);
-	pickedShape = 0;
+
+
+	selected_data_index = 0;
+	float cylinderLen = 1.6f;
 	float s = 60;
 	ShapeTransformation(scaleAll, s,0);
-	pickedShape = 1;
-	ShapeTransformation(xTranslate, 10,0);
+	selected_data_index = 1;
+	data()->SetCenterOfRotation(Eigen::Vector3d(0, 0, -cylinderLen / 2.0));
+	ShapeTransformation(zTranslate, cylinderLen / 2.0, 1);
+	
+	selected_data_index = 2;
+	ShapeTransformation(zTranslate, cylinderLen , 1);
+	data()->SetCenterOfRotation(Eigen::Vector3d(0, 0, -cylinderLen / 2.0));
+	
+	selected_data_index = 3;
+	ShapeTransformation(zTranslate, cylinderLen, 1);
+	data()->SetCenterOfRotation(Eigen::Vector3d(0, 0, -cylinderLen / 2.0));
 
-	pickedShape = 5;
-	ShapeTransformation(xTranslate, -10,0);
-	pickedShape = 6;
-	ShapeTransformation(zTranslate, -1.1,0);
-	pickedShape = -1;
+	selected_data_index = 0;
 	SetShapeStatic(0);
-	SetShapeStatic(6);
+
 
 	//SetShapeViewport(6, 1);
 //	ReadPixel(); //uncomment when you are reading from the z-buffer
@@ -126,7 +132,8 @@ void Project::WhenTranslate()
 void Project::Animate() {
     if(isActive)
 	{
-		
+		if(selected_data_index > 0 )
+			data()->MyRotate(Eigen::Vector3d(0, 1, 0), 0.01);
 	}
 }
 

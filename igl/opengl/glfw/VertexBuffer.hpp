@@ -14,6 +14,7 @@ private:
     unsigned int m_RendererID;
 	bool isDynamic;
 public:
+	VertexBuffer();
 	VertexBuffer(const VertexBuffer &vb);
 	VertexBuffer(const void* data, unsigned int size,bool dynamic = false);
 	~VertexBuffer();
@@ -25,7 +26,7 @@ public:
 
     void Init(const void *data, unsigned int size, bool dynamic);
 
-    VertexBuffer();
+    
 };
 
 

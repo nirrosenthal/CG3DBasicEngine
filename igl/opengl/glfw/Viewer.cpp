@@ -69,8 +69,7 @@ namespace glfw
     selected_data_index(0),
     next_data_id(1),
     next_shader_id(1),
-	isActive(false),
-    pickedShape(-1)
+	isActive(false)
   {
     data_list.front() = new ViewerData();
     data_list.front()->id = 0;
@@ -139,7 +138,7 @@ IGL_INLINE bool
   IGL_INLINE bool Viewer::load_mesh_from_file(
       const std::string & mesh_file_name_string)
   {
-
+      bool normal_read = false;
     // Create new data slot and set to selected
     if(!(data()->F.rows() == 0  && data()->V.rows() == 0))
     {
@@ -169,11 +168,11 @@ IGL_INLINE bool
     {
       Eigen::MatrixXd corner_normals;
       Eigen::MatrixXi fNormIndices;
-
       Eigen::MatrixXd UV_V;
       Eigen::MatrixXi UV_F;
-      Eigen::MatrixXd V;
+      Eigen::MatrixXd V,N;
       Eigen::MatrixXi F;
+
 
       if (!(
             igl::readOBJ(
@@ -182,8 +181,25 @@ IGL_INLINE bool
       {
         return false;
       }
-
+      else
+          if (corner_normals.rows() > 0)
+          {
+              //std::cout << "normals: \n" << corner_normals << std::endl;
+              //std::cout << "indices: \n" << fNormIndices << std::endl;
+              N = Eigen::RowVector3d(0, 0, 1).replicate(fNormIndices.rows(), 1);
+              for (size_t  k = 0;  k < N.rows();  k++)
+              {
+                  N.row(k) = corner_normals.row(fNormIndices(k, 0));
+                  //std::cout << "faces normals:  " << corner_normals.row(fNormIndices(k, 0)) << std::endl;
+              }
+              
+              std::cout << "faces normals: \n" << N << std::endl;
+             
+              normal_read = true;
+          }
       data()->set_mesh(V,F);
+      if(normal_read)
+        data()->set_normals(N);
       if (UV_V.rows() > 0)
       {
           data()->set_uv(UV_V, UV_F);
@@ -196,8 +212,8 @@ IGL_INLINE bool
       printf("Error: %s is not a recognized file type.\n",extension.c_str());
       return false;
     }
-
-    data()->compute_normals();
+    if(!normal_read)
+        data()->compute_normals();
     data()->uniform_colors(Eigen::Vector3d(255.0/255.0,255.0/255.0,0.0/255.0),
                    Eigen::Vector3d(255.0/255.0,228.0/255.0,58.0/255.0),
                    Eigen::Vector3d(255.0/255.0,235.0/255.0,80.0/255.0));
@@ -454,14 +470,14 @@ IGL_INLINE bool
                 else
                 { //picking
                     if (flgs & 16384)
-                    {
+                    {   //stencil
                         Eigen::Affine3f scale_mat = Eigen::Affine3f::Identity();
                         scale_mat.scale(Eigen::Vector3f(1.1f, 1.1f, 1.1f));
-                        Update(Proj, View * Normal, Normal.inverse() * Model * scale_mat.matrix(), 0,i);
+                        Update(Proj, View , Model * scale_mat.matrix(), 0,i);
                     }
                     else
                     {
-                        Update(Proj, View * Normal, Normal.inverse() * Model, 0,i);
+                        Update(Proj, View ,  Model, 0,i);
                     }
                     shape->Draw(shaders[0], true);
                 }
@@ -498,7 +514,7 @@ IGL_INLINE bool
         data()->mode = mode;
         data()->shaderID = 1;
         data()->viewports = 1 << viewport;
-        data()->is_visible = true;
+    /*    data()->is_visible = true;*/
         data()->show_lines = 0;
         data()->hide = false;
         data()->show_overlay = 0;
@@ -515,6 +531,7 @@ IGL_INLINE bool
               this->load_mesh_from_file("./data/plane.obj");
               break;
           case Cube:
+         case Axis:
               this->load_mesh_from_file("./data/cube.obj");
               break;
           case Octahedron:
@@ -526,8 +543,15 @@ IGL_INLINE bool
           case Sphere:
               this->load_mesh_from_file("./data/sphere.obj");
               break;
-          case Axis:
-              this->load_mesh_from_file("./data/cube.obj");
+          case xCylinder:
+              this->load_mesh_from_file("./data/xcylinder.obj");
+              break;
+          case yCylinder:
+              this->load_mesh_from_file("./data/ycylinder.obj");
+              break;
+          case zCylinder:
+              this->load_mesh_from_file("./data/zcylinder.obj");
+              break;
           default:
               break;
 
@@ -536,32 +560,34 @@ IGL_INLINE bool
       data()->mode = mode;
       data()->shaderID = 1;
       data()->viewports = 1 << viewport;
-      data()->is_visible = 0x1;
+      //data()->is_visible = 0x1;
       data()->show_lines = 0;
       data()->show_overlay = 0;
       data()->hide = false;
       if(type == Axis){
-          data()->is_visible = 0;
+         // data()->is_visible = 0;
           data()->show_faces = 0;
           data()->show_lines = 0;
           data()->show_overlay = 0xFF;
-          data()->add_edges((Eigen::RowVector3d::UnitX()*4),-(Eigen::RowVector3d::UnitX()*4),Eigen::RowVector3d(255,0,0));
-          data()->add_edges((Eigen::RowVector3d::UnitY()*4),-(Eigen::RowVector3d::UnitY()*4),Eigen::RowVector3d(0,255,0));
+          data()->add_edges((Eigen::RowVector3d::UnitX()*4),-(Eigen::RowVector3d::UnitX()*4),Eigen::RowVector3d(1,0,0));
+          data()->add_edges((Eigen::RowVector3d::UnitY()*4),-(Eigen::RowVector3d::UnitY()*4),Eigen::RowVector3d(0,1,0));
+          data()->add_edges((Eigen::RowVector3d::UnitZ()*4),-(Eigen::RowVector3d::UnitZ()*4),Eigen::RowVector3d(0,0,1));
       }
+
       this->parents.emplace_back(parent);
       return data_list.size() - 1;
     }
 
 
 
-    int Viewer::AddShapeCopy(int indx, int parent, unsigned int mode, int viewport )
+    int Viewer::AddShapeCopy(int shpIndx, int parent, unsigned int mode, int viewport )
     {
-        load_mesh_from_data(data_list[indx]->V, data_list[indx]->F,data_list[indx]->V_uv, data_list[indx]->F_uv);
-        data()->type = data_list[indx]->type;
+        load_mesh_from_data(data_list[shpIndx]->V, data_list[shpIndx]->F,data_list[shpIndx]->V_uv, data_list[shpIndx]->F_uv);
+        data()->type = data_list[shpIndx]->type;
         data()->mode = mode;
-        data()->shaderID = data_list[indx]->shaderID;
+        data()->shaderID = data_list[shpIndx]->shaderID;
         data()->viewports = 1 << viewport;
-        data()->is_visible = true;
+        //data()->is_visible = true;
         data()->show_lines = 0;
         data()->show_overlay = 0;
         data()->hide = false;
@@ -580,7 +606,7 @@ IGL_INLINE bool
         data()->mode = mode;
         data()->shaderID = 1;
         data()->viewports = 1 << viewport;
-        data()->is_visible = true;
+       // data()->is_visible = true;
         data()->show_lines = 0;
         data()->show_overlay = 0;
         data()->hide = false;
@@ -594,7 +620,7 @@ IGL_INLINE bool
         {
             data_list[pShape]->RemoveViewport(viewportIndx);
         }
-        pickedShape = -1;
+        selected_data_index = 0;
         pShapes.clear();
     }
 
@@ -602,18 +628,18 @@ IGL_INLINE bool
     void Viewer::MouseProccessing(int button, int xrel, int yrel, float movCoeff, Eigen::Matrix4d cameraMat,int viewportIndx)
     {
         Eigen::Matrix4d scnMat = Eigen::Matrix4d::Identity();
-        if (pickedShape <= 0 && !(staticScene & (1 << viewportIndx)))
+        if (selected_data_index <= 0 && !(staticScene & (1 << viewportIndx)))
             scnMat = MakeTransd().inverse();
         else if(!(staticScene & (1 << viewportIndx)))
-            scnMat = (MakeTransd() * GetPriviousTrans(Eigen::Matrix4d::Identity(),pickedShape)).inverse();
-        else if(pickedShape > 0)
-            scnMat = (GetPriviousTrans(Eigen::Matrix4d::Identity(),pickedShape)).inverse();
+            scnMat = (MakeTransd() * GetPriviousTrans(Eigen::Matrix4d::Identity(),selected_data_index )).inverse();
+        else if(selected_data_index > 0)
+            scnMat = (GetPriviousTrans(Eigen::Matrix4d::Identity(),selected_data_index )).inverse();
 
         if (button == 1)
         {
             for (int pShape : pShapes)
             {
-                pickedShape = pShape;
+                selected_data_index = pShape;
                 WhenTranslate(scnMat * cameraMat, -xrel / movCoeff, yrel / movCoeff);
             }
         }
@@ -623,7 +649,7 @@ IGL_INLINE bool
 
             if (button == 0)
             {
-//                if (pickedShape > 0 )
+//                if (selected_data_index > 0 )
                     WhenRotate(scnMat * cameraMat, -((float)xrel/180) / movCoeff, ((float)yrel/180) / movCoeff);
 
             }
@@ -632,51 +658,51 @@ IGL_INLINE bool
 
                 for (int pShape : pShapes)
                 {
-                    pickedShape = pShape;
+                    selected_data_index = pShape;
                     WhenScroll(scnMat * cameraMat, yrel / movCoeff);
                 }
             }
         }
     }
 
-    void Viewer::ShapeTransformation(int type, float amt,int mode)
+    void Viewer::ShapeTransformation( int type, float amt,int mode)
     {
-        if (abs(amt) > 1e-5 && !data_list[pickedShape]->IsStatic())
+        if (abs(amt) > 1e-5 && selected_data_index>=0 && !data()->IsStatic())
         {
             switch (type)
             {
                 case xTranslate:
-                    data_list[pickedShape]->MyTranslate(Eigen::Vector3d(amt, 0, 0), mode);
+                    data()->MyTranslate(Eigen::Vector3d(amt, 0, 0), mode);
                     break;
                 case yTranslate:
-                    data_list[pickedShape]->MyTranslate(Eigen::Vector3d(0, amt, 0), mode);
+                    data()->MyTranslate(Eigen::Vector3d(0, amt, 0), mode);
                     break;
                 case zTranslate:
-                    data_list[pickedShape]->MyTranslate(Eigen::Vector3d(0, 0, amt), mode);
+                    data()->MyTranslate(Eigen::Vector3d(0, 0, amt), mode);
                     break;
                 case xRotate:
-                    data_list[pickedShape]->MyRotate(Eigen::Vector3d(1, 0, 0), amt, mode);
+                    data()->MyRotate(Eigen::Vector3d(1, 0, 0), amt, mode);
                     break;
                 case yRotate:
-                    data_list[pickedShape]->MyRotate(Eigen::Vector3d(0, 1, 0), amt, mode);
+                    data()->MyRotate(Eigen::Vector3d(0, 1, 0), amt, mode);
                     break;
                 case zRotate:
-                    data_list[pickedShape]->MyRotate(Eigen::Vector3d(0, 0, 1), amt, mode);
+                    data()->MyRotate(Eigen::Vector3d(0, 0, 1), amt, mode);
                     break;
                 case xScale:
-                    data_list[pickedShape]->MyScale(Eigen::Vector3d(amt, 1, 1));
+                    data()->MyScale(Eigen::Vector3d(amt, 1, 1));
                     break;
                 case yScale:
-                    data_list[pickedShape]->MyScale(Eigen::Vector3d(1, amt, 1));
+                    data()->MyScale(Eigen::Vector3d(1, amt, 1));
                     break;
                 case zScale:
-                    data_list[pickedShape]->MyScale(Eigen::Vector3d(1,1, amt));
+                    data()->MyScale(Eigen::Vector3d(1,1, amt));
                     break;
                 case scaleAll:
-                    data_list[pickedShape]->MyScale(Eigen::Vector3d(amt, amt, amt));
+                    data()->MyScale(Eigen::Vector3d(amt, amt, amt));
                     break;
                 case reset:
-                    data_list[pickedShape]->ZeroTrans();
+                    data()->ZeroTrans();
                     break;
                 default:
                     break;
@@ -695,9 +721,9 @@ IGL_INLINE bool
     void Viewer::WhenTranslate( const Eigen::Matrix4d& preMat, float dx, float dy)
     {
         Movable* obj;
-        if (pickedShape == -1 || data_list[pickedShape]->IsStatic())
+        if (selected_data_index == 0 || data()->IsStatic())
             obj = (Movable*)this;
-        else { obj = (Movable *) data_list[pickedShape]; }
+        else  if (selected_data_index > 0) { obj = (Movable *) data(); }
         obj->TranslateInSystem(preMat.block<3, 3>(0, 0), Eigen::Vector3d(dx, 0, 0));
         obj->TranslateInSystem(preMat.block<3, 3>(0, 0), Eigen::Vector3d(0, dy, 0));
         WhenTranslate(dx,dy);
@@ -706,11 +732,11 @@ IGL_INLINE bool
     void Viewer::WhenRotate(const Eigen::Matrix4d& preMat, float dx, float dy)
     {
         Movable* obj;
-        if (pickedShape == -1 || data_list[pickedShape]->IsStatic() )
+        if (selected_data_index == 0 || data()->IsStatic())
             obj = (Movable*)this;
         else
         {
-            int ps = pickedShape;
+            int ps = selected_data_index;
             for (; parents[ps] > -1; ps = parents[ps]);
             obj = (Movable*)data_list[ps];
         }
@@ -721,10 +747,10 @@ IGL_INLINE bool
 
     void Viewer::WhenScroll(const Eigen::Matrix4d& preMat, float dy)
     {
-        if (pickedShape == -1 || data_list[pickedShape]->IsStatic())
+        if (selected_data_index == 0 || data()->IsStatic())
             this->TranslateInSystem(preMat.block<3,3>(0,0), Eigen::Vector3d(0, 0, dy));
-        else
-            data_list[pickedShape]->TranslateInSystem(preMat.block<3,3>(0,0), Eigen::Vector3d(0, 0, dy));
+        else if( selected_data_index > 0)
+            data()->TranslateInSystem(preMat.block<3, 3>(0, 0), Eigen::Vector3d(0, 0, dy));
         WhenScroll(dy);
     }
 
@@ -764,18 +790,18 @@ IGL_INLINE bool
                 pShapes.push_back(i);
                 data_list[i]->AddViewport(newViewportIndx);
                 std::cout << i << ", ";
-                pickedShape = i;
+                selected_data_index = i;
                 isFound = true;
             }
         }
         std::cout << std::endl;
         if (isFound)
         {
-            Eigen::Vector4d tmp = MVP  * GetPriviousTrans(Eigen::Matrix4d::Identity(),pickedShape) * data_list[pickedShape]->MakeTransd() * Eigen::Vector4d(0, 0, 1, 1);
+            Eigen::Vector4d tmp = MVP  * GetPriviousTrans(Eigen::Matrix4d::Identity(),selected_data_index ) * data()->MakeTransd() * Eigen::Vector4d(0, 0, 1, 1);
             return (float)tmp.z();
         }
         else
-            return -1;
+            return 0;
     }
 
     int Viewer::AddTexture(const std::string& textureFileName, int dim)
@@ -798,22 +824,16 @@ IGL_INLINE bool
     {
         textures.push_back(new Texture(width, height));
 
-        switch (mode)
+        if (mode)
         {
-            case COLOR:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data); //note GL_RED internal format, to save memory.
-                break;
-            case DEPTH:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, data);
-                break;
-            case STENCIL:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, data);
-                break;
-            default:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data); //note GL_RED internal format, to save memory.
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, data);
+        }
+        else
+        {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data); //note GL_RED internal format, to save memory.
         }
         glBindTexture(GL_TEXTURE_2D, 0);
-        return(textures.size() - 1);
+        return(textures.size() -1);
     }
 
     void Viewer::Update_overlay(const Eigen::Matrix4f &Proj, const Eigen::Matrix4f &View, const Eigen::Matrix4f &Model, unsigned int shapeIndx,bool is_points) {

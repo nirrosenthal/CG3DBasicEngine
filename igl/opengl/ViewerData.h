@@ -65,7 +65,7 @@ public:
   IGL_INLINE void set_vertices(const Eigen::MatrixXd& V);
   IGL_INLINE void set_normals(const Eigen::MatrixXd& N);
 
-  IGL_INLINE void set_visible(bool value, unsigned int property_id = 1);
+  //IGL_INLINE void set_visible(bool value, unsigned int property_id = 1);
 
   // Set the color of the mesh
   //
@@ -274,7 +274,7 @@ public:
   // Visualization options
   // Each option is a binary mask specifying on which viewport each option is set.
   // When using a single viewport, standard boolean can still be used for simplicity.
-  unsigned int is_visible;
+
   unsigned int show_overlay;
   unsigned int show_overlay_depth;
   unsigned int show_texture;

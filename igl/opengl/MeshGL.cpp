@@ -86,6 +86,24 @@ IGL_INLINE void igl::opengl::MeshGL::TextGL::free_buffers()
   glDeleteBuffers(1, &vbo_labels_offset);
   glDeleteBuffers(1, &vbo_labels_indices);
 }
+// from old engine for copying a vertex buffer 
+//IGL_INLINE void igl::opengl::MeshGL::CopyVertexBuffer(const VertexBuffer& vb) {
+//    int size;
+//    isDynamic = vb.isDynamic;
+//    glGenBuffers(1, &m_RendererID);
+//    glBindBuffer(GL_COPY_READ_BUFFER, vb.m_RendererID);
+//    glGetBufferParameteriv(GL_COPY_READ_BUFFER, GL_BUFFER_SIZE, &size);
+//
+//    glBindBuffer(GL_COPY_WRITE_BUFFER, m_RendererID);
+//    if (isDynamic)
+//        glBufferData(GL_COPY_WRITE_BUFFER, size, nullptr, GL_DYNAMIC_COPY);
+//    else
+//        glBufferData(GL_COPY_WRITE_BUFFER, size, nullptr, GL_STATIC_COPY);
+//    glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, size);
+//    glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+//}
+
+
 
 IGL_INLINE void igl::opengl::MeshGL::bind_mesh(unsigned int shader_mesh, unsigned int shader_id)
 {

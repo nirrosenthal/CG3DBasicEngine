@@ -34,7 +34,6 @@ void VertexBuffer::Init(const void* data, unsigned int size,bool dynamic) {
     }
 }
 
-
 VertexBuffer::VertexBuffer(const VertexBuffer &vb) {
 	int size;
 	isDynamic = vb.isDynamic;

@@ -41,7 +41,6 @@ IGL_INLINE igl::opengl::ViewerData::ViewerData()
   label_color(0,0,0.04,1),
   shininess(35.0f),
   id(-1),
-  is_visible        (~unsigned(0)),
   materialID        (0),
   isCopy            (false),
   isStatic          (false)
@@ -131,13 +130,13 @@ IGL_INLINE void igl::opengl::ViewerData::set_normals(const Eigen::MatrixXd& N)
   dirty |= MeshGL::DIRTY_NORMAL;
 }
 
-IGL_INLINE void igl::opengl::ViewerData::set_visible(bool value, unsigned int property_id /*= 1*/)
-{
-  if (value)
-    is_visible |= property_id;
-  else
-  is_visible &= ~property_id;
-}
+//IGL_INLINE void igl::opengl::ViewerData::set_visible(bool value, unsigned int property_id /*= 1*/)
+//{
+//  if (value)
+//    is_visible |= property_id;
+//  else
+//    is_visible &= ~property_id;
+//}
 
 //IGL_INLINE void igl::opengl::ViewerData::copy_options(const ViewerCore &from, const ViewerCore &to)
 //{
@@ -493,7 +492,7 @@ IGL_INLINE void igl::opengl::ViewerData::clear()
   face_labels_strings.clear();
   labels_strings.clear();
 
-  face_based = false;
+  face_based = true;
   double_sided = false;
   invert_normals = false;
   show_texture = false;
@@ -678,7 +677,7 @@ IGL_INLINE void igl::opengl::ViewerData::updateGL(
 {
   if (!meshgl.is_initialized)
   {
-    meshgl.init();
+    meshgl.init(); //to add here buffer num to copy
   }
 
   bool per_corner_uv = (this->F_uv.rows() == this->F.rows());

@@ -10,7 +10,7 @@ struct DrawInfo
     int viewportIndx;
     int cameraIndx;
     int shaderIndx;
-    int buffer;
+    int bufferIndx;
     unsigned int flags;
     unsigned int property_id;
     Eigen::Vector4f Clear_RGBA;
@@ -21,7 +21,7 @@ struct DrawInfo
         viewportIndx = view;
         cameraIndx = camera;
         shaderIndx = shader;
-        buffer = buff;
+        bufferIndx = buff;
         flags = _flags;
         property_id = _property_id;
         Clear_RGBA = Eigen::Vector4f (1,1,1,1);

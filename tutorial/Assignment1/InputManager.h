@@ -4,6 +4,7 @@
 #include "Assignment1.h"
 #include "imgui/imgui.h"
 
+
 	void glfw_mouse_callback(GLFWwindow* window,int button, int action, int mods)
 	{	
 		if (action == GLFW_PRESS)
@@ -37,29 +38,51 @@
 	{
 		Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
 		Assignment1* scn = (Assignment1*)rndr->GetScene();
-        if(yoffset < 0)
-            scn->zoom_in();
-        else
-            scn->zoom_out();
+		
+		if (rndr->IsPicked())
+		{
+			rndr->UpdateZpos((int)yoffset);
+			rndr->MouseProccessing(GLFW_MOUSE_BUTTON_MIDDLE);
+		}
+		else
+		{
+			rndr->MoveCamera(0, rndr->zTranslate, (float)yoffset);
+		}
+		
 	}
 	
 	void glfw_cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 	{
 		Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
 		Assignment1* scn = (Assignment1*)rndr->GetScene();
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-            scn->update_mouse_on_click((float)xpos, (float)ypos);
-        else
-            scn->update_mouse_with_no_click((float)xpos, (float)ypos);
+
+		rndr->UpdatePosition((float)xpos,(float)ypos);
+		
+		scn->x = 1-xpos/800.0;
+		scn->y = 1-ypos/800.0;
+		if (rndr->CheckViewport(xpos,ypos, 0))
+		{
+			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+			{
+
+				rndr->MouseProccessing(GLFW_MOUSE_BUTTON_RIGHT);
+			}
+			else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+			{
+				
+				rndr->MouseProccessing(GLFW_MOUSE_BUTTON_LEFT);
+			}
+			else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE && rndr->IsPicked() && rndr->IsMany())
+					rndr->MouseProccessing(GLFW_MOUSE_BUTTON_RIGHT);
+
+		}
 	}
 
 	void glfw_window_size_callback(GLFWwindow* window, int width, int height)
 	{
 		Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
-        Assignment1* scn = (Assignment1*)rndr->GetScene();
 
         rndr->resize(window,width,height);
-        scn->resize(width, height);
 		
 	}
 	
@@ -67,51 +90,62 @@
 	{
 		Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
 		Assignment1* scn = (Assignment1*)rndr->GetScene();
+		//rndr->FreeShapes(2);
 		if (action == GLFW_PRESS || action == GLFW_REPEAT)
 		{
 			switch (key)
 			{
-                case GLFW_KEY_ESCAPE:
-                    glfwSetWindowShouldClose(window, GLFW_TRUE);
-                    break;
-                case GLFW_KEY_UP:
-                    scn->increase_chosen_coefficient();
-                    break;
-                case GLFW_KEY_DOWN:
-                    scn->decrease_chosen_coefficient();
-                    break;
-                case GLFW_KEY_LEFT:
-                    scn->increment_IterationNum();
-                    break;
-                case GLFW_KEY_RIGHT:
-                    scn->decrement_IterationNum();
-                    break;
-                case GLFW_KEY_A:
-                    scn->move_horizontally(-0.15f);
-                    break;
-                case GLFW_KEY_D:
-                    scn->move_horizontally(0.15f);
-                    break;
-                case GLFW_KEY_S:
-                    scn->move_vertically(-0.15f);
-                    break;
-                case GLFW_KEY_W:
-                    scn->move_vertically(0.15f);
-                    break;
-                case GLFW_KEY_1:
-                    scn->choose_coefficient(Coefficient::A);
-                    break;
-                case GLFW_KEY_2:
-                    scn->choose_coefficient(Coefficient::B);
-                    break;
-                 case GLFW_KEY_3:
-                     scn->choose_coefficient(Coefficient::C);
-                     break;
-                 case GLFW_KEY_4:
-                     scn->choose_coefficient(Coefficient::D);
-                     break;
-                default:
-                    break;
+			case GLFW_KEY_ESCAPE:
+				glfwSetWindowShouldClose(window, GLFW_TRUE);
+				break;
+				
+			case GLFW_KEY_SPACE:
+				if (scn->IsActive())
+					scn->Deactivate();
+				else
+					scn->Activate();
+				break;
+
+			case GLFW_KEY_UP:
+				rndr->MoveCamera(0, scn->xRotate, 0.05f);
+				
+				break;
+			case GLFW_KEY_DOWN:
+				//scn->shapeTransformation(scn->xGlobalRotate,-5.f);
+				//cout<< "down: "<<endl;
+				rndr->MoveCamera(0, scn->xRotate, -0.05f);
+				break;
+			case GLFW_KEY_LEFT:
+				rndr->MoveCamera(0, scn->yRotate, 0.05f);
+				break;
+			case GLFW_KEY_RIGHT:
+				//scn->shapeTransformation(scn->xGlobalRotate,-5.f);
+				//cout<< "down: "<<endl;
+				rndr->MoveCamera(0, scn->yRotate, -0.05f);
+				break;
+			case GLFW_KEY_U:
+				rndr->MoveCamera(0, scn->yTranslate, 0.25f);
+				break;
+			case GLFW_KEY_D:
+				rndr->MoveCamera(0, scn->yTranslate, -0.25f);
+				break;
+			case GLFW_KEY_L:
+				rndr->MoveCamera(0, scn->xTranslate, -0.25f);
+				break;
+			
+			case GLFW_KEY_R:
+				rndr->MoveCamera(0, scn->xTranslate, 0.25f);
+				break;
+			
+			case GLFW_KEY_B:
+				rndr->MoveCamera(0, scn->zTranslate, 0.5f);
+				break;
+			case GLFW_KEY_F:
+				rndr->MoveCamera(0, scn->zTranslate, -0.5f);
+				break;
+			default:
+				break;
+
 			}
 		}
 	}
@@ -122,6 +156,6 @@ void Init(Display& display, igl::opengl::glfw::imgui::ImGuiMenu *menu)
     display.AddKeyCallBack(glfw_key_callback);
     display.AddMouseCallBacks(glfw_mouse_callback, glfw_scroll_callback, glfw_cursor_position_callback);
     display.AddResizeCallBack(glfw_window_size_callback);
-    if(menu != nullptr)
-        menu->init(&display);
+	if(menu)
+    	menu->init(&display);
 }
