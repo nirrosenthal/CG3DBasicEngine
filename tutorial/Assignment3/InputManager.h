@@ -106,7 +106,7 @@
 
 			case GLFW_KEY_UP:
 				//rndr->MoveCamera(0, scn->xRotate, 0.05f);
-				if (scn->pickedShape > 0)
+				if (!scn->pickedShapes.empty() && scn->pickedShapes.front() > 0)
 				{
 					Eigen::Matrix3d rot = scn->GetRotation();
 					Eigen::Vector3d vec(0, 0.5f, 0);
@@ -116,7 +116,7 @@
 				}
 				break;
 			case GLFW_KEY_DOWN:
-				if (scn->pickedShape > 0)
+				if (!scn->pickedShapes.empty() && scn->pickedShapes.front() > 0)
 				{
 					Eigen::Matrix3d rot = scn->GetRotation();
 					Eigen::Vector3d vec(0, 0.5f, 0);
@@ -126,7 +126,7 @@
 				break;
 			case GLFW_KEY_LEFT:
 				//rndr->MoveCamera(0, scn->yRotate, 0.05f);
-				if (scn->pickedShape > 0)
+				if (!scn->pickedShapes.empty() && scn->pickedShapes.front() > 0)
 				{
 					Eigen::Matrix3d rot = scn->GetRotation();
 					Eigen::Vector3d vec(0.5f,0, 0);
@@ -135,7 +135,7 @@
 				}
 				break;
 			case GLFW_KEY_RIGHT:
-				if (scn->pickedShape > 0)
+				if (!scn->pickedShapes.empty() && scn->pickedShapes.front() > 0)
 				{
 					Eigen::Matrix3d rot = scn->GetRotation();
 					Eigen::Vector3d vec(0.5f, 0, 0);

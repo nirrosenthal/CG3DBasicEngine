@@ -122,7 +122,7 @@ SceneParser::SceneParser(const std::string& fileName, SceneData* data)
 	{
 		char buf[100];
 		std::cout<<"can not open file!"<<std::endl;
-		strerror_s(buf,errno);
+//        std::strerror_s(buf,errno);
 		std::cerr << "Error: " << buf; 
 		data->sizes = Eigen::Vector4i(0,0,0,0);
 	}

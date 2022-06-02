@@ -5,7 +5,7 @@ class Assignment1 : public igl::opengl::glfw::Viewer
 {
 	float time;
 	Eigen::Vector3cf FindRootsOfReduceEquation(Eigen::Vector2cf reduceCoeffs);	
-	std::complex<float> Assignment1::NewtonCubicRoot(std::complex<float> num);
+	std::complex<float> NewtonCubicRoot(std::complex<float> num);
 
 public:
 	

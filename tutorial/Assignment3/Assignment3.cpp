@@ -61,17 +61,17 @@ void Assignment3::Init()
 	SetShapeMaterial(2, 2);
 	SetShapeMaterial(5, 2);
 	SetShapeMaterial(6, 0);
-	pickedShape = 0;
+	pickedShapes = {0};
 	float s = 60;
 	ShapeTransformation(scaleAll, s,0);
-	pickedShape = 1;
+	pickedShapes = {1};
 	ShapeTransformation(xTranslate, 10,0);
 
-	pickedShape = 5;
+	pickedShapes = {5};
 	ShapeTransformation(xTranslate, -10,0);
-	pickedShape = 6;
+	pickedShapes = {6};
 	ShapeTransformation(zTranslate, -1.1,0);
-	pickedShape = -1;
+	pickedShapes.clear();
 	SetShapeStatic(0);
 	SetShapeStatic(6);
 	MyTranslate(Eigen::Vector3d(0, 0, -7.0), true);

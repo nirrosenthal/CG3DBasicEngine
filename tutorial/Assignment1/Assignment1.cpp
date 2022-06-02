@@ -29,7 +29,7 @@ void Assignment1::Init()
 	unsigned int slots[3] = { 0 , 1, 2 };
 	
 	AddShader("shaders/pickingShader");
-	AddShader("shaders/exampleShader");
+	AddShader("shaders/basicShader");
 	
 	AddTexture("textures/box0.bmp",2);
 	AddTexture("textures/grass.bmp", 2);
@@ -138,8 +138,8 @@ Eigen::Vector3cf Assignment1::FindCubicRoots()
 	else
 	{
 		roots[0] = -1.0f*bOver3a;
-		roots[1] = std::complex<float>(std::cosf(3.14159f/3.0f),std::sinf(3.14159f/3.0f))*bOver3a;
-		roots[2] = std::complex<float>(std::cosf(2.0f*3.14159f/3.0f),std::sinf(2*3.14159f/3.0f))*bOver3a;
+		roots[1] = std::complex<float>(cosf(3.14159f/3.0f),sinf(3.14159f/3.0f))*bOver3a;
+		roots[2] = std::complex<float>(cosf(2.0f*3.14159f/3.0f),sinf(2*3.14159f/3.0f))*bOver3a;
 	}
 
 	return roots;
@@ -177,8 +177,8 @@ Eigen::Vector3cf Assignment1::FindRootsOfReduceEquation(Eigen::Vector2cf reduceC
 	std::complex<float> p = NewtonCubicRoot(reduceCoeffs[1]/2.0f + sqroot);
 	std::complex<float> n = NewtonCubicRoot(reduceCoeffs[1]/2.0f - sqroot);
 	roots[0] = p + n;
-	roots[1] = p *std::complex<float>(std::cosf(2.0f*3.14159f/3.0f),std::sinf(2*3.14159f/3.0f)) - n * std::complex<float>(std::cosf(1.0f*3.14159f/3.0f),std::sinf(1*3.14159f/3.0f));
-	roots[2] = -p * std::complex<float>(std::cosf(1.0f*3.14159f/3.0f),std::sinf(1*3.14159f/3.0f)) + n * std::complex<float>(std::cosf(2.0f*3.14159f/3.0f),std::sinf(2*3.14159f/3.0f));
+	roots[1] = p *std::complex<float>(cosf(2.0f*3.14159f/3.0f), sinf(2*3.14159f/3.0f)) - n * std::complex<float>(cosf(1.0f*3.14159f/3.0f),sinf(1*3.14159f/3.0f));
+	roots[2] = -p * std::complex<float>(cosf(1.0f*3.14159f/3.0f),sinf(1*3.14159f/3.0f)) + n * std::complex<float>(cosf(2.0f*3.14159f/3.0f),sinf(2*3.14159f/3.0f));
 	return roots;
 }	
 Assignment1::~Assignment1(void)

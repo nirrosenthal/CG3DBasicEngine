@@ -14,7 +14,7 @@ public:
 	void WhenTranslate();
 	void Animate() override;
 	void ScaleAllShapes(float amt, int viewportIndx);
-	unsigned int Game::CreateTex(int width, int height);
+	unsigned int CreateTex(int width, int height);
 	~Game(void);
 };
 
