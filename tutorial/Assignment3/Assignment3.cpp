@@ -74,6 +74,7 @@ void Assignment3::Init()
 	pickedShape = -1;
 	SetShapeStatic(0);
 	SetShapeStatic(6);
+	MyTranslate(Eigen::Vector3d(0, 0, -7.0), true);
 
 	//SetShapeViewport(6, 1);
 //	ReadPixel(); //uncomment when you are reading from the z-buffer

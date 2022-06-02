@@ -105,21 +105,44 @@
 				break;
 
 			case GLFW_KEY_UP:
-				rndr->MoveCamera(0, scn->xRotate, 0.05f);
-				
+				//rndr->MoveCamera(0, scn->xRotate, 0.05f);
+				if (scn->pickedShape > 0)
+				{
+					Eigen::Matrix3d rot = scn->GetRotation();
+					Eigen::Vector3d vec(0, 0.5f, 0);
+					//scn->data_list[scn->pickedShape]->TranslateInSystem(rot, vec);
+					//scn->data()
+					scn->ShapeTransformation(scn->yTranslate, 0.5f, 1);
+				}
 				break;
 			case GLFW_KEY_DOWN:
-				//scn->shapeTransformation(scn->xGlobalRotate,-5.f);
-				//cout<< "down: "<<endl;
-				rndr->MoveCamera(0, scn->xRotate, -0.05f);
+				if (scn->pickedShape > 0)
+				{
+					Eigen::Matrix3d rot = scn->GetRotation();
+					Eigen::Vector3d vec(0, 0.5f, 0);
+					//scn->data_list[scn->pickedShape]->TranslateInSystem(rot, -vec);
+					scn->ShapeTransformation(scn->yTranslate, -0.5f, 1);
+				}//rndr->MoveCamera(0, scn->xRotate, -0.05f);
 				break;
 			case GLFW_KEY_LEFT:
-				rndr->MoveCamera(0, scn->yRotate, 0.05f);
+				//rndr->MoveCamera(0, scn->yRotate, 0.05f);
+				if (scn->pickedShape > 0)
+				{
+					Eigen::Matrix3d rot = scn->GetRotation();
+					Eigen::Vector3d vec(0.5f,0, 0);
+					//scn->data_list[scn->pickedShape]->TranslateInSystem(rot, -vec);
+					scn->ShapeTransformation(scn->xRotate, -0.1f, 0);
+				}
 				break;
 			case GLFW_KEY_RIGHT:
-				//scn->shapeTransformation(scn->xGlobalRotate,-5.f);
-				//cout<< "down: "<<endl;
-				rndr->MoveCamera(0, scn->yRotate, -0.05f);
+				if (scn->pickedShape > 0)
+				{
+					Eigen::Matrix3d rot = scn->GetRotation();
+					Eigen::Vector3d vec(0.5f, 0, 0);
+					//scn->data_list[scn->pickedShape]->TranslateInSystem(rot, vec);
+					scn->ShapeTransformation(scn->xRotate, 0.1f, 0);
+				}
+				//rndr->MoveCamera(0, scn->yRotate, -0.05f);
 				break;
 			case GLFW_KEY_U:
 				rndr->MoveCamera(0, scn->yTranslate, 0.25f);
@@ -141,9 +164,9 @@
 			case GLFW_KEY_F:
 				rndr->MoveCamera(0, scn->zTranslate, -0.5f);
 				break;
+			
 			default:
 				break;
-
 			}
 		}
 	}

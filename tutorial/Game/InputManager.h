@@ -48,7 +48,6 @@
 		{
 			rndr->MoveCamera(0, rndr->zTranslate, (float)yoffset);
 		}
-		
 	}
 	
 	void glfw_cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
@@ -140,6 +139,18 @@
 				break;
 			case GLFW_KEY_F:
 				rndr->MoveCamera(0, scn->zTranslate, -0.5f);
+				break;
+			case GLFW_KEY_1:
+				std::cout << "picked 1\n";
+				scn->pickedShape = 1;
+				break;
+			case GLFW_KEY_2:
+				std::cout << "picked 2\n";
+				scn->pickedShape = 2;
+				break;
+			case GLFW_KEY_3:
+				std::cout << "picked 3\n";
+				scn->pickedShape = 3;
 				break;
 			default:
 				break;

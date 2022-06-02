@@ -141,6 +141,18 @@
 			case GLFW_KEY_F:
 				rndr->MoveCamera(0, scn->zTranslate, -0.5f);
 				break;
+			case GLFW_KEY_1:
+				std::cout << "picked 1\n";
+				scn->selected_data_index = 1;
+				break;
+			case GLFW_KEY_2:
+				std::cout << "picked 2\n";
+				scn->selected_data_index = 2;
+				break;
+			case GLFW_KEY_3:
+				std::cout << "picked 3\n";
+				scn->selected_data_index = 3;
+				break;
 			default:
 				break;
 
