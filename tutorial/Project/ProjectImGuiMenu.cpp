@@ -439,21 +439,20 @@ IGL_INLINE void ProjectImGuiMenu::draw_viewer_menu(igl::opengl::glfw::Viewer *vi
         }
 
         // Adding to viewer time param
-        if(((Project*)viewer)->getAnimationStatus() != PLAYING) {
-            if (ImGui::CollapsingHeader("Animation time", ImGuiTreeNodeFlags_DefaultOpen))
+        if (ImGui::CollapsingHeader("Slider", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            Project* project = (Project*)viewer;
+            float time = (float)project->GetGlobalTime();
+            float maxTime = project->maxTime();
+            ImGui::DragFloat("End time", &maxTime, 0.05f, 0.0f, 100.0f, "%.0f");
+            if (ImGui::SliderFloat("##Time Scale", &time, 0, maxTime, "%.1f"))
             {
-                Project* project = (Project*)viewer;
-                float time = (float)project->GetGlobalTime();
-                float maxTime = project->maxTime();
-                ImGui::DragFloat("Max time ", &maxTime, 0.05f, 0.0f, 100.0f, "%.0f");
-                if (ImGui::SliderFloat("Time Scale", &time, 0, maxTime, "%.1f"))
-                {
-                    project->SetGlobalTime((long)time);
-                }
+                project->SetGlobalTime((long)time);
             }
         }
-
     }
+
+
     ((Project*)viewer)->menuSize = ImGui::GetWindowSize();
 
     ImGui::End();
