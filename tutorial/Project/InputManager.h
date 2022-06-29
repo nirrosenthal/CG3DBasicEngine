@@ -58,7 +58,7 @@
         if(xpos < scn->menuSize.x && ypos < scn->menuSize.y)
             return;
 
-		rndr->UpdatePosition((float)xpos,(float)ypos);
+		rndr->UpdatePosition(-(float)xpos,-(float)ypos);
 
 		if (rndr->CheckViewport(xpos,ypos, 0))
 		{
