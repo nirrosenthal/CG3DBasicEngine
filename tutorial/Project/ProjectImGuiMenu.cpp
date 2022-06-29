@@ -400,7 +400,6 @@ IGL_INLINE void ProjectImGuiMenu::draw_viewer_menu(igl::opengl::glfw::Viewer *vi
     {
 //        ImGui::Image((void*)(intptr_t)(playButton.getTexture()),
 //                     ImVec2(playButton.getWidth(), playButton.getHeight()));
-        int i = ImGui::GetWindowSize().x;
         switch(((Project*)viewer)->getAnimationStatus()) {
             case PLAYING:
                 if(ImGui::Button("Pause")){
@@ -440,20 +439,59 @@ IGL_INLINE void ProjectImGuiMenu::draw_viewer_menu(igl::opengl::glfw::Viewer *vi
         }
 
         // Adding to viewer time param
-        if (ImGui::CollapsingHeader("Animation time", ImGuiTreeNodeFlags_DefaultOpen))
-        {
-            Project* project = (Project*)viewer;
-            ImGui::DragFloat("Max time ", &(project->max_time), 0.05f, 0.0f, 100.0f, "%.0f");
-            if (ImGui::SliderFloat("Time Scale", &(project->time), 0, (project)->max_time , "%.1f"))
+        if(((Project*)viewer)->getAnimationStatus() != PLAYING) {
+            if (ImGui::CollapsingHeader("Animation time", ImGuiTreeNodeFlags_DefaultOpen))
             {
-                std::cout << project->time << std::endl;
+                Project* project = (Project*)viewer;
+                float time = (float)project->GetGlobalTime();
+                float maxTime = project->maxTime();
+                ImGui::DragFloat("Max time ", &maxTime, 0.05f, 0.0f, 100.0f, "%.0f");
+                if (ImGui::SliderFloat("Time Scale", &time, 0, maxTime, "%.1f"))
+                {
+                    project->SetGlobalTime((long)time);
+                }
             }
         }
 
     }
     ((Project*)viewer)->menuSize = ImGui::GetWindowSize();
+
     ImGui::End();
     ImGui::PopFont();
+
+
+
+
+
+//    ImGui::Begin(
+//            "## SLIDER", p_open,
+//            window_flags
+//    );
+//    switch (theme) {
+//        case DARK:
+//            setDarkMode();
+//            break;
+//        case LIGHT:
+//            setLightMode();
+//            break;
+//    }
+//    ImGui::SetWindowPos(ImVec2((float)300, 600), ImGuiCond_Always);
+//    ImGui::SetWindowSize(ImVec2((float)400, (float)0), ImGuiCond_Always);
+//
+//    if(((Project*)viewer)->getAnimationStatus() != PLAYING) {
+//        Project* project = (Project*)viewer;
+//        ImGui::DragFloat("Max time ", &(project->max_time), 0.05f, 0.0f, 100.0f, "%.0f");
+//        float time = (float)project->GetGlobalTime();
+//
+//        if (ImGui::SliderFloat("Time Scale", &time, 0, (project)->max_time , "%.1f"))
+//        {
+//            project->SetGlobalTime((long)time);
+//        }
+//
+//    }
+
+
+//    ImGui::End();
 }
 
 ProjectImGuiMenu::~ProjectImGuiMenu() {

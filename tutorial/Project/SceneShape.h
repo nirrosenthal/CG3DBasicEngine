@@ -31,6 +31,7 @@ public:
     void addChild(int child);
     void removeChild(int child);
     std::vector<int> getChildren();
+    float getEndTime();
 
 private:
     std::string name;

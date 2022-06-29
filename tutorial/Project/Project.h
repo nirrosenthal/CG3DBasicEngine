@@ -31,10 +31,11 @@ public:
     void Stop();
     void Replay();
     ImVec2 menuSize;
-    float time;
-    float max_time;
+    float maxTime();
     AnimationStatus getAnimationStatus();
 	~Project(void);
+    long GetGlobalTime();
+    void SetGlobalTime(long time);
 private:
     std::vector<SceneShape> shapesGlobal;
     Renderer *renderer = nullptr;

@@ -73,6 +73,7 @@ SceneShape Project::AddGlobalShape(std::string name, igl::opengl::glfw::Viewer::
     return scnShape;
 
 }
+
 void Project::Init()
 {
     globalTime = -1;
@@ -120,6 +121,16 @@ void Project::Init()
 //	ReadPixel(); //uncomment when you are reading from the z-buffer
 }
 
+
+float Project::maxTime() {
+    float maxTime = -1;
+    for(SceneShape &s : shapesGlobal) {
+        maxTime = std::max(maxTime, s.getEndTime());
+    }
+    return maxTime;
+}
+
+
 void Project::Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, const Eigen::Matrix4f& Model, unsigned int  shaderIndx, unsigned int shapeIndx)
 {
     if(animationStatus == PLAYING)
@@ -145,7 +156,7 @@ void Project::Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, c
 
     SceneShape scnShape = shapesGlobal[shapeIndx];
     Eigen::Vector3f pos = scnShape.getlastDrawnPosition();
-    std::cout << "(" << pos[0] << "," << pos[1] << "," << pos[2] << ")" << std::endl;
+    //std::cout << "(" << pos[0] << "," << pos[1] << "," << pos[2] << ")" << std::endl;
 
     Eigen::Vector3f newPos = scnShape.getPosition((float)time);
     Eigen::Vector3f delta = newPos - pos;
@@ -235,6 +246,9 @@ void Project::SetParent(int shape, int newParent) {
 int Project::GetParent(int shape) {
     return shapesGlobal[shape].getParent();
 }
+long Project::GetGlobalTime() {
+    return globalTime;
+}
 
 std::vector<int> Project::GetChildren(int shape) {
     return shapesGlobal[shape].getChildren();
@@ -260,6 +274,9 @@ void Project::Replay() {
     animationStatus = PLAYING;
 }
 
+void Project::SetGlobalTime(long time) {
+    globalTime = time;
+}
 
 
 

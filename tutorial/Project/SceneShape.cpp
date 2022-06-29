@@ -66,4 +66,8 @@ void SceneShape::removeChild(int removedChild) {
     children = newChildren;
 }
 
+float SceneShape::getEndTime() {
+    return mover.getEndTime();
+}
+
 
