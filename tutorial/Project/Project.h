@@ -3,6 +3,8 @@
 #include "SceneShape.h"
 #include "igl/opengl/glfw/renderer.h"
 #include "ProjectViewerData.h"
+
+enum AnimationStatus {PLAYING, STOPPED, PAUSED};
 class Project : public igl::opengl::glfw::Viewer
 {
 	
@@ -25,8 +27,12 @@ public:
     int GetParent(int shape);
     std::vector<int> GetChildren(int shape);
     void Play();
+    void Pause();
+    void Stop();
+    void Replay();
     float time;
     float max_time;
+    AnimationStatus getAnimationStatus();
 	~Project(void);
 private:
     std::vector<SceneShape> shapesGlobal;
@@ -35,7 +41,7 @@ private:
 
     SceneShape AddGlobalShape(std::string name, shapes shapeType, std::shared_ptr<ObjectMover> mover,
                    std::shared_ptr<Layer3> layer);
-    bool animating;
+    AnimationStatus animationStatus;
 };
 
 

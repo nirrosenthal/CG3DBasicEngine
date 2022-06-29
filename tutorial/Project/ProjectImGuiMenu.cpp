@@ -217,16 +217,36 @@ IGL_INLINE void ProjectImGuiMenu::draw_viewer_menu(igl::opengl::glfw::Viewer *vi
 
     if (ImGui::CollapsingHeader("Animation", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        if (ImGui::Checkbox("Play Animation", &(viewer->isActive)))
-        {
-            if (viewer->isActive)
-                viewer->Activate();
-            else
-                viewer->Deactivate();
-            ((Project*)viewer)->Play();
-            viewer->Animate();
+        switch(((Project*)viewer)->getAnimationStatus()) {
+            case PLAYING:
+                if(ImGui::Button("Pause")){
+                    ((Project*)viewer)->Pause();
+                }
+                if(ImGui::Button("Stop")){
+                    ((Project*)viewer)->Stop();
+                }
+                if(ImGui::Button("Replay")){
+                    ((Project*)viewer)->Replay();
+                }
+                break;
+            case PAUSED:
+                if(ImGui::Button("Play")){
+                    ((Project*)viewer)->Play();
+                }
+                if(ImGui::Button("Stop")){
+                    ((Project*)viewer)->Stop();
+                }
+                if(ImGui::Button("Replay")){
+                    ((Project*)viewer)->Replay();
+                }
+                break;
+            case STOPPED:
+                if(ImGui::Button("Play")){
+                    ((Project*)viewer)->Play();
+                }
+                break;
         }
-
+        
         // Adding to viewer time param
         if (ImGui::CollapsingHeader("Animation time", ImGuiTreeNodeFlags_DefaultOpen))
         {

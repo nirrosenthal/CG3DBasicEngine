@@ -115,14 +115,15 @@ void Project::Init()
     SetShapeMaterial(shp.getIndex(), 2);
 
 
-    animating = false;
+    animationStatus = STOPPED;
     //SetShapeViewport(6, 1);
 //	ReadPixel(); //uncomment when you are reading from the z-buffer
 }
 
 void Project::Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, const Eigen::Matrix4f& Model, unsigned int  shaderIndx, unsigned int shapeIndx)
 {
-    ++globalTime;
+    if(animationStatus == PLAYING)
+        ++globalTime;
     if(globalTime == 100) {
 //        std::list<int> x, y;
 //        const int DISPLAY_WIDTH = 1200;
@@ -134,7 +135,7 @@ void Project::Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, c
     }
 	Shader *s = shaders[shaderIndx];
     long time;
-    if(animating)
+    if(globalTime != -1)
         time = globalTime;
     else
         time = 0;
@@ -239,9 +240,24 @@ std::vector<int> Project::GetChildren(int shape) {
     return shapesGlobal[shape].getChildren();
 }
 
+AnimationStatus Project::getAnimationStatus() {return animationStatus;}
+
 void Project::Play() {
-    animating = !animating;
+    animationStatus = PLAYING;
+}
+
+void Project::Pause() {
+    animationStatus = PAUSED;
+}
+
+void Project::Stop() {
     globalTime = -1;
+    animationStatus = STOPPED;
+}
+
+void Project::Replay() {
+    globalTime = -1;
+    animationStatus = PLAYING;
 }
 
 
