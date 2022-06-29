@@ -55,6 +55,8 @@
 	{
 		Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
 		Project* scn = (Project*)rndr->GetScene();
+        if(xpos < scn->menuSize.x && ypos < scn->menuSize.y)
+            return;
 
 		rndr->UpdatePosition((float)xpos,(float)ypos);
 

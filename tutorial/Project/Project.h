@@ -30,6 +30,7 @@ public:
     void Pause();
     void Stop();
     void Replay();
+    ImVec2 menuSize;
     float time;
     float max_time;
     AnimationStatus getAnimationStatus();
