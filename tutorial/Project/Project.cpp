@@ -76,7 +76,7 @@ SceneShape Project::AddGlobalShape(std::string name, igl::opengl::glfw::Viewer::
 
 void Project::Init()
 {
-    globalTime = -1;
+    globalTime = 0;
 	unsigned int texIDs[3] = { 0 , 1, 2};
 	unsigned int slots[3] = { 0 , 1, 2 };
     AddShader("shaders/pickingShader");
@@ -133,8 +133,7 @@ float Project::maxTime() {
 
 void Project::Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, const Eigen::Matrix4f& Model, unsigned int  shaderIndx, unsigned int shapeIndx)
 {
-    if(animationStatus == PLAYING)
-        ++globalTime;
+
     if(globalTime == 100) {
 //        std::list<int> x, y;
 //        const int DISPLAY_WIDTH = 1200;
@@ -195,6 +194,8 @@ void Project::Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, c
 //	else 
 //		s->SetUniform4f("lightColor",0.7f,0.8f,0.1f,1.0f);
 	s->Unbind();
+    if(animationStatus == PLAYING && globalTime < maxTime())
+        ++globalTime;
 }
 
 
@@ -265,12 +266,12 @@ void Project::Pause() {
 }
 
 void Project::Stop() {
-    globalTime = -1;
+    globalTime = 0;
     animationStatus = STOPPED;
 }
 
 void Project::Replay() {
-    globalTime = -1;
+    globalTime = 0;
     animationStatus = PLAYING;
 }
 
