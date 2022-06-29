@@ -149,7 +149,15 @@ ProjectImGuiMenu::ProjectImGuiMenu() :
  theme(THEMES[DEFAULT_THEME])
 // playButton("textures/play_button.jpg")
  {
+
  }
+
+void ProjectImGuiMenu::init(Display *disp) {
+
+    ImGuiMenu::init(disp);
+    ImGuiIO& io = ImGui::GetIO();
+    font = io.Fonts->AddFontFromFileTTF("textures/Calibri.ttf", 12);
+}
 
 IGL_INLINE void ProjectImGuiMenu::draw_viewer_menu(igl::opengl::glfw::Viewer *viewer, std::vector<igl::opengl::Camera*> &camera,Eigen::Vector4i& viewWindow,std::vector<DrawInfo *> drawInfos)
 {
@@ -176,6 +184,8 @@ IGL_INLINE void ProjectImGuiMenu::draw_viewer_menu(igl::opengl::glfw::Viewer *vi
     if (no_nav)             window_flags |= ImGuiWindowFlags_NoNav;
     if (no_background)      window_flags |= ImGuiWindowFlags_NoBackground;
     if (no_bring_to_front)  window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
+
+    ImGui::PushFont(font);
     ImGui::Begin(
             "## MAIN WINDOW", p_open,
             window_flags
@@ -390,20 +400,22 @@ IGL_INLINE void ProjectImGuiMenu::draw_viewer_menu(igl::opengl::glfw::Viewer *vi
     {
 //        ImGui::Image((void*)(intptr_t)(playButton.getTexture()),
 //                     ImVec2(playButton.getWidth(), playButton.getHeight()));
+        int i = ImGui::GetWindowSize().x;
         switch(((Project*)viewer)->getAnimationStatus()) {
             case PLAYING:
                 if(ImGui::Button("Pause")){
                     ((Project*)viewer)->Pause();
                 }
-                if(ImGui::Button("Stop")){
+                ImGui::SameLine();
+                if(ImGui::Button("Stop")){ //                 if(ImGui::Button("Stop", ImVec2(60, 30)){
                     ((Project*)viewer)->Stop();
                 }
+                ImGui::SameLine();
                 if(ImGui::Button("Replay")){
                     ((Project*)viewer)->Replay();
                 }
                 break;
             case PAUSED:
-
 //                if(ImGui::ImageButton((void*)(intptr_t)(playButton.getTexture()),
 //                                      ImVec2(playButton.getWidth(), playButton.getHeight()))) {
 //                    ((Project*)viewer)->Play();
@@ -411,9 +423,11 @@ IGL_INLINE void ProjectImGuiMenu::draw_viewer_menu(igl::opengl::glfw::Viewer *vi
                 if(ImGui::Button("Play")){
                     ((Project*)viewer)->Play();
                 }
+                ImGui::SameLine();
                 if(ImGui::Button("Stop")){
                     ((Project*)viewer)->Stop();
                 }
+                ImGui::SameLine();
                 if(ImGui::Button("Replay")){
                     ((Project*)viewer)->Replay();
                 }
@@ -439,7 +453,14 @@ IGL_INLINE void ProjectImGuiMenu::draw_viewer_menu(igl::opengl::glfw::Viewer *vi
     }
     ((Project*)viewer)->menuSize = ImGui::GetWindowSize();
     ImGui::End();
+    ImGui::PopFont();
 }
+
+ProjectImGuiMenu::~ProjectImGuiMenu() {
+    delete font;
+}
+
+
 
 
 
