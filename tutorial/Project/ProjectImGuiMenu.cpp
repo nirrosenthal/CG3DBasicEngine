@@ -304,9 +304,9 @@ IGL_INLINE void ProjectImGuiMenu::draw_viewer_menu(igl::opengl::glfw::Viewer *vi
         {
             std::string layerName = layerEntry.first;
             auto layer = layerEntry.second;
-            bool isHidden = layer->isHidden();
-            if(ImGui::Checkbox((layerName).c_str(), &isHidden)){
-                layer->changeHidden(isHidden);
+            bool isShown = !layer->isHidden();
+            if(ImGui::Checkbox((layerName).c_str(), &isShown)){
+                layer->changeHidden(!isShown);
                 std::cout<<"layerEntry changed:"<< layer->isHidden() <<std::endl;
             }
         }

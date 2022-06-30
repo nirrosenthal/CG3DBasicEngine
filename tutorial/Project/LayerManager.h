@@ -36,7 +36,7 @@ class LayerManager
 public:
     LayerManager();
     std::shared_ptr<Layer> getLayer(const std::string& name);
-	bool addLayer(const std::string& layerName);
+	std::shared_ptr<Layer> addLayer(const std::string& layerName);
 	bool removeLayer(std::shared_ptr<Layer> layer);
 	~LayerManager(void) {}
 	std::map<std::string, std::shared_ptr<Layer>> layers;

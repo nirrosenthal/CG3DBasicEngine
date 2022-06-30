@@ -29,13 +29,18 @@ public:
     void removeChild(int child);
     std::vector<int> getChildren();
     float getEndTime();
+    int material = -1;
+    int shader = -1;
+    Eigen::Vector3f dimensions;
+    bool isScaledToZero;
+    int index;
+
 
 private:
     std::string name;
     igl::opengl::glfw::Viewer::shapes type;
     ObjectMoverSplit mover;
     std::shared_ptr<Layer> layer;
-    int index;
     Eigen::Vector3f lastDrawnPosition;
     int parent;
     std::vector<int> children;

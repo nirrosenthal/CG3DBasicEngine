@@ -7,7 +7,7 @@
 SceneShape::SceneShape(std::string shapeName, igl::opengl::glfw::Viewer::shapes shapeType,
                        std::shared_ptr<ObjectMover> mover, std::shared_ptr<Layer> layer, int index) :
                        name(shapeName), type(shapeType), mover(ObjectMoverSplit(mover)),
-                       layer(layer), index(index) {}
+                       layer(layer), index(index), dimensions(Eigen::Vector3f(1,1,1)), isScaledToZero(false) {}
 
 std::shared_ptr<Layer> SceneShape::getLayer() {
     return layer;
@@ -21,7 +21,7 @@ int SceneShape::getIndex() {
 
 
 bool SceneShape::isDrawn(float time) {
-    return mover.isDrawnAt(time);
+    return mover.isDrawnAt(time) && !layer->isHidden();
 }
 
 Eigen::Vector3f SceneShape::getPosition(float time) {

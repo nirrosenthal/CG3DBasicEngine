@@ -13,6 +13,8 @@ public:
     IGL_INLINE ProjectViewerData* data(int mesh_id = -1);
     IGL_INLINE const ProjectViewerData* data(int mesh_id = -1) const;
     IGL_INLINE int append_mesh(bool visible = true);
+    IGL_INLINE void Draw(int shaderIndx, const Eigen::Matrix4f &Proj, const Eigen::Matrix4f &View,
+                         int viewportIndx, unsigned int flgs,unsigned int property_id) override;
 
 	Project();
 //	Project(float angle,float relationWH,float near, float far);

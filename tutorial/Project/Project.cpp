@@ -19,6 +19,84 @@ long getCurrentUnixTime() {
     return std::chrono::duration_cast<std::chrono::milliseconds>(p1.time_since_epoch()).count();
 }
 
+IGL_INLINE void Project::Draw(int shaderIndx, const Eigen::Matrix4f &Proj, const Eigen::Matrix4f &View, int viewportIndx, unsigned int flgs,unsigned int property_id)
+{
+    if(animationStatus == PLAYING && globalTime < maxTime())
+        ++globalTime;
+
+    Eigen::Matrix4f Normal;
+
+    if (!(staticScene & (1<<viewportIndx)))
+        Normal = MakeTransScale();
+    else
+        Normal = Eigen::Matrix4f::Identity();
+
+    for (int i = 0; i < data_list.size(); i++)
+    {
+        if(!shapesGlobal[i]->isDrawn(globalTime))
+            continue;
+        auto shape = data_list[i];
+        if (shape->Is2Render(viewportIndx))
+        {
+
+            Eigen::Matrix4f Model = shape->MakeTransScale();
+
+            if (!shape->IsStatic())
+            {
+
+                Model = Normal * GetPriviousTrans(View.cast<double>(),i).cast<float>() * Model;
+            }
+            else if (parents[i] == -2) {
+                Model = View.inverse() * Model;
+            }
+            if (!(flgs & 65536))
+            {
+                Update(Proj, View, Model, shape->GetShader(),i);
+                // Draw fill
+                if (shape->show_faces & property_id)
+                    shape->Draw(shaders[shape->GetShader()], true);
+                if (shape->show_lines & property_id) {
+                    glLineWidth(shape->line_width);
+                    shape->Draw(shaders[shape->GetShader()],false);
+                }
+                // overlay draws
+                if(shape->show_overlay & property_id){
+                    if (shape->show_overlay_depth & property_id)
+                        glEnable(GL_DEPTH_TEST);
+                    else
+                        glDisable(GL_DEPTH_TEST);
+                    if (shape->lines.rows() > 0)
+                    {
+                        Update_overlay(Proj, View, Model,i,false);
+                        glEnable(GL_LINE_SMOOTH);
+                        shape->Draw_overlay(overlay_shader,false);
+                    }
+                    if (shape->points.rows() > 0)
+                    {
+                        Update_overlay(Proj, View, Model,i,true);
+                        shape->Draw_overlay_pints(overlay_point_shader,false);
+                    }
+                    glEnable(GL_DEPTH_TEST);
+                }
+            }
+            else
+            { //picking
+                if (flgs & 16384)
+                {   //stencil
+                    Eigen::Affine3f scale_mat = Eigen::Affine3f::Identity();
+                    scale_mat.scale(Eigen::Vector3f(1.1f, 1.1f, 1.1f));
+                    Update(Proj, View , Model * scale_mat.matrix(), 0,i);
+                }
+                else
+                {
+                    Update(Proj, View ,  Model, 0,i);
+                }
+                shape->Draw(shaders[0], true);
+            }
+        }
+    }
+}
+
 IGL_INLINE ProjectViewerData* Project::data(int mesh_id /*= -1*/)
 {
     assert(!data_list.empty() && "data_list should never be empty");
@@ -76,24 +154,28 @@ std::shared_ptr<SceneShape> Project::AddGlobalShape(std::string name, igl::openg
 
 void Project::Init()
 {
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     globalTime = 0;
-	unsigned int texIDs[3] = { 0 , 1, 2};
-	unsigned int slots[3] = { 0 , 1, 2 };
+	unsigned int texIDs[3] = { 1 , 2, 3};
+	unsigned int slots[3] = { 1 , 2, 3 };
+
     AddShader("shaders/pickingShader");
     AddShader("shaders/cubemapShader");
-    AddShader("shaders/basicShader");
+    int shader = AddShader("shaders/basicShader");
     //AddShader("shaders/pickingShader");
     AddShader("shaders/basicShader2");
 
     AddTexture("textures/grass.bmp", 2);
     AddTexture("textures/cubemaps/Daylight Box_", 3);
-    AddTexture("textures/box0.bmp", 2);
+    int box = AddTexture("textures/box0.bmp", 2);
     //AddTexture("../res/textures/Cat_bump.jpg", 2);
 
-    AddMaterial(texIDs,slots, 1);
-    AddMaterial(texIDs+1, slots+1, 1);
-    AddMaterial(texIDs + 2, slots + 2, 1);
-    AddMaterial(texIDs + 3, slots + 3, 1);
+    int mat1 = AddMaterial(texIDs,slots, 1);
+    int mat2 = AddMaterial(texIDs+1, slots+1, 1);
+    int mat3 = AddMaterial(texIDs + 2, slots + 2, 1);
+    int mat4 = AddMaterial(texIDs + 3, slots + 3, 1);
 
     std::vector<Eigen::Vector3f> points = {Eigen::Vector3f(0,0,0),
                                            Eigen::Vector3f(0,20,0),
@@ -106,14 +188,20 @@ void Project::Init()
                                               Eigen::Vector3f(0,0,0)};
 
     std::shared_ptr<ObjectMoverBezier> bez = std::make_shared<ObjectMoverBezier>(points, 0, 500);
-    std::shared_ptr<SceneShape> shp = AddGlobalShape("test", Cube, bez, nullptr);
+    auto defaultLayer = layerManager.addLayer("default");
+    std::shared_ptr<SceneShape> shp = AddGlobalShape("test", Cube, bez, defaultLayer);
+    defaultLayer->addShape(shp);
+
     shapesGlobal[shp->getIndex()]->addMover(std::make_shared<ObjectMoverConstant>(Eigen::Vector3f(0,0,0),
                                                                                 500, 50));
     shapesGlobal[shp->getIndex()]->addMover(std::make_shared<ObjectMoverBezier>(pointsRev, 550, 500));
 //    shp.addMover( std::make_shared<ObjectMoverConstant>(Eigen::Vector3f(0,0,0), 1000, 100));
 //    shp.addMover( std::make_shared<ObjectMoverBezier>(points, 2100, 500));
-    SetShapeShader(shp->getIndex(), 2);
-    SetShapeMaterial(shp->getIndex(), 2);
+
+    shp->material = mat1;
+    shp->shader = shader;
+
+
 
 
     animationStatus = STOPPED;
@@ -133,7 +221,9 @@ float Project::maxTime() {
 
 void Project::Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, const Eigen::Matrix4f& Model, unsigned int  shaderIndx, unsigned int shapeIndx)
 {
-
+    std::shared_ptr<SceneShape> scnShape = shapesGlobal[shapeIndx];
+    SetShapeShader(shapeIndx, scnShape->shader);
+    SetShapeMaterial(shapeIndx, scnShape->material);
     if(globalTime == 100) {
 //        std::list<int> x, y;
 //        const int DISPLAY_WIDTH = 1200;
@@ -153,14 +243,16 @@ void Project::Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, c
 	int g = ((shapeIndx+1) & 0x0000FF00) >>  8;
 	int b = ((shapeIndx+1) & 0x00FF0000) >> 16;
 
-    std::shared_ptr<SceneShape> scnShape = shapesGlobal[shapeIndx];
+
+    pickedShapes = {scnShape->getIndex()};
+
     Eigen::Vector3f pos = scnShape->getlastDrawnPosition();
     //std::cout << "(" << pos[0] << "," << pos[1] << "," << pos[2] << ")" << std::endl;
 
     Eigen::Vector3f newPos = scnShape->getPosition((float)time);
     Eigen::Vector3f delta = newPos - pos;
 
-    pickedShapes = {scnShape->getIndex()};
+
     ShapeTransformation(xTranslate, delta[0],0);
     ShapeTransformation(yTranslate, delta[1],0);
     ShapeTransformation(zTranslate, delta[2],0);
@@ -194,8 +286,7 @@ void Project::Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, c
 //	else 
 //		s->SetUniform4f("lightColor",0.7f,0.8f,0.1f,1.0f);
 	s->Unbind();
-    if(animationStatus == PLAYING && globalTime < maxTime())
-        ++globalTime;
+
 }
 
 

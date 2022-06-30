@@ -32,13 +32,13 @@ std::shared_ptr<Layer> LayerManager::getLayer(const std::string& name) {
     return layers[name];
 }
 
-// Creates a layer with the given name, returns false iff it fails.
-bool LayerManager::addLayer(const std::string& layerName) {
+// Creates a layer with the given name, returns nullptr iff it fails.
+std::shared_ptr<Layer> LayerManager::addLayer(const std::string& layerName) {
     if(layers.find(layerName) != layers.end())
-        return false;
-    layers[layerName] = std::make_shared<Layer>(layerName);
-    return true;
-
+        return nullptr;
+    auto newLayer = std::make_shared<Layer>(layerName);
+    layers[layerName] = newLayer;
+    return newLayer;
 }
 
 // Deletes the given layer, returns false iff it fails.
