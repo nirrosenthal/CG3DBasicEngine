@@ -37,11 +37,11 @@ public:
     long GetGlobalTime();
     void SetGlobalTime(long time);
 private:
-    std::vector<SceneShape> shapesGlobal;
+    std::vector<std::shared_ptr<SceneShape>> shapesGlobal;
     Renderer *renderer = nullptr;
     long globalTime;
 
-    SceneShape AddGlobalShape(std::string name, shapes shapeType, std::shared_ptr<ObjectMover> mover,
+    std::shared_ptr<SceneShape> AddGlobalShape(std::string name, shapes shapeType, std::shared_ptr<ObjectMover> mover,
                    std::shared_ptr<Layer3> layer);
     AnimationStatus animationStatus;
 };

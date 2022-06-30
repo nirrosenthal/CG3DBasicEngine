@@ -63,12 +63,12 @@ Project::Project(): igl::opengl::glfw::Viewer() {
 //{ 	
 //}
 
-SceneShape Project::AddGlobalShape(std::string name, igl::opengl::glfw::Viewer::shapes shapeType,
+std::shared_ptr<SceneShape> Project::AddGlobalShape(std::string name, igl::opengl::glfw::Viewer::shapes shapeType,
                              std::shared_ptr<ObjectMover> mover, std::shared_ptr<Layer3> layer) {
 
     int index = AddShape(shapeType, -1, TRIANGLES);
-    SceneShape scnShape(name, shapeType, mover, layer,index);
-    scnShape.setlastDrawnPosition(Eigen::Vector3f(0,0,0));
+    std::shared_ptr<SceneShape> scnShape = std::make_shared<SceneShape>(name, shapeType, mover, layer,index);
+    scnShape->setlastDrawnPosition(Eigen::Vector3f(0,0,0));
     shapesGlobal.push_back(scnShape);
     return scnShape;
 
@@ -106,14 +106,14 @@ void Project::Init()
                                               Eigen::Vector3f(0,0,0)};
 
     std::shared_ptr<ObjectMoverBezier> bez = std::make_shared<ObjectMoverBezier>(points, 0, 500);
-    SceneShape shp = AddGlobalShape("test", Cube, bez, nullptr);
-    shapesGlobal[shp.getIndex()].addMover(std::make_shared<ObjectMoverConstant>(Eigen::Vector3f(0,0,0),
+    std::shared_ptr<SceneShape> shp = AddGlobalShape("test", Cube, bez, nullptr);
+    shapesGlobal[shp->getIndex()]->addMover(std::make_shared<ObjectMoverConstant>(Eigen::Vector3f(0,0,0),
                                                                                 500, 50));
-    shapesGlobal[shp.getIndex()].addMover(std::make_shared<ObjectMoverBezier>(pointsRev, 550, 500));
+    shapesGlobal[shp->getIndex()]->addMover(std::make_shared<ObjectMoverBezier>(pointsRev, 550, 500));
 //    shp.addMover( std::make_shared<ObjectMoverConstant>(Eigen::Vector3f(0,0,0), 1000, 100));
 //    shp.addMover( std::make_shared<ObjectMoverBezier>(points, 2100, 500));
-    SetShapeShader(shp.getIndex(), 2);
-    SetShapeMaterial(shp.getIndex(), 2);
+    SetShapeShader(shp->getIndex(), 2);
+    SetShapeMaterial(shp->getIndex(), 2);
 
 
     animationStatus = STOPPED;
@@ -124,8 +124,8 @@ void Project::Init()
 
 float Project::maxTime() {
     float maxTime = -1;
-    for(SceneShape &s : shapesGlobal) {
-        maxTime = std::max(maxTime, s.getEndTime());
+    for(std::shared_ptr<SceneShape> s : shapesGlobal) {
+        maxTime = std::max(maxTime, s->getEndTime());
     }
     return maxTime;
 }
@@ -153,18 +153,18 @@ void Project::Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, c
 	int g = ((shapeIndx+1) & 0x0000FF00) >>  8;
 	int b = ((shapeIndx+1) & 0x00FF0000) >> 16;
 
-    SceneShape scnShape = shapesGlobal[shapeIndx];
-    Eigen::Vector3f pos = scnShape.getlastDrawnPosition();
+    std::shared_ptr<SceneShape> scnShape = shapesGlobal[shapeIndx];
+    Eigen::Vector3f pos = scnShape->getlastDrawnPosition();
     //std::cout << "(" << pos[0] << "," << pos[1] << "," << pos[2] << ")" << std::endl;
 
-    Eigen::Vector3f newPos = scnShape.getPosition((float)time);
+    Eigen::Vector3f newPos = scnShape->getPosition((float)time);
     Eigen::Vector3f delta = newPos - pos;
 
-    pickedShapes = {scnShape.getIndex()};
+    pickedShapes = {scnShape->getIndex()};
     ShapeTransformation(xTranslate, delta[0],0);
     ShapeTransformation(yTranslate, delta[1],0);
     ShapeTransformation(zTranslate, delta[2],0);
-    shapesGlobal[shapeIndx].setlastDrawnPosition(newPos);
+    shapesGlobal[shapeIndx]->setlastDrawnPosition(newPos);
     pickedShapes.clear();
 
 
@@ -239,20 +239,20 @@ void Project::SetRenderer(Renderer *renderer) {
 }
 
 void Project::SetParent(int shape, int newParent) {
-    shapesGlobal[shapesGlobal[shape].getParent()].removeChild(shape);
-    shapesGlobal[shape].setParent(newParent);
-    shapesGlobal[newParent].addChild(shape);
+    shapesGlobal[shapesGlobal[shape]->getParent()]->removeChild(shape);
+    shapesGlobal[shape]->setParent(newParent);
+    shapesGlobal[newParent]->addChild(shape);
 }
 
 int Project::GetParent(int shape) {
-    return shapesGlobal[shape].getParent();
+    return shapesGlobal[shape]->getParent();
 }
 long Project::GetGlobalTime() {
     return globalTime;
 }
 
 std::vector<int> Project::GetChildren(int shape) {
-    return shapesGlobal[shape].getChildren();
+    return shapesGlobal[shape]->getChildren();
 }
 
 AnimationStatus Project::getAnimationStatus() {return animationStatus;}
