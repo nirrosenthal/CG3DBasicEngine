@@ -8,21 +8,19 @@
 #include <map>
 #include <vector>
 
-class Shape
-{};
+class SceneShape;
 class Layer
 {
-
 public:
 	Layer(std::string layerName);
 	void hide() {hidden = true;};
     void show() {hidden = false;};
     bool isHidden() {return hidden;};
     void changeHidden(bool hide) { hidden = hide; }
-	void addShape(std::shared_ptr<Shape> shape);
-    void deleteShape(std::shared_ptr<Shape> shape);
+	void addShape(std::shared_ptr<SceneShape> shape);
+    void deleteShape(std::shared_ptr<SceneShape> shape);
     std::string getName() {return layerName;};
-    std::vector<std::shared_ptr<Shape>> getShapes() {return shapes;};
+    std::vector<std::shared_ptr<SceneShape>> getShapes() {return shapes;};
 	~Layer(void) {}
 
 
@@ -30,7 +28,7 @@ public:
 private:
     bool hidden;
     std::string layerName;
-    std::vector<std::shared_ptr<Shape>> shapes;
+    std::vector<std::shared_ptr<SceneShape>> shapes;
 };
 
 class LayerManager 

@@ -7,13 +7,13 @@ Layer::Layer(std::string layerName): layerName(std::move(layerName)), hidden(fal
 {
 }
 
-void Layer::addShape(std::shared_ptr<Shape> shape) {
+void Layer::addShape(std::shared_ptr<SceneShape> shape) {
     shapes.push_back(shape);
 }
 
-void Layer::deleteShape(std::shared_ptr<Shape> shape) {
-    std::vector<std::shared_ptr<Shape>> newShapes;
-    for(std::shared_ptr<Shape> s : shapes) {
+void Layer::deleteShape(std::shared_ptr<SceneShape> shape) {
+    std::vector<std::shared_ptr<SceneShape>> newShapes;
+    for(std::shared_ptr<SceneShape> s : shapes) {
         if(s != shape) {
             newShapes.push_back(s);
         }
