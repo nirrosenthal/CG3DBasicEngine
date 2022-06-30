@@ -44,7 +44,7 @@ std::shared_ptr<Layer> LayerManager::addLayer(const std::string& layerName) {
 // Deletes the given layer, returns false iff it fails.
 bool LayerManager::removeLayer(std::shared_ptr<Layer> layer) {
     auto it = layers.find(layer->getName());
-    if(it == layers.end())
+    if(it == layers.end() || !layer->getShapes().empty())
         return false;
     layers.erase(it);
     return true;

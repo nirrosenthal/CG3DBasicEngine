@@ -304,6 +304,10 @@ IGL_INLINE void ProjectImGuiMenu::draw_viewer_menu(igl::opengl::glfw::Viewer *vi
         {
             std::string layerName = layerEntry.first;
             auto layer = layerEntry.second;
+            if(ImGui::Button("X")){
+                ((Project *)viewer)->layerManager.removeLayer(layer);
+            }
+            ImGui::SameLine();
             bool isShown = !layer->isHidden();
             if(ImGui::Checkbox((layerName).c_str(), &isShown)){
                 layer->changeHidden(!isShown);
