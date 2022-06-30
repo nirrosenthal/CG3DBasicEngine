@@ -313,7 +313,8 @@ IGL_INLINE void ProjectImGuiMenu::draw_viewer_menu(igl::opengl::glfw::Viewer *vi
 
 
         ImGui::InputText("##NEW LAYER NAME", newLayerName, 30);
-        if(ImGui::Button("Add Layer")){
+        ImGui::SameLine();
+        if(ImGui::Button("Add")){
             auto newName = std::string(newLayerName);
             if(!newName.empty()) {
                 ((Project *) viewer)->layerManager.addLayer(newName);
