@@ -3,8 +3,10 @@
 	- need to add the line [ #include "igl/opengl/glfw/Viewer.h" ] to Project.h
 
 */
-#include <list>
-using namespace std;
+#include <string>
+#include <memory>
+#include <map>
+#include <vector>
 
 class Shape
 {};
@@ -12,31 +14,32 @@ class Layer
 {
 
 public:
-	Layer(string layerName);
-	void changeHidden(bool hide) { hidden = hide; }
-	void addShape(Shape shape);
-	
+	Layer(std::string layerName);
+	void hide() {hidden = true;};
+    void show() {hidden = false;};
+    bool isHidden() {return hidden;};
+    void changeHidden(bool hide) { hidden = hide; }
+	void addShape(std::shared_ptr<Shape> shape);
+    void deleteShape(std::shared_ptr<Shape> shape);
+    std::string getName() {return layerName;};
+    std::vector<std::shared_ptr<Shape>> getShapes() {return shapes;};
 	~Layer(void) {}
 
-	bool hidden;
-	string layerName;
-	list<Shape> shapes;
+
+
+private:
+    bool hidden;
+    std::string layerName;
+    std::vector<std::shared_ptr<Shape>> shapes;
 };
 
 class LayerManager 
 {
 public:
-
     LayerManager();
-	bool isHidden(string layerName);
-	void hideLayer(string layerName);
-	void showLayer(string layerName);
-	void addShape(string layerName, Shape shape);
-	void removeShape(string layerName, Shape shape);
-	bool addLayer(string layerName);
-	void removeLayer(string layerName);
+    std::shared_ptr<Layer> getLayer(const std::string& name);
+	bool addLayer(const std::string& layerName);
+	bool removeLayer(std::shared_ptr<Layer> layer);
 	~LayerManager(void) {}
-	
-
-	list<Layer> layers;
+	std::map<std::string, std::shared_ptr<Layer>> layers;
 };

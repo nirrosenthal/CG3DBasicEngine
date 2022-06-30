@@ -5,14 +5,14 @@
 #include "SceneShape.h"
 
 SceneShape::SceneShape(std::string shapeName, igl::opengl::glfw::Viewer::shapes shapeType,
-                       std::shared_ptr<ObjectMover> mover, std::shared_ptr<Layer3> layer, int index) :
+                       std::shared_ptr<ObjectMover> mover, std::shared_ptr<Layer> layer, int index) :
                        name(shapeName), type(shapeType), mover(ObjectMoverSplit(mover)),
                        layer(layer), index(index) {}
 
-std::shared_ptr<Layer3> SceneShape::getLayer() {
+std::shared_ptr<Layer> SceneShape::getLayer() {
     return layer;
 }
-void SceneShape::changeLayer(std::shared_ptr<Layer3> layer) {
+void SceneShape::changeLayer(std::shared_ptr<Layer> layer) {
     this->layer = layer;
 }
 int SceneShape::getIndex() {

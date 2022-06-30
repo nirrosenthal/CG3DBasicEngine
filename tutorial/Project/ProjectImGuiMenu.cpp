@@ -298,20 +298,28 @@ IGL_INLINE void ProjectImGuiMenu::draw_viewer_menu(igl::opengl::glfw::Viewer *vi
     };
     ImGui::ColorEdit4("Background", drawInfos[1]->Clear_RGBA.data(),
                       ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_PickerHueWheel);
-
+    auto layers = ((Project *)viewer)->layerManager.layers;
     if (ImGui::CollapsingHeader("Layers", ImGuiTreeNodeFlags_DefaultOpen)) {
-        for (size_t i = 0; i < ((ProjectViewerData *)viewer->data())->layers.size(); i++)
+        for (auto const &layerEntry: layers)
         {
-            if(ImGui::Checkbox((((ProjectViewerData *)viewer->data())->layers.at(i).name).c_str(),
-                               &(((ProjectViewerData *)viewer->data())->layers.at(i)).isShown)){
-                std::cout<<"layer changed:"<<(((ProjectViewerData *)viewer->data())->layers.at(i)).isShown<<std::endl;
-                MenuManager::OnLayerChange((((ProjectViewerData *)viewer->data())->layers.at(i).name),(((ProjectViewerData *)viewer->data())->layers.at(i).isShown));
+            std::string layerName = layerEntry.first;
+            auto layer = layerEntry.second;
+            bool isHidden = layer->isHidden();
+            if(ImGui::Checkbox((layerName).c_str(), &isHidden)){
+                layer->changeHidden(isHidden);
+                std::cout<<"layerEntry changed:"<< layer->isHidden() <<std::endl;
             }
         }
-        ImGui::InputText("",((ProjectViewerData *)viewer->data())->layer_name);
-        if(ImGui::Button("Add Layer3")){
-            MenuManager::OnAddLayer(((ProjectViewerData *)viewer->data())->layer_name,true);
-            ((ProjectViewerData *)viewer->data())->layers.emplace_back(((ProjectViewerData *)viewer->data())->layer_name, true);
+
+
+        ImGui::InputText("##NEW LAYER NAME", newLayerName, 30);
+        if(ImGui::Button("Add Layer")){
+            auto newName = std::string(newLayerName);
+            if(!newName.empty()) {
+                ((Project *) viewer)->layerManager.addLayer(newName);
+                delete[] newLayerName;
+                newLayerName = strdup("");
+            }
         }
     }
 
@@ -494,6 +502,7 @@ IGL_INLINE void ProjectImGuiMenu::draw_viewer_menu(igl::opengl::glfw::Viewer *vi
 }
 
 ProjectImGuiMenu::~ProjectImGuiMenu() {
+    delete newLayerName;
     delete font;
 }
 

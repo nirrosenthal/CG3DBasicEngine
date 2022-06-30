@@ -36,13 +36,14 @@ public:
 	~Project(void);
     long GetGlobalTime();
     void SetGlobalTime(long time);
+    LayerManager layerManager;
 private:
     std::vector<std::shared_ptr<SceneShape>> shapesGlobal;
     Renderer *renderer = nullptr;
     long globalTime;
 
     std::shared_ptr<SceneShape> AddGlobalShape(std::string name, shapes shapeType, std::shared_ptr<ObjectMover> mover,
-                   std::shared_ptr<Layer3> layer);
+                   std::shared_ptr<Layer> layer);
     AnimationStatus animationStatus;
 };
 

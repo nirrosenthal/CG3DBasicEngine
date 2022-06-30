@@ -6,14 +6,6 @@
 #define ASSIGNMENT1_CPP_PROJECTVIEWERDATA_H
 #include "igl/opengl/ViewerData.h"
 
-
-class Layer{
-public:
-    Layer(std::string name, bool isShown): name(name), isShown(isShown){}
-    std::string name = "default";
-    bool isShown = false;
-};
-
 class ProjectViewerData: public igl::opengl::ViewerData {
 public:
     ProjectViewerData();
@@ -24,8 +16,6 @@ public:
     int cameraScreen2Indx = 0;
     std::vector<std::string> cameras;
     std::string camera_name;
-    std::vector<Layer> layers;
-    std::string layer_name;
     int material_indx = 0;
     unsigned int is_visible;
 };

@@ -34,6 +34,7 @@ private:
 //    Icon playButton;
     Theme theme;
     ImFont* font = nullptr;
+    char* newLayerName = strdup("");
 
 };
 

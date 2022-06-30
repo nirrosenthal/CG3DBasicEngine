@@ -1,100 +1,51 @@
 #include "LayerManager.h"
 #include <iostream>
-using namespace std;
+#include <utility>
 
 // create new Layer goes by LayerName. also initiate shapes as list of Shapes and set hidden to false 
-LayerManager::Layer(string LayerName): layerName(LayerName), shapes(new list<Shape>()), hidden(false){}
+Layer::Layer(std::string layerName): layerName(std::move(layerName)), hidden(false)
+{
+}
 
+void Layer::addShape(std::shared_ptr<Shape> shape) {
+    shapes.push_back(shape);
+}
+
+void Layer::deleteShape(std::shared_ptr<Shape> shape) {
+    std::vector<std::shared_ptr<Shape>> newShapes;
+    for(std::shared_ptr<Shape> s : shapes) {
+        if(s != shape) {
+            newShapes.push_back(s);
+        }
+    }
+    shapes = newShapes;
+}
 
 
 // create a new LayerManager by initating layers as a list of Layers and inserting the default layer at first
-LayerManager::LayerManager(): layers(new list<Layer>()) {
-	layers.push_back(new Layer("default layer"));
+LayerManager::LayerManager() = default;
+
+// returns the layer with the given name, or nullptr if it doesn't exist.
+std::shared_ptr<Layer> LayerManager::getLayer(const std::string& name) {
+    if(layers.find(name) == layers.end())
+        return nullptr;
+    return layers[name];
 }
 
-// side function to find layer layerName on layers using std find function
-// if layerName isn't in layerName, returns layers.end() indicator
-Layer findLayer(string layerName) {
-	for (it = layers.begin(); it != layers.end(); ++it) {
-		Layer l = *it;
-		if (l.layerName == layerName)
-			return l;
-	}
-	return layers.end();
+// Creates a layer with the given name, returns false iff it fails.
+bool LayerManager::addLayer(const std::string& layerName) {
+    if(layers.find(layerName) != layers.end())
+        return false;
+    layers[layerName] = std::make_shared<Layer>(layerName);
+    return true;
+
 }
 
-// side function to check if layerName doenst exsist in layers
-// return true if layerName isn't in layers
-//		  or false if layerName is in layers
-boolean isntInLayers(string layerName) {
-	Layer l = findLayer(layerName);
-	return l == end(layers)
-}
-
-// get layerName from layers.
-// 
-// @inv: layerName exsits in layers
-boolean LayerManager::isHidden(string layerName) {
-	Layer l = findLayer(layerName);
-	return l.hidden;
-}
-
-// hide layerName in layers.
-// 
-// @inv: layerName exsits in layers
-void LayerManager::hideLayer(string layerName) {
-	if (isntInLayers(layerName))
-		return;
-	Layer l = findLayer(layerName);
-	l.changeHidden(true);
-}
-
-// show layerName in layers.
-// 
-// @inv: layerName exsits in layers
-void LayerManager::showLayer(string layerName) {
-	if (isntInLayers(layerName))
-		return;
-	Layer l = findLayer(layerName);
-	l.changeHidden(false);
-}
-
-// add shape to layerName in layers 
-// 
-// @inv: layerName exsists in layers and shape isnt in layerName.shapes
-
-void LayerManager::addShape(string layerName, Shape shape) {
-	if (isntInLayers(layerName))
-		return;
-	Layer l = findLayer(layerName);
-	l.shapes.push_back(shape);
-}
-
-// remove shape from layerName's object list
-//
-// @inv: layerName exists in layers and shape is in layerName.shapes
-void LayerManager::removeShape(string layerName, Shape shape) {
-	if (isntInLayers(layerName))
-		return;
-	Layer l = findLayer(layerName);
-	l.shapes.remove(shape);
-}
-
-// try to add new layer that goes by layerName to layers.
-//
-// @return: return true if layerName isn't in layers (meaning the name is usable)
-//			or false if layerName is in layers.
-boolean LayerManager::addLayer(string layerName) {
-	if (!isntInLayers(layerName)) // checks if layerName is not isntInLayers (meaning it is in layers)
-		return false;
-	Layer l = findLayer(layerName);
-	layers.insert(new Layer(layerName));
-	return true;
-}
-
-void LayerManager::removeLayer(string layerName) {
-	if (layerName == "default layer" || isntInLayers(layerName))
-		return;
-	Layer l = findLayer(layerName);
-	layers.remove(l);
+// Deletes the given layer, returns false iff it fails.
+bool LayerManager::removeLayer(std::shared_ptr<Layer> layer) {
+    auto it = layers.find(layer->getName());
+    if(it == layers.end())
+        return false;
+    layers.erase(it);
+    return true;
 }

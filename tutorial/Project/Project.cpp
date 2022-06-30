@@ -64,7 +64,7 @@ Project::Project(): igl::opengl::glfw::Viewer() {
 //}
 
 std::shared_ptr<SceneShape> Project::AddGlobalShape(std::string name, igl::opengl::glfw::Viewer::shapes shapeType,
-                             std::shared_ptr<ObjectMover> mover, std::shared_ptr<Layer3> layer) {
+                             std::shared_ptr<ObjectMover> mover, std::shared_ptr<Layer> layer) {
 
     int index = AddShape(shapeType, -1, TRIANGLES);
     std::shared_ptr<SceneShape> scnShape = std::make_shared<SceneShape>(name, shapeType, mover, layer,index);

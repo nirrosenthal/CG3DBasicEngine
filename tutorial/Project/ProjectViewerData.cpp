@@ -8,7 +8,6 @@ IGL_INLINE ProjectViewerData::ProjectViewerData():
     camera_split      (0),
     is_visible        (~unsigned(0)) {
     cameras.emplace_back("Main Camera");
-    layers.emplace_back("Default layer",true);
 }
 
 void ProjectViewerData::set_visible(bool value, unsigned int property_id) {

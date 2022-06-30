@@ -8,18 +8,15 @@
 #include <Eigen/Core>
 #include "igl/opengl/glfw/Viewer.h"
 #include "ObjectMover.h"
+#include "LayerManager.h"
 
-class Layer3 {
-public:
-    bool isVisible;
-};
 
 class SceneShape {
 public:
     SceneShape(std::string shapeName, igl::opengl::glfw::Viewer::shapes shapeType,
-               std::shared_ptr<ObjectMover> mover, std::shared_ptr<Layer3> layer, int index);
-    std::shared_ptr<Layer3> getLayer();
-    void changeLayer(std::shared_ptr<Layer3> layer);
+               std::shared_ptr<ObjectMover> mover, std::shared_ptr<Layer> layer, int index);
+    std::shared_ptr<Layer> getLayer();
+    void changeLayer(std::shared_ptr<Layer> layer);
     int getIndex();
     bool isDrawn(float time);
     Eigen::Vector3f getPosition(float time);
@@ -37,7 +34,7 @@ private:
     std::string name;
     igl::opengl::glfw::Viewer::shapes type;
     ObjectMoverSplit mover;
-    std::shared_ptr<Layer3> layer;
+    std::shared_ptr<Layer> layer;
     int index;
     Eigen::Vector3f lastDrawnPosition;
     int parent;
