@@ -161,7 +161,8 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
         {
             std::string layerName = layerEntry.first;
             auto layer = layerEntry.second;
-            if(ImGui::Button("X")){
+            std::string buttonLabel = "X##" + layerName;
+            if(ImGui::Button(buttonLabel.c_str())){
                 if(!project->layerManager.removeLayer(layer)) {
                     std::string errorMsg = "Failed to remove layer " + layerName + ".\r\nPlease make sure it has no shapes and try again.";
                     nextState = NextState(NEW, std::make_shared<ErrorMsgState>(errorMsg));
