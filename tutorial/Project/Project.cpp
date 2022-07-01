@@ -370,5 +370,8 @@ void Project::SetGlobalTime(long time) {
     globalTime = time;
 }
 
-
-
+void Project::UpdateWindowLocation(ImVec2 topLeft, ImVec2 bottomRight)
+{
+    windowLocation.topLeft = topLeft;
+    windowLocation.bottomRight = bottomRight;
+}

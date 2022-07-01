@@ -5,6 +5,10 @@
 #include "ProjectViewerData.h"
 
 enum AnimationStatus {PLAYING, STOPPED, PAUSED};
+struct WindowLocation {
+    ImVec2 topLeft;
+    ImVec2 bottomRight;
+};
 class Project : public igl::opengl::glfw::Viewer
 {
 	
@@ -32,18 +36,19 @@ public:
     void Pause();
     void Stop();
     void Replay();
-    ImVec2 menuSize;
     float maxTime();
     AnimationStatus getAnimationStatus();
 	~Project(void);
     long GetGlobalTime();
     void SetGlobalTime(long time);
+    void UpdateWindowLocation(ImVec2 topLeft, ImVec2 bottomRight);
     LayerManager layerManager;
+    WindowLocation GetWindowLocation() {return windowLocation;};
 private:
     std::vector<std::shared_ptr<SceneShape>> shapesGlobal;
     Renderer *renderer = nullptr;
     long globalTime;
-
+    WindowLocation windowLocation;
     std::shared_ptr<SceneShape> AddGlobalShape(std::string name, shapes shapeType, std::shared_ptr<ObjectMover> mover,
                    std::shared_ptr<Layer> layer);
     AnimationStatus animationStatus;

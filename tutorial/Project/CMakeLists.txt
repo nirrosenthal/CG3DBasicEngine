@@ -5,5 +5,5 @@ project(${PROJECT_NAME})
 #add_executable(${PROJECT_NAME} ${SANDBOX})
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}) # set the binary directory to build folder
 set (VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_BINARY_DIR}) # set the binary directory to build folder
-add_executable(${PROJECT_NAME}_bin Project.cpp Project.h main.cpp InputManager.h SceneShape.cpp SceneShape.h ObjectMover.cpp ObjectMover.h ProjectImGuiMenu.cpp ProjectImGuiMenu.h ProjectViewerData.cpp ProjectViewerData.h LayerManager.cpp LayerManager.h)
+add_executable(${PROJECT_NAME}_bin Project.cpp Project.h main.cpp InputManager.h SceneShape.cpp SceneShape.h ObjectMover.cpp ObjectMover.h ProjectImGuiMenu.cpp ProjectImGuiMenu.h ProjectViewerData.cpp ProjectViewerData.h LayerManager.cpp LayerManager.h GuiState.cpp GuiState.h StyleManager.h)
 target_link_libraries(${PROJECT_NAME}_bin igl::core igl::opengl igl::opengl_glfw igl::opengl_glfw_imgui igl::png)

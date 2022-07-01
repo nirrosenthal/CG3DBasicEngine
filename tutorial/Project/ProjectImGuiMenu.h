@@ -3,12 +3,14 @@
 //
 #include "igl/opengl/glfw/imgui/ImGuiMenu.h"
 #include "imgui.h"
+#include "Project.h"
+#include "GuiState.h"
 #include <igl/project.h>
+#include <stack>
 
 #ifndef ASSIGNMENT1_CPP_PROJECTIMGUIMENU_H
 #define ASSIGNMENT1_CPP_PROJECTIMGUIMENU_H
 
-enum Theme {DARK, LIGHT};
 
 class Icon {
 public:
@@ -24,6 +26,8 @@ private:
 };
 
 
+
+
 class ProjectImGuiMenu : public igl::opengl::glfw::imgui::ImGuiMenu {
 public:
     ProjectImGuiMenu();
@@ -32,10 +36,9 @@ public:
     ~ProjectImGuiMenu();
 private:
 //    Icon playButton;
-    Theme theme;
+    std::stack<std::shared_ptr<GuiState>> guiStates;
     ImFont* font = nullptr;
-    char* newLayerName = strdup("");
-
+    ImFont *boldFont = nullptr;
 };
 
 
