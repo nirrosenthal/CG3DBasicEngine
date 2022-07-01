@@ -2,7 +2,7 @@
 // Created by ditto on 29/06/2022.
 //
 
-#include "ProjectImGuiMenu.h"
+#include "Gui.h"
 #include "MenuManager.h"
 #include "Project.h"
 #include "stb_image.h"
@@ -12,11 +12,6 @@
 Icon::~Icon() {
     delete[] texture;
 }
-
-
-
-
-
 
 
 Icon::Icon(const char* filename) {
@@ -64,14 +59,14 @@ int Icon::getHeight() {
 }
 
 
-ProjectImGuiMenu::ProjectImGuiMenu() :
+Gui::Gui() :
  igl::opengl::glfw::imgui::ImGuiMenu()
 // playButton("textures/play_button.jpg")
  {
 
  }
 
-void ProjectImGuiMenu::init(Display *disp) {
+void Gui::init(Display *disp) {
     ImGuiMenu::init(disp);
     ImGuiIO &io = ImGui::GetIO();
     font = io.Fonts->AddFontFromFileTTF("textures/Calibri.ttf", 12);
@@ -81,10 +76,10 @@ void ProjectImGuiMenu::init(Display *disp) {
 
 
 
-IGL_INLINE void ProjectImGuiMenu::draw_viewer_menu(igl::opengl::glfw::Viewer *viewer,
-                                                   std::vector<igl::opengl::Camera*> &camera,
-                                                   Eigen::Vector4i& viewWindow,
-                                                   std::vector<DrawInfo *> drawInfos) {
+IGL_INLINE void Gui::draw_viewer_menu(igl::opengl::glfw::Viewer *viewer,
+                                      std::vector<igl::opengl::Camera*> &camera,
+                                      Eigen::Vector4i& viewWindow,
+                                      std::vector<DrawInfo *> drawInfos) {
     NextState nextState = guiStates.top()->Run((Project *)viewer, camera, viewWindow, drawInfos, font, boldFont);
     if(nextState.step == NEW)
         guiStates.push(nextState.state);
@@ -94,7 +89,7 @@ IGL_INLINE void ProjectImGuiMenu::draw_viewer_menu(igl::opengl::glfw::Viewer *vi
 
 
 
-ProjectImGuiMenu::~ProjectImGuiMenu() {
+Gui::~Gui() {
     while(!guiStates.empty())
         guiStates.pop();
     delete font;

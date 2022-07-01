@@ -1,7 +1,7 @@
 #include "igl/opengl/glfw/renderer.h"
 #include "Project.h"
 #include "InputManager.h"
-#include "ProjectImGuiMenu.h"
+#include "Gui.h"
 
 int main(int argc,char *argv[])
 {
@@ -15,7 +15,7 @@ int main(int argc,char *argv[])
 	x.push_back(DISPLAY_WIDTH);
 	y.push_back(DISPLAY_HEIGHT);
     Display disp = Display(DISPLAY_WIDTH, DISPLAY_HEIGHT, "OPENGL");
-    igl::opengl::glfw::imgui::ImGuiMenu* menu = new ProjectImGuiMenu();
+    igl::opengl::glfw::imgui::ImGuiMenu* menu = new Gui();
 
     Renderer* rndr = new Renderer(CAMERA_ANGLE, (float)DISPLAY_WIDTH/(float)DISPLAY_HEIGHT, NEAR, FAR);
 	Project *scn = new Project();  //initializing scene

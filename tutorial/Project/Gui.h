@@ -28,12 +28,12 @@ private:
 
 
 
-class ProjectImGuiMenu : public igl::opengl::glfw::imgui::ImGuiMenu {
+class Gui : public igl::opengl::glfw::imgui::ImGuiMenu {
 public:
-    ProjectImGuiMenu();
+    Gui();
     IGL_INLINE virtual void init(Display* disp);
     IGL_INLINE virtual void draw_viewer_menu(igl::opengl::glfw::Viewer* viewer, std::vector<igl::opengl::Camera*> &camera,Eigen::Vector4i& viewWindow,std::vector<DrawInfo *> drawInfos) override;
-    ~ProjectImGuiMenu();
+    ~Gui();
 private:
 //    Icon playButton;
     std::stack<std::shared_ptr<GuiState>> guiStates;

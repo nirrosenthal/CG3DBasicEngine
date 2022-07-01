@@ -99,8 +99,8 @@ namespace glfw
     //
     // Inputs:
     //   mesh_id  unique identifier associated to the desired mesh (current mesh if -1)
-    IGL_INLINE ViewerData* data(int mesh_id = -1);
-    IGL_INLINE const ViewerData* data(int mesh_id = -1) const;
+    IGL_INLINE virtual ViewerData* data(int mesh_id = -1);
+    IGL_INLINE virtual const ViewerData* data(int mesh_id = -1) const;
 
     // Append a new "slot" for a mesh (i.e., create empty entries at the end of
     // the data_list and opengl_state_list.
@@ -112,7 +112,7 @@ namespace glfw
     // Side Effects:
     //   selected_data_index is set this newly created, last entry (i.e.,
     //   #meshes-1)
-    IGL_INLINE int append_mesh(bool visible = true);
+    IGL_INLINE virtual int append_mesh(bool visible = true);
 
     // Erase a mesh (i.e., its corresponding data and state entires in data_list
     // and opengl_state_list)
