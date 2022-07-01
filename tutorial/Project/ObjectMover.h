@@ -22,13 +22,13 @@ public:
 class ObjectMoverSplit: public ObjectMover {
 public:
     ObjectMoverSplit(std::shared_ptr<ObjectMover> firstMover);
+    ObjectMoverSplit();
     Eigen::Vector3f getPosition(float time);
     float getStartTime();
     float getEndTime();
     MoverType getTag();
     void shift(Eigen::Vector3f shiftValue);
     void addMover(std::shared_ptr<ObjectMover> mover);
-private:
     std::vector<std::shared_ptr<ObjectMover>> movers;
 };
 

@@ -9,6 +9,7 @@
 NextState::NextState(GuiStep step): step(step), state(nullptr){}
 NextState::NextState(GuiStep step, std::shared_ptr<GuiState> state): step(step), state(state) {}
 
+// {Axis, xCylinder,yCylinder,zCylinder, Plane, Cube, Octahedron, Tethrahedron, LineCopy, MeshCopy, Sphere }
 GuiState::GuiState(GuiStatus tag): tag(tag) {
 
 }
@@ -153,6 +154,15 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
                                [&](bool value) { return drawInfos[1]->set(option, value); }
         );
     };
+    if (ImGui::CollapsingHeader("Shapes", ImGuiTreeNodeFlags_DefaultOpen)){
+        for(const auto& shp : project->getAllShapes()) {
+            if(ImGui::Button(shp->name.c_str()))
+                nextState = NextState(NEW, std::make_shared<ShapeEditingState>(shp));
+        }
+        if(ImGui::Button("Create a new shape## new shape")){
+            nextState = NextState(NEW, std::make_shared<ShapeEditingState>());
+        }
+    }
     ImGui::ColorEdit4("Background", drawInfos[1]->Clear_RGBA.data(),
                       ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_PickerHueWheel);
     auto layers = project->layerManager.layers;
@@ -188,7 +198,7 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
         }
     }
 
-    std::string tempStr = "material" + (std::to_string(((ProjectViewerData *)project->data())->material_indx));
+    std::string tempStr = "material";
     const char* current_material_item = tempStr.c_str();
     if (ImGui::BeginCombo("##materials combo", current_material_item))
     {
@@ -262,7 +272,7 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
             ImGui::EndCombo();
         }
         ImGui::Text("Camera name:");
-        ImGui::InputText(".",(((ProjectViewerData *)project->data())->camera_name));
+        ImGui::InputText("##@@@.",(((ProjectViewerData *)project->data())->camera_name));
         if(ImGui::Button("Add Camera")){
             ((ProjectViewerData *)project->data())->cameras.push_back(((ProjectViewerData *)project->data())->camera_name);
             MenuManager::OnAddCamera(((ProjectViewerData *)project->data())->camera_name);
@@ -358,3 +368,196 @@ NextState ErrorMsgState::Run(Project *project, std::vector<igl::opengl::Camera *
     ImGui::End();
     return nextState;
 }
+
+ShapeEditingState::ShapeEditingState():
+ GuiState(SHAPE_EDITING),
+ editingMode(CREATE_NEW),
+ name(strdup("")),
+ type(nullptr)
+{
+
+}
+
+ShapeEditingState::ShapeEditingState(std::shared_ptr<SceneShape> shp):
+        GuiState(SHAPE_EDITING),
+        editingMode(EDIT_EXISTING),
+        name(strdup(shp->name.c_str())),
+        type(std::make_shared<igl::opengl::glfw::Viewer::shapes>(shp->type)),
+        layer(shp->getLayer()),
+        shader(shp->shader)
+{
+    mover = ObjectMoverSplit(shp->mover.movers[0]);
+    for(size_t i=1; i<shp->mover.movers.size(); i++)
+        mover.addMover(shp->mover.movers[i]);
+}
+
+
+std::map<std::string, igl::opengl::glfw::Viewer::shapes> SHAPE_TYPES = {
+        {"Axis", igl::opengl::glfw::Viewer::shapes::Axis},
+        {"X Cylinder", igl::opengl::glfw::Viewer::shapes::xCylinder},
+        {"Y Cylinder", igl::opengl::glfw::Viewer::shapes::yCylinder},
+        {"Z Cylinder", igl::opengl::glfw::Viewer::shapes::zCylinder},
+        {"Plane", igl::opengl::glfw::Viewer::shapes::Plane},
+        {"Cube", igl::opengl::glfw::Viewer::shapes::Cube},
+        {"Octahedron", igl::opengl::glfw::Viewer::shapes::Octahedron},
+        {"Tetrahedron", igl::opengl::glfw::Viewer::shapes::Tethrahedron},
+        {"LineCopy", igl::opengl::glfw::Viewer::shapes::LineCopy},
+        {"MeshCopy", igl::opengl::glfw::Viewer::shapes::MeshCopy},
+        {"Sphere", igl::opengl::glfw::Viewer::shapes::Sphere},
+};
+
+std::map<igl::opengl::glfw::Viewer::shapes, std::string> SHAPE_TYPES_REV = {
+        {igl::opengl::glfw::Viewer::shapes::Axis, "Axis"},
+        {igl::opengl::glfw::Viewer::shapes::xCylinder, "X Cylinder"},
+        {igl::opengl::glfw::Viewer::shapes::yCylinder, "Y Cylinder"},
+        {igl::opengl::glfw::Viewer::shapes::zCylinder, "Z Cylinder"},
+        {igl::opengl::glfw::Viewer::shapes::Plane, "Plane"},
+        {igl::opengl::glfw::Viewer::shapes::Cube, "Cube"},
+        {igl::opengl::glfw::Viewer::shapes::Octahedron, "Octahedron"},
+        {igl::opengl::glfw::Viewer::shapes::Tethrahedron, "Tetrahedron"},
+        {igl::opengl::glfw::Viewer::shapes::LineCopy, "LineCopy"},
+        {igl::opengl::glfw::Viewer::shapes::MeshCopy, "MeshCopy"},
+        {igl::opengl::glfw::Viewer::shapes::Sphere, "Sphere"}
+};
+
+NextState
+ShapeEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera, Eigen::Vector4i &viewWindow,
+                       std::vector<DrawInfo *> drawInfos, ImFont *font, ImFont *boldFont) {
+    NextState nextState(CONTINUE);
+
+    BeginCentered("Shape Editing");
+    std::string header;
+    if(editingMode == CREATE_NEW)
+        header = "New shape";
+
+    else
+        header = "Edit: " + std::string(name);
+    Header(header.c_str(), boldFont);
+    if (ImGui::CollapsingHeader("Name", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if(editingMode == CREATE_NEW)
+            ImGui::InputText("##Name", name, 30);
+        else
+            ImGui::Text("%s", name);
+    }
+    if (ImGui::CollapsingHeader("Type", ImGuiTreeNodeFlags_DefaultOpen)) {
+        std::string firstTypeName = "";
+        if(type != nullptr)
+            firstTypeName = SHAPE_TYPES_REV[*type];
+        if(editingMode == EDIT_EXISTING)
+            ImGui::Text("%s", firstTypeName.c_str());
+        else {
+            if (ImGui::BeginCombo("##Type combo", firstTypeName.c_str())) {
+                for (int i = igl::opengl::glfw::Viewer::shapes::Axis;
+                     i != igl::opengl::glfw::Viewer::shapes::Sphere; i++) {
+                    igl::opengl::glfw::Viewer::shapes currentType = static_cast<igl::opengl::glfw::Viewer::shapes>(i);
+                    std::string typeName = SHAPE_TYPES_REV[currentType];
+                    bool isSelected = type != nullptr && currentType == *type;
+                    if (ImGui::Selectable(typeName.c_str(), isSelected)) {
+                        type = std::make_shared<igl::opengl::glfw::Viewer::shapes>(currentType);
+                    }
+                    if (isSelected) {
+                        ImGui::SetItemDefaultFocus();
+                    }
+
+
+                }
+                ImGui::EndCombo();
+
+            }
+        }
+
+        if (ImGui::CollapsingHeader("Shader", ImGuiTreeNodeFlags_DefaultOpen)) {
+            auto allShaders = project->GetAllShaders();
+            std::string shaderName = project->GetShaderName(shader);
+            if (ImGui::BeginCombo("##Shader combo", shaderName.c_str())) {
+                for(auto &currentShader: allShaders) {
+                    bool isSelected = currentShader == shaderName;
+                    if(ImGui::Selectable(currentShader.c_str(), isSelected)) {
+                        shader = project->GetShaderId(shaderName);
+                    }
+                    if (isSelected) {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+                ImGui::EndCombo();
+            }
+        }
+
+        if (ImGui::CollapsingHeader("Layer", ImGuiTreeNodeFlags_DefaultOpen)) {
+            auto allLayers = project->layerManager.layers;
+            std::string layerName;
+            if(layer != nullptr)
+                layerName = layer->getName();
+            if (ImGui::BeginCombo("##Layer combo", layerName.c_str())) {
+                for(auto currentLayerEntry: allLayers) {
+                    auto currentLayer = currentLayerEntry.second;
+                    bool isSelected = currentLayer == layer;
+
+                    if(ImGui::Selectable(currentLayer->getName().c_str(), isSelected)) {
+                        layer = currentLayer;
+                    }
+                    if (isSelected) {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+                ImGui::EndCombo();
+            }
+        }
+
+        bool saveSucceed = true;
+        if(ImGui::Button("Save")){
+            nextState = NextState(EXIT);
+            if(std::string(name).empty()) {
+                nextState = NextState(NEW, std::make_shared<ErrorMsgState>("Name cannot be empty!"));
+                saveSucceed = false;
+            }
+            if(project->layerManager.getLayer(name) != nullptr) {
+                nextState = NextState(NEW, std::make_shared<ErrorMsgState>(
+                        "Shape: " + std::string(name) + " already exists!"));
+                saveSucceed = false;
+            }
+            if(layer == nullptr) {
+                nextState = NextState(NEW, std::make_shared<ErrorMsgState>("Layer cannot be empty!"));
+                saveSucceed = false;
+            }
+            if(type == nullptr) {
+                nextState = NextState(NEW, std::make_shared<ErrorMsgState>("Type cannot be empty!"));
+                saveSucceed = false;
+            }
+            if(editingMode == CREATE_NEW && saveSucceed) {
+                std::vector<Eigen::Vector3f> points = {Eigen::Vector3f(0,0,0),
+                                                       Eigen::Vector3f(0,20,0),
+                                                       Eigen::Vector3f(-10,-10,-100),
+                                                       Eigen::Vector3f(0,0,0)};
+                std::shared_ptr<ObjectMoverBezier> bez = std::make_shared<ObjectMoverBezier>(points, 0, 500);
+                project->AddGlobalShape(name, *type, bez, layer, project->GetShaderName(shader));
+            } else if(editingMode == EDIT_EXISTING && saveSucceed) {
+                auto shape = project->GetGlobalShape(std::string(name));
+                shape->name = name;
+                shape->mover = mover;
+                if(layer != shape->getLayer()) {
+                    shape->getLayer()->deleteShape(shape);
+                    shape->changeLayer(layer);
+                    layer->addShape(shape);
+                }
+            }
+
+        }
+        ImGui::SameLine();
+        if(ImGui::Button("Close")){
+            nextState = NextState(EXIT);
+        }
+    }
+
+    ImVec2 topLeft = ImGui::GetWindowPos();
+    ImVec2 winSize = ImGui::GetWindowSize();
+    ImVec2 bottomRight(topLeft.x + winSize.x, topLeft.y + winSize.y);
+    project->UpdateWindowLocation(topLeft, bottomRight);
+    ImGui::End();
+    return nextState;
+}
+
+ShapeEditingState::~ShapeEditingState() {
+    delete[] name;
+}
+

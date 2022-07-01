@@ -2,7 +2,13 @@
 #include <iostream>
 #include <chrono>
 
-
+bool endsWith (std::string const &fullString, std::string const &ending) {
+    if (fullString.length() >= ending.length()) {
+        return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
+    } else {
+        return false;
+    }
+}
 static void printMat(const Eigen::Matrix4d& mat)
 {
 	std::cout<<" matrix:"<<std::endl;
@@ -16,7 +22,7 @@ static void printMat(const Eigen::Matrix4d& mat)
 
 long getCurrentUnixTime() {
     const auto p1 = std::chrono::system_clock::now();
-    return std::chrono::duration_cast<std::chrono::milliseconds>(p1.time_since_epoch()).count();
+    return std::chrono::duration_cast<std::chrono::seconds>(p1.time_since_epoch()).count();
 }
 
 IGL_INLINE void Project::Draw(int shaderIndx, const Eigen::Matrix4f &Proj, const Eigen::Matrix4f &View, int viewportIndx, unsigned int flgs,unsigned int property_id)
@@ -142,11 +148,14 @@ Project::Project(): igl::opengl::glfw::Viewer() {
 //}
 
 std::shared_ptr<SceneShape> Project::AddGlobalShape(std::string name, igl::opengl::glfw::Viewer::shapes shapeType,
-                             std::shared_ptr<ObjectMover> mover, std::shared_ptr<Layer> layer) {
+                             std::shared_ptr<ObjectMover> mover, std::shared_ptr<Layer> layer, std::string shader) {
 
     int index = AddShape(shapeType, -1, TRIANGLES);
     std::shared_ptr<SceneShape> scnShape = std::make_shared<SceneShape>(name, shapeType, mover, layer,index);
     scnShape->setlastDrawnPosition(Eigen::Vector3f(0,0,0));
+    layer->addShape(scnShape);
+    scnShape->shader = GetShader(shader);
+    scnShape->material = 0;
     shapesGlobal.push_back(scnShape);
     return scnShape;
 
@@ -156,7 +165,7 @@ void Project::Init()
 {
 //    glEnable(GL_BLEND);
 //    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+    lastFileSystemRefreshingTimeSeconds = 0;
     globalTime = 0;
 	unsigned int texIDs[3] = { 1 , 2, 3};
 	unsigned int slots[3] = { 1 , 2, 3 };
@@ -189,9 +198,7 @@ void Project::Init()
 
     std::shared_ptr<ObjectMoverBezier> bez = std::make_shared<ObjectMoverBezier>(points, 0, 500);
     auto defaultLayer = layerManager.addLayer("default");
-    std::shared_ptr<SceneShape> shp = AddGlobalShape("test", Cube, bez, defaultLayer);
-    defaultLayer->addShape(shp);
-
+    std::shared_ptr<SceneShape> shp = AddGlobalShape("test", Cube, bez, defaultLayer, "basicShader");
     shapesGlobal[shp->getIndex()]->addMover(std::make_shared<ObjectMoverConstant>(Eigen::Vector3f(0,0,0),
                                                                                 500, 50));
     shapesGlobal[shp->getIndex()]->addMover(std::make_shared<ObjectMoverBezier>(pointsRev, 550, 500));
@@ -199,7 +206,6 @@ void Project::Init()
 //    shp.addMover( std::make_shared<ObjectMoverBezier>(points, 2100, 500));
 
     shp->material = mat1;
-    shp->shader = shader;
 
 
 
@@ -374,4 +380,62 @@ void Project::UpdateWindowLocation(ImVec2 topLeft, ImVec2 bottomRight)
 {
     windowLocation.topLeft = topLeft;
     windowLocation.bottomRight = bottomRight;
+}
+
+int Project::GetShader(const std::string& shaderName) {
+    if(createdShaders.find(shaderName) != createdShaders.end())
+        return createdShaders[shaderName];
+    std::string shaderPath = SHADERS_FOLDER + shaderName;
+    int shaderId = AddShader(shaderPath);
+    if(shaderId != -1)
+        createdShaders[shaderName] = shaderId;
+    return shaderId;
+}
+
+std::vector<std::string> Project::GetAllShaders() {
+    long currentTime = getCurrentUnixTime();
+    if(currentTime - lastFileSystemRefreshingTimeSeconds > 60) {
+        RefreshShadersList();
+        lastFileSystemRefreshingTimeSeconds = currentTime;
+    }
+
+    return allShaders;
+}
+
+void Project::RefreshShadersList() {
+    allShaders.clear();
+    for(auto const &file : std::filesystem::directory_iterator(SHADERS_FOLDER)) {
+        std::string path = file.path();
+        if(endsWith(path, ".glsl")) {
+            path = path.substr(0, path.find_last_of('.'));
+            path = path.substr(SHADERS_FOLDER.length(), path.length());
+            allShaders.push_back(path);
+        }
+    }
+
+}
+
+std::vector<std::shared_ptr<SceneShape>> Project::getAllShapes() {
+    return shapesGlobal;
+}
+
+std::shared_ptr<SceneShape> Project::GetGlobalShape(const std::string& name) {
+    for(auto &shape : shapesGlobal) {
+        if(shape->name == name)
+            return shape;
+    }
+    return nullptr;
+}
+
+std::string Project::GetShaderName(int shaderId) {
+    for(auto &entry : createdShaders) {
+        if(shaderId == entry.second)
+            return entry.first;
+    }
+    return "SHADER NOT FOUND";
+}
+int Project::GetShaderId(std::string shaderName) {
+    if(createdShaders.find(shaderName) == createdShaders.end())
+        return -1;
+    return createdShaders[shaderName];
 }

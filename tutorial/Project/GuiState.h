@@ -5,7 +5,7 @@
 
 #ifndef ASSIGNMENT1_CPP_GUISTATE_H
 #define ASSIGNMENT1_CPP_GUISTATE_H
-enum GuiStatus{MENU, ERROR};
+enum GuiStatus{MENU, ERROR, SHAPE_EDITING};
 enum GuiStep{CONTINUE, NEW, EXIT};
 
 class GuiState;
@@ -55,6 +55,30 @@ public:
 private:
     std::string errorMessage;
 
+};
+
+enum ShapeEditingMode {CREATE_NEW, EDIT_EXISTING};
+class ShapeEditingState: public GuiState {
+public:
+    ShapeEditingState();
+    ShapeEditingState(std::shared_ptr<SceneShape> shp);
+    NextState Run(Project* project,
+                  std::vector<igl::opengl::Camera*> &camera,
+                  Eigen::Vector4i& viewWindow,std::vector<DrawInfo *> drawInfos,
+                  ImFont* font, ImFont *boldFont);
+    ~ShapeEditingState();
+
+private:
+    ShapeEditingMode editingMode;
+    char *name;
+    int shader;
+    std::string texture;
+    std::shared_ptr<igl::opengl::glfw::Viewer::shapes> type;
+    ObjectMoverSplit mover;
+    std::shared_ptr<Layer> layer;
+    Eigen::Vector3f lastDrawnPosition;
+    int parent;
+    std::vector<int> children;
 };
 
 

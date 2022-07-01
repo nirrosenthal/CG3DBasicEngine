@@ -18,6 +18,7 @@ public:
     std::shared_ptr<Layer> getLayer();
     void changeLayer(std::shared_ptr<Layer> layer);
     int getIndex();
+    std::string name;
     bool isDrawn(float time);
     Eigen::Vector3f getPosition(float time);
     Eigen::Vector3f getlastDrawnPosition();
@@ -34,21 +35,14 @@ public:
     Eigen::Vector3f dimensions;
     bool isScaledToZero;
     int index;
-
-
-private:
-    std::string name;
     igl::opengl::glfw::Viewer::shapes type;
     ObjectMoverSplit mover;
+
+private:
     std::shared_ptr<Layer> layer;
     Eigen::Vector3f lastDrawnPosition;
     int parent;
     std::vector<int> children;
-
-
-
-
-
 };
 
 

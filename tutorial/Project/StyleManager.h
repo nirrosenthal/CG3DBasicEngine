@@ -13,10 +13,11 @@ std::map<std::string, Theme> THEMES = {
 };
 
 std::map<Theme, std::string> THEMES_REV = {
-        { DARK, "Dark Mode"},
+        {DARK, "Dark Mode"},
         {LIGHT,"Light Mode"}
 };
-std::string DEFAULT_THEME = "Dark Mode";
+
+//{Axis, xCylinder,yCylinder,zCylinder, Plane, Cube, Octahedron, Tethrahedron, LineCopy, MeshCopy, Sphere };
 
 void setDarkMode() {
     ImGuiStyle& style = ImGui::GetStyle();

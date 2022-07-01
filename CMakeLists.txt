@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.1)
+set(CMAKE_CXX_FLAGS "-std=c++17")
 
 # Toggles the use of the hunter package manager
 option(HUNTER_ENABLED "Enable Hunter package manager support" OFF)

@@ -3,12 +3,16 @@
 #include "SceneShape.h"
 #include "igl/opengl/glfw/renderer.h"
 #include "ProjectViewerData.h"
+#include <filesystem>
 
 enum AnimationStatus {PLAYING, STOPPED, PAUSED};
 struct WindowLocation {
     ImVec2 topLeft;
     ImVec2 bottomRight;
 };
+
+const std::string SHADERS_FOLDER = "shaders/";
+const std::string TEXTURES_FOLDER = "textures/";
 class Project : public igl::opengl::glfw::Viewer
 {
 	
@@ -44,14 +48,24 @@ public:
     void UpdateWindowLocation(ImVec2 topLeft, ImVec2 bottomRight);
     LayerManager layerManager;
     WindowLocation GetWindowLocation() {return windowLocation;};
+    std::vector<std::string> GetAllShaders();
+    std::string GetShaderName(int shaderId);
+    int GetShaderId(std::string shaderName);
+    std::vector<std::shared_ptr<SceneShape>> getAllShapes();
+    std::shared_ptr<SceneShape> AddGlobalShape(std::string name, shapes shapeType, std::shared_ptr<ObjectMover> mover,
+                                               std::shared_ptr<Layer> layer, std::string shader);
+    std::shared_ptr<SceneShape> GetGlobalShape(const std::string& name);
 private:
     std::vector<std::shared_ptr<SceneShape>> shapesGlobal;
     Renderer *renderer = nullptr;
     long globalTime;
     WindowLocation windowLocation;
-    std::shared_ptr<SceneShape> AddGlobalShape(std::string name, shapes shapeType, std::shared_ptr<ObjectMover> mover,
-                   std::shared_ptr<Layer> layer);
+    int GetShader(const std::string& shaderName);
     AnimationStatus animationStatus;
+    std::map<std::string, int> createdShaders;
+    std::vector<std::string> allShaders;
+    void RefreshShadersList();
+    long lastFileSystemRefreshingTimeSeconds;
 };
 
 

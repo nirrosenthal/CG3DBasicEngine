@@ -12,6 +12,11 @@ ObjectMoverSplit::ObjectMoverSplit(std::shared_ptr<ObjectMover> firstMover) {
     movers.push_back(firstMover);
 }
 
+ObjectMoverSplit::ObjectMoverSplit() {
+    auto firstMover = std::make_shared<ObjectMoverConstant>(Eigen::Vector3f(0,0,0), 0, 1);
+    movers.push_back(firstMover);
+}
+
 Eigen::Vector3f ObjectMoverSplit::getPosition(float time) {
    for(const std::shared_ptr<ObjectMover>& mover : movers) {
        if(mover->getStartTime() <= time && time < mover->getEndTime())
@@ -45,6 +50,8 @@ void ObjectMoverSplit::addMover(std::shared_ptr<ObjectMover> mover) {
     movers.push_back(mover);
 
 }
+
+
 
 ObjectMoverConstant::ObjectMoverConstant(Eigen::Vector3f pos, float startTime, float duration) {
     if(duration < 0){
