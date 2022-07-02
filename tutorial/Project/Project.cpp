@@ -432,7 +432,7 @@ std::string Project::GetShaderName(int shaderId) {
         if(shaderId == entry.second)
             return entry.first;
     }
-    return "SHADER NOT FOUND";
+    return "";
 }
 int Project::GetShaderId(std::string shaderName) {
     if(createdShaders.find(shaderName) != createdShaders.end()) {
