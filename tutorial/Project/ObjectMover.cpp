@@ -17,6 +17,8 @@ ObjectMoverSplit::ObjectMoverSplit() {
     movers.push_back(firstMover);
 }
 
+ObjectMoverSplit::ObjectMoverSplit(std::vector<std::shared_ptr<ObjectMover>> movers): movers(std::move(movers)) {}
+
 Eigen::Vector3f ObjectMoverSplit::getPosition(float time) {
    for(const std::shared_ptr<ObjectMover>& mover : movers) {
        if(mover->getStartTime() <= time && time < mover->getEndTime())
@@ -51,6 +53,17 @@ void ObjectMoverSplit::addMover(std::shared_ptr<ObjectMover> mover) {
 
 }
 
+std::shared_ptr<ObjectMover> ObjectMoverSplit::clone() {
+    std::vector<std::shared_ptr<ObjectMover>> newMovers;
+    for(auto &mover : movers)
+       newMovers.push_back(mover->clone());
+
+    return std::make_shared<ObjectMoverSplit>(movers);
+}
+
+std::shared_ptr<ObjectMoverSplit> ObjectMoverSplit::cloneAndCast() {
+    return std::static_pointer_cast<ObjectMoverSplit>(clone());
+}
 
 
 ObjectMoverConstant::ObjectMoverConstant(Eigen::Vector3f pos, float startTime, float duration) {
@@ -80,6 +93,10 @@ MoverType ObjectMoverConstant::getTag() {
 
 void ObjectMoverConstant::shift(Eigen::Vector3f shiftValue) {
     position += shiftValue;
+}
+
+std::shared_ptr<ObjectMover> ObjectMoverConstant::clone() {
+    return std::make_shared<ObjectMoverConstant>(position, startTime, endTime-startTime);
 }
 
 ObjectMoverBezier::ObjectMoverBezier(const std::vector<Eigen::Vector3f>& points, float startTime, float duration) {
@@ -132,6 +149,11 @@ MoverType ObjectMoverBezier::getTag() {
 void ObjectMoverBezier::shift(Eigen::Vector3f shiftValue) {
     for(Eigen::Vector3f &point : points)
         point += shiftValue;
+}
+
+std::shared_ptr<ObjectMover> ObjectMoverBezier::clone() {
+    std::vector<Eigen::Vector3f> pointsCopy = points;
+    return std::make_shared<ObjectMoverBezier>(pointsCopy, startTime, endTime-startTime);
 }
 
 bool ObjectMover::isDrawnAt(float time) {

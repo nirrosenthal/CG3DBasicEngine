@@ -17,11 +17,13 @@ public:
     virtual MoverType getTag()=0;
     virtual void shift(Eigen::Vector3f shiftValue)=0;
     bool isDrawnAt(float time);
+    virtual std::shared_ptr<ObjectMover> clone()=0;
 };
 
 class ObjectMoverSplit: public ObjectMover {
 public:
     ObjectMoverSplit(std::shared_ptr<ObjectMover> firstMover);
+    ObjectMoverSplit(std::vector<std::shared_ptr<ObjectMover>> movers);
     ObjectMoverSplit();
     Eigen::Vector3f getPosition(float time);
     float getStartTime();
@@ -30,6 +32,8 @@ public:
     void shift(Eigen::Vector3f shiftValue);
     void addMover(std::shared_ptr<ObjectMover> mover);
     std::vector<std::shared_ptr<ObjectMover>> movers;
+    std::shared_ptr<ObjectMover> clone();
+    std::shared_ptr<ObjectMoverSplit> cloneAndCast();
 };
 
 class ObjectMoverConstant: public ObjectMover {
@@ -40,10 +44,11 @@ public:
     float getEndTime();
     MoverType getTag();
     void shift(Eigen::Vector3f shiftValue);
-private:
-    Eigen::Vector3f position;
     float startTime;
     float endTime;
+    std::shared_ptr<ObjectMover> clone();
+private:
+    Eigen::Vector3f position;
 };
 
 class ObjectMoverBezier: public ObjectMover {
@@ -54,10 +59,10 @@ public:
     float getEndTime();
     MoverType getTag();
     void shift(Eigen::Vector3f shiftValue);
-private:
-    std::vector<Eigen::Vector3f> points;
     float startTime;
     float endTime;
+    std::vector<Eigen::Vector3f> points;
+    std::shared_ptr<ObjectMover> clone();
 };
 
 

@@ -435,7 +435,11 @@ std::string Project::GetShaderName(int shaderId) {
     return "SHADER NOT FOUND";
 }
 int Project::GetShaderId(std::string shaderName) {
-    if(createdShaders.find(shaderName) == createdShaders.end())
-        return -1;
-    return createdShaders[shaderName];
+    if(createdShaders.find(shaderName) != createdShaders.end()) {
+        return createdShaders[shaderName];
+    }
+    int shdr = AddShader(SHADERS_FOLDER + shaderName);
+    if(shdr != -1)
+        createdShaders[shaderName] = shdr;
+    return shdr;
 }

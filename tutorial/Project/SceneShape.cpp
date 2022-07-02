@@ -5,9 +5,16 @@
 #include "SceneShape.h"
 
 SceneShape::SceneShape(std::string shapeName, igl::opengl::glfw::Viewer::shapes shapeType,
-                       std::shared_ptr<ObjectMover> mover, std::shared_ptr<Layer> layer, int index) :
-                       name(shapeName), type(shapeType), mover(ObjectMoverSplit(mover)),
-                       layer(layer), index(index), dimensions(Eigen::Vector3f(1,1,1)), isScaledToZero(false) {}
+                       std::shared_ptr<ObjectMover> moverr, std::shared_ptr<Layer> layer, int index) :
+                       name(shapeName), type(shapeType),layer(layer), index(index),
+                       dimensions(Eigen::Vector3f(1,1,1)), isScaledToZero(false) {
+    if(moverr->getTag() == SPLIT) {
+        this->mover = *std::static_pointer_cast<ObjectMoverSplit>(moverr);
+    }
+    else {
+        this->mover = ObjectMoverSplit(moverr);
+    }
+}
 
 std::shared_ptr<Layer> SceneShape::getLayer() {
     return layer;

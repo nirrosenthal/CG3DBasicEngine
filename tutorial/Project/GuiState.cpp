@@ -384,11 +384,9 @@ ShapeEditingState::ShapeEditingState(std::shared_ptr<SceneShape> shp):
         name(strdup(shp->name.c_str())),
         type(std::make_shared<igl::opengl::glfw::Viewer::shapes>(shp->type)),
         layer(shp->getLayer()),
-        shader(shp->shader)
+        shader(shp->shader),
+        mover(*(shp->mover.cloneAndCast()))
 {
-    mover = ObjectMoverSplit(shp->mover.movers[0]);
-    for(size_t i=1; i<shp->mover.movers.size(); i++)
-        mover.addMover(shp->mover.movers[i]);
 }
 
 
@@ -473,7 +471,7 @@ ShapeEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &cam
                 for(auto &currentShader: allShaders) {
                     bool isSelected = currentShader == shaderName;
                     if(ImGui::Selectable(currentShader.c_str(), isSelected)) {
-                        shader = project->GetShaderId(shaderName);
+                        shader = project->GetShaderId(currentShader);
                     }
                     if (isSelected) {
                         ImGui::SetItemDefaultFocus();
@@ -535,6 +533,7 @@ ShapeEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &cam
                 auto shape = project->GetGlobalShape(std::string(name));
                 shape->name = name;
                 shape->mover = mover;
+                shape->shader = shader;
                 if(layer != shape->getLayer()) {
                     shape->getLayer()->deleteShape(shape);
                     shape->changeLayer(layer);
