@@ -334,6 +334,10 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
         }
     }
 
+    if((ImGui::IsKeyPressed(GLFW_KEY_RIGHT_CONTROL) || ImGui::IsKeyPressed(GLFW_KEY_LEFT_CONTROL)) &&
+               ImGui::IsKeyPressed(GLFW_KEY_N))
+        nextState = NextState(NEW, std::make_shared<ShapeEditingState>());
+
 
     project->UpdateWindowLocation(ImVec2(0,0), ImGui::GetWindowSize());
     ImGui::End();

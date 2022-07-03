@@ -102,12 +102,12 @@
 				glfwSetWindowShouldClose(window, GLFW_TRUE);
 				break;
 				
-			case GLFW_KEY_SPACE:
-				if (scn->IsActive())
-					scn->Deactivate();
-				else
-					scn->Activate();
-				break;
+//			case GLFW_KEY_SPACE:
+//				if (scn->IsActive())
+//					scn->Deactivate();
+//				else
+//					scn->Activate();
+//				break;
 
 			case GLFW_KEY_UP:
 				rndr->MoveCamera(0, scn->xRotate, 0.05f);
@@ -126,40 +126,40 @@
 				//cout<< "down: "<<endl;
 				rndr->MoveCamera(0, scn->yRotate, -0.05f);
 				break;
-			case GLFW_KEY_U:
-				rndr->MoveCamera(0, scn->yTranslate, 0.25f);
-				break;
-			case GLFW_KEY_D:
-				rndr->MoveCamera(0, scn->yTranslate, -0.25f);
-				break;
-			case GLFW_KEY_L:
-				rndr->MoveCamera(0, scn->xTranslate, -0.25f);
-				break;
-			
-			case GLFW_KEY_R:
-				rndr->MoveCamera(0, scn->xTranslate, 0.25f);
-				break;
-			
-			case GLFW_KEY_B:
-				rndr->MoveCamera(0, scn->zTranslate, 0.5f);
-				break;
-			case GLFW_KEY_F:
-				rndr->MoveCamera(0, scn->zTranslate, -0.5f);
-				break;
-			case GLFW_KEY_1:
-				std::cout << "picked 1\n";
-				scn->selected_data_index = 1;
-				break;
-			case GLFW_KEY_2:
-				std::cout << "picked 2\n";
-				scn->selected_data_index = 2;
-				break;
-			case GLFW_KEY_3:
-				std::cout << "picked 3\n";
-				scn->selected_data_index = 3;
-				break;
-			default:
-				break;
+//			case GLFW_KEY_U:
+//				rndr->MoveCamera(0, scn->yTranslate, 0.25f);
+//				break;
+//			case GLFW_KEY_D:
+//				rndr->MoveCamera(0, scn->yTranslate, -0.25f);
+//				break;
+//			case GLFW_KEY_L:
+//				rndr->MoveCamera(0, scn->xTranslate, -0.25f);
+//				break;
+//
+//			case GLFW_KEY_R:
+//				rndr->MoveCamera(0, scn->xTranslate, 0.25f);
+//				break;
+//
+//			case GLFW_KEY_B:
+//				rndr->MoveCamera(0, scn->zTranslate, 0.5f);
+//				break;
+//			case GLFW_KEY_F:
+//				rndr->MoveCamera(0, scn->zTranslate, -0.5f);
+//				break;
+//			case GLFW_KEY_1:
+//				std::cout << "picked 1\n";
+//				scn->selected_data_index = 1;
+//				break;
+//			case GLFW_KEY_2:
+//				std::cout << "picked 2\n";
+//				scn->selected_data_index = 2;
+//				break;
+//			case GLFW_KEY_3:
+//				std::cout << "picked 3\n";
+//				scn->selected_data_index = 3;
+//				break;
+//			default:
+//				break;
 
 			}
 		}
