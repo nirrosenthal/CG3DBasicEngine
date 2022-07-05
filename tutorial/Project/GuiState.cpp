@@ -192,7 +192,7 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
             auto newName = std::string(newLayerName);
             if(!newName.empty()) {
                 project->layerManager.addLayer(newName);
-                delete[] newLayerName;
+                //delete[] newLayerName;
                 newLayerName = strdup("");
             }
         }
@@ -347,7 +347,7 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
 }
 
 MenuState::~MenuState() {
-    delete newLayerName;
+    //delete newLayerName;
 }
 
 ErrorMsgState::ErrorMsgState(std::string errorMessage): GuiState(ERROR), errorMessage(errorMessage) {}
@@ -561,6 +561,6 @@ ShapeEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &cam
 }
 
 ShapeEditingState::~ShapeEditingState() {
-    delete[] name;
+    //delete[] name;
 }
 
