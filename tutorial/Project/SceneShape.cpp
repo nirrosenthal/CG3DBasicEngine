@@ -7,7 +7,8 @@
 SceneShape::SceneShape(std::string shapeName, igl::opengl::glfw::Viewer::shapes shapeType,
                        std::shared_ptr<ObjectMover> moverr, std::shared_ptr<Layer> layer, int index) :
                        name(shapeName), type(shapeType),layer(layer), index(index),
-                       dimensions(Eigen::Vector3f(1,1,1)), isScaledToZero(false) {
+                       dimensions(Eigen::Vector3f(1,1,1)), isScaledToZero(false),
+                       lastDrawnPosition(Eigen::Vector3f(0,0,0)) {
     if(moverr->getTag() == SPLIT) {
         this->mover = *std::static_pointer_cast<ObjectMoverSplit>(moverr);
     }
