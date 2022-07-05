@@ -249,8 +249,7 @@ void Project::Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, c
 	int g = ((shapeIndx+1) & 0x0000FF00) >>  8;
 	int b = ((shapeIndx+1) & 0x00FF0000) >> 16;
 
-
-    pickedShapes = {scnShape->getIndex()};
+    selected_data_index = scnShape->getIndex();
 
     Eigen::Vector3f pos = scnShape->getlastDrawnPosition();
     //std::cout << "(" << pos[0] << "," << pos[1] << "," << pos[2] << ")" << std::endl;
@@ -262,8 +261,8 @@ void Project::Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, c
     ShapeTransformation(xTranslate, delta[0],0);
     ShapeTransformation(yTranslate, delta[1],0);
     ShapeTransformation(zTranslate, delta[2],0);
+
     shapesGlobal[shapeIndx]->setlastDrawnPosition(newPos);
-    pickedShapes.clear();
 
 
 
@@ -282,18 +281,20 @@ void Project::Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, c
 		s->SetUniform4f("lightColor", 4/100.0f, 60 / 100.0f, 99 / 100.0f, 0.5f);
 	//textures[0]->Bind(0);
 
-	
-	
+
+
 
 	//s->SetUniform1i("sampler2", materials[shapes[pickedShape]->GetMaterial()]->GetSlot(1));
 	//s->SetUniform4f("lightDirection", 0.0f , 0.0f, -1.0f, 0.0f);
 //	if(shaderIndx == 0)
 //		s->SetUniform4f("lightColor",r/255.0f, g/255.0f, b/255.0f,1.0f);
-//	else 
+//	else
 //		s->SetUniform4f("lightColor",0.7f,0.8f,0.1f,1.0f);
 	s->Unbind();
 
 }
+
+
 
 
 void Project::WhenRotate()
