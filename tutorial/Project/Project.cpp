@@ -405,7 +405,7 @@ std::vector<std::string> Project::GetAllShaders() {
 void Project::RefreshShadersList() {
     allShaders.clear();
     for(auto const &file : std::filesystem::directory_iterator(SHADERS_FOLDER)) {
-        std::string path = file.path();
+        std::string path = file.path().u8string();
         if(endsWith(path, ".glsl")) {
             path = path.substr(0, path.find_last_of('.'));
             path = path.substr(SHADERS_FOLDER.length(), path.length());
