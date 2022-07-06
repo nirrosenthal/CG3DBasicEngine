@@ -424,6 +424,7 @@ void Project::RefreshShadersList() {
             allShaders.push_back(path);
         }
     }
+    std::sort(allShaders.begin(), allShaders.end());
 
 }
 
