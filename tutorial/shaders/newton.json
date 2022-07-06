@@ -1,0 +1,27 @@
+[
+  {
+    "name": "coefficients",
+    "type": "vec4",
+    "default": [0,0,0,0]
+  },
+  {
+    "name": "zoom_ratio",
+    "type": "float",
+    "default": 1.0
+  },
+  {
+    "name": "num_of_iterations",
+    "type": "int",
+    "default": 10
+  },
+  {
+    "name": "x_offset_in_fractal",
+    "type": "float",
+    "default": 0.0
+  },
+  {
+    "name": "y_offset_in_fractal",
+    "type": "float",
+    "default": 0.0
+  }
+]
