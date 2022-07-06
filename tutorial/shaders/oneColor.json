@@ -1,0 +1,17 @@
+[
+  {
+    "name": "r",
+    "type": "float",
+    "default": 0.0
+  },
+  {
+    "name": "g",
+    "type": "float",
+    "default": 0.0
+  },
+  {
+    "name": "b",
+    "type": "float",
+    "default": 0.0
+  }
+]
