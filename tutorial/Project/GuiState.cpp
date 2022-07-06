@@ -557,6 +557,10 @@ ShapeEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &cam
                         ImGui::InputFloat(("##PARAM" + param->getName() + "3,2").c_str(), &inputMat->value(14));
                         ImGui::SameLine();
                         ImGui::InputFloat(("##PARAM" + param->getName() + "3,3").c_str(), &inputMat->value(15));
+                    } else if (param->getTag() == RGB) {
+                        auto rgb = std::dynamic_pointer_cast<ShaderRGBParam>(param);
+                        ImGui::Text("%s", (param->getName() + ":").c_str());
+                        ImGui::ColorPicker4(("##" + param->getName() + "COLOR PICKING").c_str(), rgb->value);
                     }
                 }
             }

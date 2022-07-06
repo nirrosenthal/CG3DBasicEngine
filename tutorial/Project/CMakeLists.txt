@@ -14,14 +14,5 @@ include(FetchContent)
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.10.5/json.tar.xz)
 FetchContent_MakeAvailable(json)
 
-#target_link_libraries(example PRIVATE nlohmann_json::nlohmann_json)
-#ExternalProject_Add(json
-#        GIT_REPOSITORY https://github.com/nlohmann/json
-#        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-#        )
-
-#include_directories(${EXTERNAL_INSTALL_LOCATION}/include)
-#link_directories(${EXTERNAL_INSTALL_LOCATION}/lib)
-
 add_executable(${PROJECT_NAME}_bin Project.cpp Project.h main.cpp InputManager.h SceneShape.cpp SceneShape.h ObjectMover.cpp ObjectMover.h Gui.cpp Gui.h ProjectViewerData.cpp ProjectViewerData.h LayerManager.cpp LayerManager.h GuiState.cpp GuiState.h StyleManager.h SceneShader.cpp SceneShader.h)
 target_link_libraries(${PROJECT_NAME}_bin igl::core igl::opengl igl::opengl_glfw igl::opengl_glfw_imgui igl::png nlohmann_json::nlohmann_json)

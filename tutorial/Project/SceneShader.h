@@ -12,7 +12,7 @@
 #include <memory>
 #include <nlohmann/json.hpp>
 
-enum ParamType {INT, VEC4_INT, FLOAT, VEC4_FLOAT, MAT4_FLOAT};
+enum ParamType {INT, VEC4_INT, FLOAT, VEC4_FLOAT, MAT4_FLOAT, RGB};
 class ShaderParam {
 public:
     ShaderParam(std::string name, ParamType tag, Shader *shader, bool isValueInitialized);
@@ -81,6 +81,16 @@ public:
     void uploadUniform();
     std::shared_ptr<ShaderParam> clone();
     Eigen::Matrix4f value;
+};
+class ShaderRGBParam: public ShaderParam {
+public:
+    ShaderRGBParam(std::string name, Eigen::Vector4f value, Shader *shader);
+    ShaderRGBParam(std::string name, Shader *shader);
+    void updateUniformValue(Eigen::Vector4f newVal);
+    float *getValue() {return value;};
+    void uploadUniform();
+    std::shared_ptr<ShaderParam> clone();
+    float value[4];
 };
 
 

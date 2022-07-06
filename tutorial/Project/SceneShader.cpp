@@ -15,7 +15,8 @@ std::map<std::string, ParamType> TYPE_NAMES = {
         {"vec4_int", VEC4_INT},
         {"float", FLOAT},
         {"vec4_float", VEC4_FLOAT},
-        {"mat4_float", MAT4_FLOAT}
+        {"mat4_float", MAT4_FLOAT},
+        {"rgb", RGB}
 };
 
 
@@ -211,7 +212,7 @@ SceneShader::SceneShader(std::string name, int id, Shader *engineShader, std::st
             } else {
                 params.push_back(std::make_shared<ShaderFloatVec4Param>(paramName, engineShader));
             }
-        } else { // type == MAT4_Float
+        } else if(type == MAT4_FLOAT) {
             if(param.find("default") != param.end()) {
                 auto val = param["default"];
                 Eigen::Matrix4f mat;
@@ -222,6 +223,15 @@ SceneShader::SceneShader(std::string name, int id, Shader *engineShader, std::st
                 params.push_back(std::make_shared<ShaderFloatMat4Param>(paramName, mat, engineShader));
             } else {
                 params.push_back(std::make_shared<ShaderFloatMat4Param>(paramName, engineShader));
+            }
+        } else if(type == RGB) {
+            if(param.find("default") != param.end()) {
+                auto val = param["default"];
+                params.push_back(std::make_shared<ShaderRGBParam>(paramName,
+                                                                        Eigen::Vector4f(val[0], val[1], val[2], val[3]),
+                                                                        engineShader));
+            } else {
+                params.push_back(std::make_shared<ShaderRGBParam>(paramName, engineShader));
             }
         }
 
@@ -236,4 +246,36 @@ void SceneShader::uploadAllUniforms() {
 
 void SceneShader::setParams(std::vector<std::shared_ptr<ShaderParam>> newParams) {
     params = newParams;
+}
+
+ShaderRGBParam::ShaderRGBParam(std::string name, Eigen::Vector4f value, Shader *shader):
+        ShaderParam(std::move(name), RGB, shader, true)
+{
+    value = {value[0], value[1], value[2], value[3]};
+}
+
+ShaderRGBParam::ShaderRGBParam(std::string name, Shader *shader):
+    ShaderParam(std::move(name), RGB, shader, false)
+{
+
+}
+
+void ShaderRGBParam::updateUniformValue(Eigen::Vector4f newVal) {
+    value[0] = newVal[0];
+    value[1] = newVal[1];
+    value[2] = newVal[2];
+    value[3] = newVal[3];
+    isValueInitialized = true;
+}
+void ShaderRGBParam::uploadUniform() {
+    if(isValueInitialized) {
+        shader->SetUniform4f(getName(), value[0], value[1], value[2], value[3]);
+    }
+}
+std::shared_ptr<ShaderParam> ShaderRGBParam::clone() {
+    if(isValueInitialized) {
+        return std::make_shared<ShaderRGBParam>(name, Eigen::Vector4f(value[0], value[1], value[2], value[3]), shader);
+    }
+    return std::make_shared<ShaderRGBParam>(name, shader);
+
 }
