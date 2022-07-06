@@ -397,6 +397,12 @@ std::shared_ptr<SceneShader> Project::GetShader(const std::string& shaderName) {
     }
     return shader;
 }
+std::shared_ptr<SceneShader> Project::GetShader(const int shaderId) {
+    if(createdShadersById.find(shaderId) == createdShadersById.end())
+        return nullptr;
+    return createdShadersById[shaderId];
+}
+
 
 std::vector<std::string> Project::GetAllShaders() {
     long currentTime = getCurrentUnixTime();
@@ -452,3 +458,4 @@ bool Project::AddGlobalShader(std::shared_ptr<SceneShader> shader) {
     createdShadersById[shader->getId()] = shader;
     return true;
 }
+

@@ -157,7 +157,7 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
     if (ImGui::CollapsingHeader("Shapes", ImGuiTreeNodeFlags_DefaultOpen)){
         for(const auto& shp : project->getAllShapes()) {
             if(ImGui::Button(shp->name.c_str()))
-                nextState = NextState(NEW, std::make_shared<ShapeEditingState>(shp));
+                nextState = NextState(NEW, std::make_shared<ShapeEditingState>(shp, project->GetShader(shp->shader)));
         }
         if(ImGui::Button("Create a new shape## new shape")){
             nextState = NextState(NEW, std::make_shared<ShapeEditingState>());
@@ -379,10 +379,9 @@ ShapeEditingState::ShapeEditingState():
  name(strdup("")),
  type(nullptr)
 {
-
 }
 
-ShapeEditingState::ShapeEditingState(std::shared_ptr<SceneShape> shp):
+ShapeEditingState::ShapeEditingState(std::shared_ptr<SceneShape> shp, std::shared_ptr<SceneShader> scnShader):
         GuiState(SHAPE_EDITING),
         editingMode(EDIT_EXISTING),
         name(strdup(shp->name.c_str())),
@@ -391,6 +390,12 @@ ShapeEditingState::ShapeEditingState(std::shared_ptr<SceneShape> shp):
         shader(shp->shader),
         mover(*(shp->mover.cloneAndCast()))
 {
+    shaderParams = {};
+    if(scnShader == nullptr)
+        return;
+    for(auto param : scnShader->getParams()) {
+        shaderParams.push_back(param->clone());
+    }
 }
 
 
@@ -476,12 +481,84 @@ ShapeEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &cam
                     bool isSelected = currentShader == shaderName;
                     if(ImGui::Selectable(currentShader.c_str(), isSelected)) {
                         shader = project->GetShaderId(currentShader);
+                        std::shared_ptr<SceneShader> scnShader = project->GetShader(shader);
+                        if(scnShader != nullptr) {
+                            shaderParams.clear();
+                            for(auto param : scnShader->getParams())
+                                shaderParams.push_back(param);
+                        }
                     }
+
                     if (isSelected) {
                         ImGui::SetItemDefaultFocus();
                     }
                 }
                 ImGui::EndCombo();
+            }
+        }
+        std::shared_ptr<SceneShader> scnShader = project->GetShader(shader);
+        if(!shaderParams.empty()) {
+            if (ImGui::CollapsingHeader("Shader Params", ImGuiTreeNodeFlags_DefaultOpen)) {
+                for(auto &param : shaderParams) {
+                    if(param->getTag() == INT) {
+                        std::string label = param->getName() + " ##PARAM";
+                        ImGui::InputInt(label.c_str(), &std::dynamic_pointer_cast<ShaderIntParam>(param)->value);
+                    } else if(param->getTag() == FLOAT) {
+                        std::string label = param->getName() + " ##PARAM";
+                        ImGui::InputFloat(label.c_str(), &std::dynamic_pointer_cast<ShaderFloatParam>(param)->value);
+                    } else if(param->getTag() == VEC4_INT) {
+                        auto inputVec = std::dynamic_pointer_cast<ShaderIntVec4Param>(param);
+                        ImGui::Text("%s", (param->getName() + ":").c_str());
+                        ImGui::InputInt(("##PARAM" + param->getName() + "0").c_str(), &inputVec->value[0]);
+                        ImGui::SameLine();
+                        ImGui::InputInt(("##PARAM" + param->getName() + "1").c_str(), &inputVec->value[1]);
+                        ImGui::SameLine();
+                        ImGui::InputInt(("##PARAM" + param->getName() + "2").c_str(), &inputVec->value[2]);
+                        ImGui::SameLine();
+                        ImGui::InputInt(("##PARAM" + param->getName() + "3").c_str(), &inputVec->value[3]);
+                    } else if (param->getTag() == VEC4_FLOAT) {
+                        auto inputVec = std::dynamic_pointer_cast<ShaderFloatVec4Param>(param);
+                        ImGui::Text("%s", (param->getName() + ":").c_str());
+                        ImGui::InputFloat(("##PARAM" + param->getName() + "0").c_str(), &inputVec->value[0]);
+                        ImGui::SameLine();
+                        ImGui::InputFloat(("##PARAM" + param->getName() + "1").c_str(), &inputVec->value[1]);
+                        ImGui::SameLine();
+                        ImGui::InputFloat(("##PARAM" + param->getName() + "2").c_str(), &inputVec->value[2]);
+                        ImGui::SameLine();
+                        ImGui::InputFloat(("##PARAM" + param->getName() + "3").c_str(), &inputVec->value[3]);
+                    } else if (param->getTag() == MAT4_FLOAT) {
+                        auto inputMat = std::dynamic_pointer_cast<ShaderFloatMat4Param>(param);
+                        ImGui::Text("%s", (param->getName() + ":").c_str());
+                        ImGui::InputFloat(("##PARAM" + param->getName() + "0,0").c_str(), &inputMat->value(0));
+                        ImGui::SameLine();
+                        ImGui::InputFloat(("##PARAM" + param->getName() + "0,1").c_str(), &inputMat->value(1));
+                        ImGui::SameLine();
+                        ImGui::InputFloat(("##PARAM" + param->getName() + "0,2").c_str(), &inputMat->value(2));
+                        ImGui::SameLine();
+                        ImGui::InputFloat(("##PARAM" + param->getName() + "0,3").c_str(), &inputMat->value(3));
+                        ImGui::InputFloat(("##PARAM" + param->getName() + "1,0").c_str(), &inputMat->value(4));
+                        ImGui::SameLine();
+                        ImGui::InputFloat(("##PARAM" + param->getName() + "1,1").c_str(), &inputMat->value(5));
+                        ImGui::SameLine();
+                        ImGui::InputFloat(("##PARAM" + param->getName() + "1,2").c_str(), &inputMat->value(6));
+                        ImGui::SameLine();
+                        ImGui::InputFloat(("##PARAM" + param->getName() + "1,3").c_str(), &inputMat->value(7));
+                        ImGui::InputFloat(("##PARAM" + param->getName() + "2,0").c_str(), &inputMat->value(8));
+                        ImGui::SameLine();
+                        ImGui::InputFloat(("##PARAM" + param->getName() + "2,1").c_str(), &inputMat->value(9));
+                        ImGui::SameLine();
+                        ImGui::InputFloat(("##PARAM" + param->getName() + "2,2").c_str(), &inputMat->value(10));
+                        ImGui::SameLine();
+                        ImGui::InputFloat(("##PARAM" + param->getName() + "2,3").c_str(), &inputMat->value(11));
+                        ImGui::InputFloat(("##PARAM" + param->getName() + "3,0").c_str(), &inputMat->value(12));
+                        ImGui::SameLine();
+                        ImGui::InputFloat(("##PARAM" + param->getName() + "3,1").c_str(), &inputMat->value(13));
+                        ImGui::SameLine();
+                        ImGui::InputFloat(("##PARAM" + param->getName() + "3,2").c_str(), &inputMat->value(14));
+                        ImGui::SameLine();
+                        ImGui::InputFloat(("##PARAM" + param->getName() + "3,3").c_str(), &inputMat->value(15));
+                    }
+                }
             }
         }
 
@@ -538,6 +615,7 @@ ShapeEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &cam
                 shape->name = name;
                 shape->mover = mover;
                 shape->shader = shader;
+                project->GetShader(shader)->setParams(shaderParams);
                 if(layer != shape->getLayer()) {
                     shape->getLayer()->deleteShape(shape);
                     shape->changeLayer(layer);

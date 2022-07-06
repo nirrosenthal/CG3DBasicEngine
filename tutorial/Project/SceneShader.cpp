@@ -48,6 +48,12 @@ void ShaderIntParam::uploadUniform() {
         shader->SetUniform1i(getName(), value);
 }
 
+std::shared_ptr<ShaderParam> ShaderIntParam::clone() {
+    if(isValueInitialized)
+        return std::make_shared<ShaderIntParam>(name, value, shader);
+    return std::make_shared<ShaderIntParam>(name, shader);
+}
+
 
 ShaderIntVec4Param::ShaderIntVec4Param(std::string name, Eigen::Vector4i value, Shader *shader):
     ShaderParam(std::move(name), VEC4_INT, shader, true),
@@ -70,6 +76,12 @@ void ShaderIntVec4Param::uploadUniform() {
         shader->SetUniform4i(getName(), value[0], value[1], value[2], value[3]);
 }
 
+std::shared_ptr<ShaderParam> ShaderIntVec4Param::clone() {
+    if(isValueInitialized)
+        return std::make_shared<ShaderIntVec4Param>(name, value, shader);
+    return std::make_shared<ShaderIntVec4Param>(name, shader);
+}
+
 ShaderFloatParam::ShaderFloatParam(std::string name, float value, Shader *shader):
     ShaderParam(std::move(name), FLOAT, shader, true),
     value(value)
@@ -89,6 +101,12 @@ void ShaderFloatParam::updateUniformValue(float newVal) {
 void ShaderFloatParam::uploadUniform() {
     if(isValueInitialized)
         shader->SetUniform1f(getName(), value);
+}
+
+std::shared_ptr<ShaderParam> ShaderFloatParam::clone() {
+    if(isValueInitialized)
+        return std::make_shared<ShaderFloatParam>(name, value, shader);
+    return std::make_shared<ShaderFloatParam>(name, shader);
 }
 
 ShaderFloatVec4Param::ShaderFloatVec4Param(std::string name, Eigen::Vector4f value, Shader *shader):
@@ -114,6 +132,12 @@ void ShaderFloatVec4Param::uploadUniform() {
         shader->SetUniform4f(getName(), value[0], value[1], value[2], value[3]);
 }
 
+std::shared_ptr<ShaderParam> ShaderFloatVec4Param::clone() {
+    if(isValueInitialized)
+        return std::make_shared<ShaderFloatVec4Param>(name, value, shader);
+    return std::make_shared<ShaderFloatVec4Param>(name, shader);
+}
+
 ShaderFloatMat4Param::ShaderFloatMat4Param(std::string name, Eigen::Matrix4f value, Shader *shader):
         ShaderParam(std::move(name), MAT4_FLOAT, shader, true),
         value(value)
@@ -133,6 +157,12 @@ void ShaderFloatMat4Param::updateUniformValue(Eigen::Matrix4f newVal) {
 void ShaderFloatMat4Param::uploadUniform() {
     if(isValueInitialized)
         shader->SetUniformMat4f(getName(), value);
+}
+
+std::shared_ptr<ShaderParam> ShaderFloatMat4Param::clone() {
+    if(isValueInitialized)
+        return std::make_shared<ShaderFloatMat4Param>(name, value, shader);
+    return std::make_shared<ShaderFloatMat4Param>(name, shader);
 }
 
 SceneShader::SceneShader(std::string name, int id, Shader *engineShader, std::string shaderFolder):
@@ -202,4 +232,8 @@ SceneShader::SceneShader(std::string name, int id, Shader *engineShader, std::st
 void SceneShader::uploadAllUniforms() {
     for(const auto& param : params)
         param->uploadUniform();
+}
+
+void SceneShader::setParams(std::vector<std::shared_ptr<ShaderParam>> newParams) {
+    params = newParams;
 }

@@ -61,7 +61,7 @@ enum ShapeEditingMode {CREATE_NEW, EDIT_EXISTING};
 class ShapeEditingState: public GuiState {
 public:
     ShapeEditingState();
-    ShapeEditingState(std::shared_ptr<SceneShape> shp);
+    ShapeEditingState(std::shared_ptr<SceneShape> shp, std::shared_ptr<SceneShader> scnShader);
     NextState Run(Project* project,
                   std::vector<igl::opengl::Camera*> &camera,
                   Eigen::Vector4i& viewWindow,std::vector<DrawInfo *> drawInfos,
@@ -79,6 +79,7 @@ private:
     Eigen::Vector3f lastDrawnPosition;
     int parent;
     std::vector<int> children;
+    std::vector<std::shared_ptr<ShaderParam>> shaderParams;
 };
 
 

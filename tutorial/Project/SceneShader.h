@@ -20,11 +20,12 @@ public:
     ParamType getTag() {return tag;};
     bool getIsInitialized() {return isValueInitialized;};
     virtual void uploadUniform()=0;
+    virtual std::shared_ptr<ShaderParam> clone()=0;
 protected:
     bool isValueInitialized;
     Shader* shader;
-private:
     std::string name;
+private:
     ParamType tag;
 };
 
@@ -35,8 +36,7 @@ public:
     void updateUniformValue(int newVal);
     int getValue() {return value;};
     void uploadUniform();
-
-private:
+    std::shared_ptr<ShaderParam> clone();
     int value;
 };
 
@@ -47,7 +47,7 @@ public:
     void updateUniformValue(Eigen::Vector4i newVal);
     Eigen::Vector4i getValue() {return value;};
     void uploadUniform();
-private:
+    std::shared_ptr<ShaderParam> clone();
     Eigen::Vector4i value;
 };
 
@@ -58,7 +58,7 @@ public:
     void updateUniformValue(float newVal);
     float getValue() {return value;};
     void uploadUniform();
-private:
+    std::shared_ptr<ShaderParam> clone();
     float value;
 };
 
@@ -69,7 +69,7 @@ public:
     void updateUniformValue(Eigen::Vector4f newVal);
     Eigen::Vector4f getValue() {return value;};
     void uploadUniform();
-private:
+    std::shared_ptr<ShaderParam> clone();
     Eigen::Vector4f value;
 };
 class ShaderFloatMat4Param: public ShaderParam {
@@ -79,7 +79,7 @@ public:
     void updateUniformValue(Eigen::Matrix4f newVal);
     Eigen::Matrix4f getValue() {return value;};
     void uploadUniform();
-private:
+    std::shared_ptr<ShaderParam> clone();
     Eigen::Matrix4f value;
 };
 
@@ -90,6 +90,8 @@ public:
     std::string getName() {return name;};
     int getId() {return id;};
     void uploadAllUniforms();
+    std::vector<std::shared_ptr<ShaderParam>> getParams() {return params;};
+    void setParams(std::vector<std::shared_ptr<ShaderParam>> newParams);
 private:
     std::string name;
     int id;
