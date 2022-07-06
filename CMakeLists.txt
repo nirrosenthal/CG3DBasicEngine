@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1)
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|MSVC")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
 else()
 	set(CMAKE_CXX_FLAGS "-std=c++17")
