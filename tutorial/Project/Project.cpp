@@ -154,7 +154,7 @@ std::shared_ptr<SceneShape> Project::AddGlobalShape(std::string name, igl::openg
     std::shared_ptr<SceneShape> scnShape = std::make_shared<SceneShape>(name, shapeType, mover, layer,index);
     scnShape->setlastDrawnPosition(Eigen::Vector3f(0,0,0));
     layer->addShape(scnShape);
-    scnShape->shader = GetShader(shader);
+    scnShape->shader = GetShader(shader)->getId();
     scnShape->material = 0;
     shapesGlobal.push_back(scnShape);
     return scnShape;
@@ -266,10 +266,12 @@ void Project::Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, c
 
 
 
-		s->Bind();
+	s->Bind();
 	s->SetUniformMat4f("Proj", Proj);
 	s->SetUniformMat4f("View", View);
 	s->SetUniformMat4f("Model", Model);
+    if(createdShadersById.find(shaderIndx) != createdShadersById.end())
+        createdShadersById[shaderIndx]->uploadAllUniforms();
 	if (data_list[shapeIndx]->GetMaterial() >= 0 && !materials.empty())
 	{
 //		materials[shapes[pickedShape]->GetMaterial()]->Bind(textures);
@@ -383,14 +385,17 @@ void Project::UpdateWindowLocation(ImVec2 topLeft, ImVec2 bottomRight)
     windowLocation.bottomRight = bottomRight;
 }
 
-int Project::GetShader(const std::string& shaderName) {
-    if(createdShaders.find(shaderName) != createdShaders.end())
-        return createdShaders[shaderName];
+std::shared_ptr<SceneShader> Project::GetShader(const std::string& shaderName) {
+    if(createdShadersByName.find(shaderName) != createdShadersByName.end())
+        return createdShadersByName[shaderName];
     std::string shaderPath = SHADERS_FOLDER + shaderName;
     int shaderId = AddShader(shaderPath);
-    if(shaderId != -1)
-        createdShaders[shaderName] = shaderId;
-    return shaderId;
+    std::shared_ptr<SceneShader> shader = nullptr;
+    if(shaderId != -1) {
+        if(AddGlobalShader(std::make_shared<SceneShader>(shaderName, shaderId, shaders[shaderId], SHADERS_FOLDER)))
+            shader = createdShadersById[shaderId];
+    }
+    return shader;
 }
 
 std::vector<std::string> Project::GetAllShaders() {
@@ -429,18 +434,21 @@ std::shared_ptr<SceneShape> Project::GetGlobalShape(const std::string& name) {
 }
 
 std::string Project::GetShaderName(int shaderId) {
-    for(auto &entry : createdShaders) {
-        if(shaderId == entry.second)
-            return entry.first;
-    }
-    return "";
+    return createdShadersById[shaderId]->getName();
 }
 int Project::GetShaderId(std::string shaderName) {
-    if(createdShaders.find(shaderName) != createdShaders.end()) {
-        return createdShaders[shaderName];
-    }
-    int shdr = AddShader(SHADERS_FOLDER + shaderName);
-    if(shdr != -1)
-        createdShaders[shaderName] = shdr;
-    return shdr;
+    auto shader = GetShader(shaderName);
+    if(shader == nullptr)
+        return -1;
+    return shader->getId();
+}
+
+bool Project::AddGlobalShader(std::shared_ptr<SceneShader> shader) {
+    if(createdShadersById.find(shader->getId()) != createdShadersById.end() ||
+        createdShadersByName.find(shader->getName()) != createdShadersByName.end())
+        return false;
+
+    createdShadersByName[shader->getName()] = shader;
+    createdShadersById[shader->getId()] = shader;
+    return true;
 }

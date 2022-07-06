@@ -1,6 +1,7 @@
 #pragma once
 #include "igl/opengl/glfw/Viewer.h"
 #include "SceneShape.h"
+#include "SceneShader.h"
 #include "igl/opengl/glfw/renderer.h"
 #include "ProjectViewerData.h"
 #include <filesystem>
@@ -55,14 +56,18 @@ public:
     std::shared_ptr<SceneShape> AddGlobalShape(std::string name, shapes shapeType, std::shared_ptr<ObjectMover> mover,
                                                std::shared_ptr<Layer> layer, std::string shader);
     std::shared_ptr<SceneShape> GetGlobalShape(const std::string& name);
+    bool AddGlobalShader(std::shared_ptr<SceneShader> shader);
+    std::shared_ptr<SceneShader> GetShader(const std::string& shaderName);
+    std::shared_ptr<SceneShader> GetShader(const int shaderId);
 private:
     std::vector<std::shared_ptr<SceneShape>> shapesGlobal;
     Renderer *renderer = nullptr;
     long globalTime;
     WindowLocation windowLocation;
-    int GetShader(const std::string& shaderName);
+
     AnimationStatus animationStatus;
-    std::map<std::string, int> createdShaders;
+    std::map<std::string, std::shared_ptr<SceneShader>> createdShadersByName;
+    std::map<int, std::shared_ptr<SceneShader>> createdShadersById;
     std::vector<std::string> allShaders;
     void RefreshShadersList();
     long lastFileSystemRefreshingTimeSeconds;

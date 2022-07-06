@@ -64,8 +64,6 @@ vec2 complex_mult(float num1, float num2)
 	return complex(num1*num2);
 }
 
-
-
 float complex_distance(vec2 num1, vec2 num2)
 {
 	vec2 diff = num1 - num2;
@@ -129,10 +127,20 @@ vec2 complex_div(float num1, float num2)
 }
 vec2 complex_sqrt(vec2 num)
 {
-	float sqrtReal = sqrt((complex_abs(num) + num.a)/2.0);
-	float sqrtImg = sign(num.b) * sqrt((complex_abs(num)-num.a)/2.0);
+	float sqrtReal = sqrt((complex_abs(num) + num[0])/2.0);
+	float sign = 0;
+	if(num[1] < 0) {
+		sign = -1;
+	} else if (num[1] > 0) {
+		sign = 1;
+	}
+	float sqrtImg = sign * sqrt((complex_abs(num)-num[0])/2.0);
 	return complex(sqrtReal, sqrtImg);
 }
+float complex_norm(vec2[2] vec) {
+	return sqrt(pow(complex_abs(vec[0]), 2) + pow(complex_abs(vec[1]), 2));
+}
+
 
 
 vec2 NewtonCubicRoot(vec2 num)
@@ -153,9 +161,13 @@ vec2 NewtonCubicRoot(vec2 num)
 
 }
 
-vec2[3] FindRootsOfReduceEquation(vec2[3] reduceCoeffs)
+vec2[3] FindRootsOfReduceEquation(vec2[2] reduceCoeffs)
 {
-	vec2[3] roots = {complex(0), complex(0), complex(0)};
+	vec2[3] roots;
+	roots[0] = complex(0);
+	roots[1] = complex(0);
+	roots[2] = complex(0);
+
 	vec2 sqroot = complex_sqrt(complex_pow(reduceCoeffs[0], 3)/27.0 + complex_pow(reduceCoeffs[1], 2)/4.0);
 	vec2 p = NewtonCubicRoot(reduceCoeffs[1]/2.0 + sqroot);
 	vec2 n = NewtonCubicRoot(reduceCoeffs[1]/2.0 - sqroot);
@@ -169,19 +181,21 @@ vec2[3] FindRootsOfReduceEquation(vec2[3] reduceCoeffs)
 
 vec2[3] get_roots()
 {
-	vec2[2] reduceCoeffs = {complex(0), complex(0)};
+	vec2[2] reduceCoeffs;
+	reduceCoeffs[0] = complex(0);
+	reduceCoeffs[1] = complex(0);
 	vec2[3] roots;
-	vec2 bOver3a = complex_div(complex_div(coefficients[1], coefficients[0]), 3.0);
-	reduceCoeffs[0] = coefficients[2] - coefficients[1] -3.0 * complex_pow(bOver3a, 2);
+	vec2 bOver3a = complex_div(coefficients[1], coefficients[0]) / 3.0;
+	reduceCoeffs[0] = coefficients[2] - coefficients[1] - 3.0 * complex_pow(bOver3a, 2);
 	reduceCoeffs[1] = complex_mult(complex_div(coefficients[2], coefficients[0]), bOver3a) - 2.0 * (complex_pow(bOver3a, 3));
-	if(complex_abs(reduceCoeffs) > 0.000001) {
+	if(complex_norm(reduceCoeffs) > 0.000001) {
 		roots = FindRootsOfReduceEquation(reduceCoeffs);
 		roots[0] -= bOver3a;
 		roots[1] -= bOver3a;
 		roots[2] -= bOver3a;
 	} else {
 		roots[0] = -1.0*bOver3a;
-		roots[1] = complex_mult(complex(cos(PI/3.0f), sinf(PI/3.0f))*bOver3a);
+		roots[1] = complex_mult(complex(cos(PI/3.0f), sin(PI/3.0f)), bOver3a);
 		roots[2] = complex_mult(complex(cos(2.0*PI/3.0), sin(2.0*PI/3.0)), bOver3a);
 	}
 

@@ -1,8 +1,8 @@
 [
   {
     "name": "coefficients",
-    "type": "vec4",
-    "default": [0,0,0,0]
+    "type": "vec4_float",
+    "default": [1.0,1.0,1.0,1.0]
   },
   {
     "name": "zoom_ratio",
