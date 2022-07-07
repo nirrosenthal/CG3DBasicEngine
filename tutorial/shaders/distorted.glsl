@@ -5,6 +5,7 @@
 #define animSpeed 0.2;
 #define blueLineThickness 0.2
 precision highp float;
+in vec3 position0;
 
 uniform float time;
 uniform vec4 mouse;
@@ -47,7 +48,7 @@ void main( void ) {
     /*
         This works by distorting the space which a grid occupies.
     */
-    vec2 fragCoord = gl_FragCoord.xy;
+    vec2 fragCoord = position0.xy;
     vec2 uv = fragCoord/resolution.xy;
     float dt = time * animSpeed;
     uv -= 1.;
