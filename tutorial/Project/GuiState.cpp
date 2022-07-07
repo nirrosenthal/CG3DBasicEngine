@@ -184,8 +184,6 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
                 layer->changeHidden(!isShown);
             }
         }
-
-
         ImGui::InputText("##NEW LAYER NAME", newLayerName, 30);
         ImGui::SameLine();
         if(ImGui::Button("Add")){
@@ -497,10 +495,21 @@ ShapeEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &cam
             }
         }
         std::shared_ptr<SceneShader> scnShader = project->GetShader(shader);
-        if(!shaderParams.empty()) {
+
+        // filtering params for display ONLY
+        std::vector<std::shared_ptr<ShaderParam>> paramsForDisplay;
+        std::copy_if(shaderParams.begin(), shaderParams.end(), std::back_inserter(paramsForDisplay),
+                      // pred:
+                      [](const std::shared_ptr<ShaderParam>& param)
+                      {return param->isForDisplay();});
+
+        if(!paramsForDisplay.empty()) {
             if (ImGui::CollapsingHeader("Shader Params", ImGuiTreeNodeFlags_DefaultOpen)) {
                 for(auto &param : shaderParams) {
-                    if(param->getTag() == INT) {
+                    if(!param->isForDisplay()) {
+                        // nothing to display
+                        continue;
+                    } else if(param->getTag() == INT) {
                         std::string label = param->getName() + " ##PARAM";
                         ImGui::InputInt(label.c_str(), &std::dynamic_pointer_cast<ShaderIntParam>(param)->value);
                     } else if(param->getTag() == FLOAT) {

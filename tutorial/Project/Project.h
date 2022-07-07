@@ -59,12 +59,15 @@ public:
     bool AddGlobalShader(std::shared_ptr<SceneShader> shader);
     std::shared_ptr<SceneShader> GetShader(const std::string& shaderName);
     std::shared_ptr<SceneShader> GetShader(const int shaderId);
+    void UpdateResolution(float width, float height);
+    void UpdateMouse(float x, float y);
 private:
     std::vector<std::shared_ptr<SceneShape>> shapesGlobal;
     Renderer *renderer = nullptr;
     long globalTime;
     WindowLocation windowLocation;
-
+    Eigen::Vector2f resolution;
+    Eigen::Vector2f mousePos;
     AnimationStatus animationStatus;
     std::map<std::string, std::shared_ptr<SceneShader>> createdShadersByName;
     std::map<int, std::shared_ptr<SceneShader>> createdShadersById;

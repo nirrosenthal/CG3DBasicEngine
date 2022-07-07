@@ -12,15 +12,16 @@
 #include <memory>
 #include <nlohmann/json.hpp>
 
-enum ParamType {INT, VEC4_INT, FLOAT, VEC4_FLOAT, MAT4_FLOAT, RGB};
+enum ParamType {INT, VEC4_INT, FLOAT, VEC4_FLOAT, MAT4_FLOAT, RGB, GLOBAL_TIME, RESOLUTION, MOUSE_POS};
 class ShaderParam {
 public:
     ShaderParam(std::string name, ParamType tag, Shader *shader, bool isValueInitialized);
     std::string getName() {return name;};
     ParamType getTag() {return tag;};
     bool getIsInitialized() {return isValueInitialized;};
-    virtual void uploadUniform()=0;
+    virtual void uploadUniform(long globalTime, Eigen::Vector2f resolution, Eigen::Vector2f mouse)=0;
     virtual std::shared_ptr<ShaderParam> clone()=0;
+    bool isForDisplay();
 protected:
     bool isValueInitialized;
     Shader* shader;
@@ -35,7 +36,7 @@ public:
     ShaderIntParam(std::string name, Shader *shader);
     void updateUniformValue(int newVal);
     int getValue() {return value;};
-    void uploadUniform();
+    void uploadUniform(long globalTime, Eigen::Vector2f resolution, Eigen::Vector2f mouse);
     std::shared_ptr<ShaderParam> clone();
     int value;
 };
@@ -46,7 +47,7 @@ public:
     ShaderIntVec4Param(std::string name, Shader *shader);
     void updateUniformValue(Eigen::Vector4i newVal);
     Eigen::Vector4i getValue() {return value;};
-    void uploadUniform();
+    void uploadUniform(long globalTime, Eigen::Vector2f resolution, Eigen::Vector2f mouse);
     std::shared_ptr<ShaderParam> clone();
     Eigen::Vector4i value;
 };
@@ -57,7 +58,7 @@ public:
     ShaderFloatParam(std::string name, Shader *shader);
     void updateUniformValue(float newVal);
     float getValue() {return value;};
-    void uploadUniform();
+    void uploadUniform(long globalTime, Eigen::Vector2f resolution, Eigen::Vector2f mouse);
     std::shared_ptr<ShaderParam> clone();
     float value;
 };
@@ -68,7 +69,7 @@ public:
     ShaderFloatVec4Param(std::string name, Shader *shader);
     void updateUniformValue(Eigen::Vector4f newVal);
     Eigen::Vector4f getValue() {return value;};
-    void uploadUniform();
+    void uploadUniform(long globalTime, Eigen::Vector2f , Eigen::Vector2f mouse);
     std::shared_ptr<ShaderParam> clone();
     Eigen::Vector4f value;
 };
@@ -78,7 +79,7 @@ public:
     ShaderFloatMat4Param(std::string name, Shader *shader);
     void updateUniformValue(Eigen::Matrix4f newVal);
     Eigen::Matrix4f getValue() {return value;};
-    void uploadUniform();
+    void uploadUniform(long globalTime, Eigen::Vector2f resolution, Eigen::Vector2f mouse);
     std::shared_ptr<ShaderParam> clone();
     Eigen::Matrix4f value;
 };
@@ -88,9 +89,30 @@ public:
     ShaderRGBParam(std::string name, Shader *shader);
     void updateUniformValue(Eigen::Vector4f newVal);
     float *getValue() {return value;};
-    void uploadUniform();
+    void uploadUniform(long globalTime, Eigen::Vector2f resolution, Eigen::Vector2f mouse);
     std::shared_ptr<ShaderParam> clone();
     float value[4];
+};
+
+class ShaderTimeParam: public ShaderParam {
+public:
+    ShaderTimeParam(std::string name, Shader *shader);
+    void uploadUniform(long globalTime, Eigen::Vector2f resolution, Eigen::Vector2f mouse);
+    std::shared_ptr<ShaderParam> clone();
+};
+
+class ShaderResolutionParam: public ShaderParam {
+public:
+    ShaderResolutionParam(std::string name, Shader *shader);
+    void uploadUniform(long globalTime, Eigen::Vector2f resolution, Eigen::Vector2f mouse);
+    std::shared_ptr<ShaderParam> clone();
+};
+
+class ShaderMouseParam: public ShaderParam {
+public:
+    ShaderMouseParam(std::string name, Shader *shader);
+    void uploadUniform(long globalTime, Eigen::Vector2f resolution, Eigen::Vector2f mouse);
+    std::shared_ptr<ShaderParam> clone();
 };
 
 
@@ -99,7 +121,7 @@ public:
     SceneShader(std::string name, int id, Shader *engineShader, std::string shaderFolder);
     std::string getName() {return name;};
     int getId() {return id;};
-    void uploadAllUniforms();
+    void uploadAllUniforms(long globalTime, Eigen::Vector2f resolution, Eigen::Vector2f mouse);
     std::vector<std::shared_ptr<ShaderParam>> getParams() {return params;};
     void setParams(std::vector<std::shared_ptr<ShaderParam>> newParams);
 private:

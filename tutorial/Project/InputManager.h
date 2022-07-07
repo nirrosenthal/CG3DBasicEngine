@@ -61,7 +61,8 @@
             && ypos >= windowLoc.topLeft.y && ypos <= windowLoc.bottomRight.y)
             return;
 
-		rndr->UpdatePosition(-(float)xpos,-(float)ypos);
+		rndr->UpdatePosition(-(float)xpos,-(float)ypos); // tricking the engine for intuitive mouse movement
+        scn->UpdateMouse((float)xpos, (float)ypos);
 
 		if (rndr->CheckViewport(xpos,ypos, 0))
 		{
@@ -84,8 +85,9 @@
 	void glfw_window_size_callback(GLFWwindow* window, int width, int height)
 	{
 		Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
-
+        Project* scn = (Project*)rndr->GetScene();
         rndr->resize(window,width,height);
+        scn->UpdateResolution(width, height);
 		
 	}
 	

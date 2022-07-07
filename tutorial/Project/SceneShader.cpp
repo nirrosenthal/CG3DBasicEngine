@@ -16,7 +16,10 @@ std::map<std::string, ParamType> TYPE_NAMES = {
         {"float", FLOAT},
         {"vec4_float", VEC4_FLOAT},
         {"mat4_float", MAT4_FLOAT},
-        {"rgb", RGB}
+        {"rgb", RGB},
+        {"global_time", GLOBAL_TIME},
+        {"resolution", RESOLUTION},
+        {"mouse_pos", MOUSE_POS}
 };
 
 
@@ -27,6 +30,10 @@ ShaderParam::ShaderParam(std::string name, ParamType tag, Shader *shader, bool i
     isValueInitialized(isValueInitialized)
   {
   }
+
+bool ShaderParam::isForDisplay() {
+    return tag != RGB && tag != GLOBAL_TIME && tag != MOUSE_POS;
+}
 
 ShaderIntParam::ShaderIntParam(std::string name, int value, Shader *shader):
     ShaderParam(std::move(name), INT, shader, true),
@@ -44,7 +51,7 @@ void ShaderIntParam::updateUniformValue(int newVal) {
     isValueInitialized = true;
 }
 
-void ShaderIntParam::uploadUniform() {
+void ShaderIntParam::uploadUniform(long globalTime, Eigen::Vector2f resolution, Eigen::Vector2f mouse) {
     if(isValueInitialized)
         shader->SetUniform1i(getName(), value);
 }
@@ -72,7 +79,7 @@ void ShaderIntVec4Param::updateUniformValue(Eigen::Vector4i newVal) {
     isValueInitialized = true;
 }
 
-void ShaderIntVec4Param::uploadUniform() {
+void ShaderIntVec4Param::uploadUniform(long globalTime, Eigen::Vector2f resolution, Eigen::Vector2f mouse) {
     if(isValueInitialized)
         shader->SetUniform4i(getName(), value[0], value[1], value[2], value[3]);
 }
@@ -99,7 +106,7 @@ void ShaderFloatParam::updateUniformValue(float newVal) {
     isValueInitialized = true;
 }
 
-void ShaderFloatParam::uploadUniform() {
+void ShaderFloatParam::uploadUniform(long globalTime, Eigen::Vector2f resolution, Eigen::Vector2f mouse) {
     if(isValueInitialized)
         shader->SetUniform1f(getName(), value);
 }
@@ -128,7 +135,7 @@ void ShaderFloatVec4Param::updateUniformValue(Eigen::Vector4f newVal) {
     isValueInitialized = true;
 }
 
-void ShaderFloatVec4Param::uploadUniform() {
+void ShaderFloatVec4Param::uploadUniform(long globalTime, Eigen::Vector2f resolution, Eigen::Vector2f mouse) {
     if(isValueInitialized)
         shader->SetUniform4f(getName(), value[0], value[1], value[2], value[3]);
 }
@@ -155,7 +162,7 @@ void ShaderFloatMat4Param::updateUniformValue(Eigen::Matrix4f newVal) {
     isValueInitialized = true;
 }
 
-void ShaderFloatMat4Param::uploadUniform() {
+void ShaderFloatMat4Param::uploadUniform(long globalTime, Eigen::Vector2f resolution, Eigen::Vector2f mouse) {
     if(isValueInitialized)
         shader->SetUniformMat4f(getName(), value);
 }
@@ -233,15 +240,21 @@ SceneShader::SceneShader(std::string name, int id, Shader *engineShader, std::st
             } else {
                 params.push_back(std::make_shared<ShaderRGBParam>(paramName, engineShader));
             }
+        } else if(type == GLOBAL_TIME) {
+            params.push_back(std::make_shared<ShaderTimeParam>(paramName, engineShader));
+        } else if(type == RESOLUTION) {
+            params.push_back(std::make_shared<ShaderResolutionParam>(paramName, engineShader));
+        } else if(type == MOUSE_POS) {
+            params.push_back(std::make_shared<ShaderMouseParam>(paramName, engineShader));
         }
 
     }
 
 }
 
-void SceneShader::uploadAllUniforms() {
+void SceneShader::uploadAllUniforms(long globalTime, Eigen::Vector2f resolution, Eigen::Vector2f mouse) {
     for(const auto& param : params)
-        param->uploadUniform();
+        param->uploadUniform(globalTime, resolution, mouse);
 }
 
 void SceneShader::setParams(std::vector<std::shared_ptr<ShaderParam>> newParams) {
@@ -267,7 +280,7 @@ void ShaderRGBParam::updateUniformValue(Eigen::Vector4f newVal) {
     value[3] = newVal[3];
     isValueInitialized = true;
 }
-void ShaderRGBParam::uploadUniform() {
+void ShaderRGBParam::uploadUniform(long globalTime, Eigen::Vector2f resolution, Eigen::Vector2f mouse) {
     if(isValueInitialized) {
         shader->SetUniform4f(getName(), value[0], value[1], value[2], value[3]);
     }
@@ -278,4 +291,46 @@ std::shared_ptr<ShaderParam> ShaderRGBParam::clone() {
     }
     return std::make_shared<ShaderRGBParam>(name, shader);
 
+}
+
+ShaderTimeParam::ShaderTimeParam(std::string name, Shader *shader):
+        ShaderParam(name, GLOBAL_TIME, shader, true)
+{
+
+}
+
+void ShaderTimeParam::uploadUniform(long globalTime, Eigen::Vector2f resolution, Eigen::Vector2f mouse) {
+    shader->SetUniform1f(name, (float)globalTime);
+}
+
+std::shared_ptr<ShaderParam> ShaderTimeParam::clone() {
+    return std::make_shared<ShaderTimeParam>(name, shader);
+}
+
+ShaderResolutionParam::ShaderResolutionParam(std::string name, Shader *shader):
+        ShaderParam(name, RESOLUTION, shader, true)
+{
+
+}
+
+void ShaderResolutionParam::uploadUniform(long globalTime, Eigen::Vector2f resolution, Eigen::Vector2f mouse) {
+    shader->SetUniform4f(name, resolution[0], resolution[1], 0 ,0);
+}
+
+std::shared_ptr<ShaderParam> ShaderResolutionParam::clone() {
+    return std::make_shared<ShaderResolutionParam>(name, shader);
+}
+
+ShaderMouseParam::ShaderMouseParam(std::string name, Shader *shader):
+        ShaderParam(name, MOUSE_POS, shader, true)
+{
+
+}
+
+void ShaderMouseParam::uploadUniform(long globalTime, Eigen::Vector2f resolution, Eigen::Vector2f mouse) {
+    shader->SetUniform4f(name, mouse[0], mouse[1], 0, 0);
+}
+
+std::shared_ptr<ShaderParam> ShaderMouseParam::clone() {
+    return std::make_shared<ShaderMouseParam>(name, shader);
 }

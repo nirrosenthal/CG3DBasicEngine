@@ -264,14 +264,12 @@ void Project::Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, c
 
     shapesGlobal[shapeIndx]->setlastDrawnPosition(newPos);
 
-
-
 	s->Bind();
 	s->SetUniformMat4f("Proj", Proj);
 	s->SetUniformMat4f("View", View);
 	s->SetUniformMat4f("Model", Model);
     if(createdShadersById.find(shaderIndx) != createdShadersById.end())
-        createdShadersById[shaderIndx]->uploadAllUniforms();
+        createdShadersById[shaderIndx]->uploadAllUniforms(globalTime, resolution, mousePos);
 	if (data_list[shapeIndx]->GetMaterial() >= 0 && !materials.empty())
 	{
 //		materials[shapes[pickedShape]->GetMaterial()]->Bind(textures);
@@ -458,5 +456,13 @@ bool Project::AddGlobalShader(std::shared_ptr<SceneShader> shader) {
     createdShadersByName[shader->getName()] = shader;
     createdShadersById[shader->getId()] = shader;
     return true;
+}
+
+void Project::UpdateResolution(float width, float height) {
+    resolution = Eigen::Vector2f(width, height);
+}
+
+void Project::UpdateMouse(float x, float y) {
+    mousePos = Eigen::Vector2f(x, y);
 }
 
