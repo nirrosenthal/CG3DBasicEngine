@@ -217,7 +217,7 @@ void Project::Init(float width, float height)
 
 
     SetShapeStatic(backgroundShape);
-    SetBackgroundShader("newtonMoving");
+    SetBackgroundShader("distorted");
 
 
 
@@ -444,6 +444,8 @@ std::shared_ptr<SceneShape> Project::GetGlobalShape(const std::string& name) {
 }
 
 std::string Project::GetShaderName(int shaderId) {
+    if(shaderId == -1)
+        return "";
     return createdShadersById[shaderId]->getName();
 }
 int Project::GetShaderId(std::string shaderName) {

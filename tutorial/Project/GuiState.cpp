@@ -373,7 +373,8 @@ ShapeEditingState::ShapeEditingState():
  GuiState(SHAPE_EDITING),
  editingMode(CREATE_NEW),
  name(strdup("")),
- type(nullptr)
+ type(nullptr),
+ shader(-1)
 {
 }
 
