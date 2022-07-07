@@ -61,8 +61,10 @@ public:
     std::shared_ptr<SceneShader> GetShader(const int shaderId);
     void UpdateResolution(float width, float height);
     void UpdateMouse(float x, float y);
+    void SetBackgroundShader(std::string shaderName);
 private:
-    std::vector<std::shared_ptr<SceneShape>> shapesGlobal;
+
+    std::map<int, std::shared_ptr<SceneShape>> shapesGlobal;
     Renderer *renderer = nullptr;
     long globalTime;
     WindowLocation windowLocation;
@@ -74,6 +76,8 @@ private:
     std::vector<std::string> allShaders;
     void RefreshShadersList();
     long lastFileSystemRefreshingTimeSeconds;
+    int backgroundShape;
+    std::shared_ptr<SceneShader> backgroundShader;
 };
 
 

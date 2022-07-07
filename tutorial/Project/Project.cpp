@@ -39,7 +39,7 @@ IGL_INLINE void Project::Draw(int shaderIndx, const Eigen::Matrix4f &Proj, const
 
     for (int i = 0; i < data_list.size(); i++)
     {
-        if(!shapesGlobal[i]->isDrawn(globalTime))
+        if(i != backgroundShape && !shapesGlobal[i]->isDrawn(globalTime))
             continue;
         auto shape = data_list[i];
         if (shape->Is2Render(viewportIndx))
@@ -156,7 +156,7 @@ std::shared_ptr<SceneShape> Project::AddGlobalShape(std::string name, igl::openg
     layer->addShape(scnShape);
     scnShape->shader = GetShader(shader)->getId();
     scnShape->material = 0;
-    shapesGlobal.push_back(scnShape);
+    shapesGlobal[index] = scnShape;
     return scnShape;
 
 }
@@ -206,12 +206,14 @@ void Project::Init(float width, float height)
     shapesGlobal[shp->getIndex()]->addMover(std::make_shared<ObjectMoverBezier>(pointsRev, 550, 500));
 //    shp.addMover( std::make_shared<ObjectMoverConstant>(Eigen::Vector3f(0,0,0), 1000, 100));
 //    shp.addMover( std::make_shared<ObjectMoverBezier>(points, 2100, 500));
+    //
+
 
     shp->material = mat1;
 
-
-
-
+    backgroundShape = -1;//AddShape(Plane, -1, TRIANGLES);
+    //SetShapeStatic(backgroundShape);
+    //SetBackgroundShader("newtonMoving");
     animationStatus = STOPPED;
     //SetShapeViewport(6, 1);
 //	ReadPixel(); //uncomment when you are reading from the z-buffer
@@ -220,7 +222,7 @@ void Project::Init(float width, float height)
 
 float Project::maxTime() {
     float maxTime = -1;
-    for(std::shared_ptr<SceneShape> s : shapesGlobal) {
+    for(std::shared_ptr<SceneShape> s : getAllShapes()) {
         maxTime = std::max(maxTime, s->getEndTime());
     }
     return maxTime;
@@ -229,19 +231,8 @@ float Project::maxTime() {
 
 void Project::Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, const Eigen::Matrix4f& Model, unsigned int  shaderIndx, unsigned int shapeIndx)
 {
-    std::shared_ptr<SceneShape> scnShape = shapesGlobal[shapeIndx];
-    SetShapeShader(shapeIndx, scnShape->shader);
-    SetShapeMaterial(shapeIndx, scnShape->material);
-    if(globalTime == 100) {
-//        std::list<int> x, y;
-//        const int DISPLAY_WIDTH = 1200;
-//        const int DISPLAY_HEIGHT = 800;
-//        x.push_back(DISPLAY_WIDTH);
-//        y.push_back(DISPLAY_HEIGHT);
-//        igl::opengl::glfw::imgui::ImGuiMenu* menu = new igl::opengl::glfw::imgui::ImGuiMenu();
-//        renderer->Init(this,x,y,1,menu);
-    }
-	Shader *s = shaders[shaderIndx];
+
+
     long time;
     if(globalTime != -1)
         time = globalTime;
@@ -250,21 +241,20 @@ void Project::Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, c
 	int r = ((shapeIndx+1) & 0x000000FF) >>  0;
 	int g = ((shapeIndx+1) & 0x0000FF00) >>  8;
 	int b = ((shapeIndx+1) & 0x00FF0000) >> 16;
-
-    selected_data_index = scnShape->getIndex();
-
-    Eigen::Vector3f pos = scnShape->getlastDrawnPosition();
-    //std::cout << "(" << pos[0] << "," << pos[1] << "," << pos[2] << ")" << std::endl;
-
-    Eigen::Vector3f newPos = scnShape->getPosition((float)time);
-    Eigen::Vector3f delta = newPos - pos;
-
-
-    ShapeTransformation(xTranslate, delta[0],0);
-    ShapeTransformation(yTranslate, delta[1],0);
-    ShapeTransformation(zTranslate, delta[2],0);
-
-    shapesGlobal[shapeIndx]->setlastDrawnPosition(newPos);
+    Shader *s = shaders[shaderIndx];
+    if(shapeIndx != backgroundShape) {
+        std::shared_ptr<SceneShape> scnShape = shapesGlobal[shapeIndx];
+        SetShapeShader(shapeIndx, scnShape->shader);
+        SetShapeMaterial(shapeIndx, scnShape->material);
+        selected_data_index = scnShape->getIndex();
+        Eigen::Vector3f pos = scnShape->getlastDrawnPosition();
+        Eigen::Vector3f newPos = scnShape->getPosition((float) time);
+        Eigen::Vector3f delta = newPos - pos;
+        ShapeTransformation(xTranslate, delta[0], 0);
+        ShapeTransformation(yTranslate, delta[1], 0);
+        ShapeTransformation(zTranslate, delta[2], 0);
+        shapesGlobal[shapeIndx]->setlastDrawnPosition(newPos);
+    }
 
 	s->Bind();
 	s->SetUniformMat4f("Proj", Proj);
@@ -272,6 +262,9 @@ void Project::Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, c
 	s->SetUniformMat4f("Model", Model);
     if(createdShadersById.find(shaderIndx) != createdShadersById.end())
         createdShadersById[shaderIndx]->uploadAllUniforms(globalTime, resolution, mousePos);
+    else if(backgroundShader != nullptr &&  backgroundShader->getId() == shaderIndx) {
+        backgroundShader->uploadAllUniforms(globalTime, resolution, mousePos);
+    }
 	if (data_list[shapeIndx]->GetMaterial() >= 0 && !materials.empty())
 	{
 //		materials[shapes[pickedShape]->GetMaterial()]->Bind(textures);
@@ -429,11 +422,14 @@ void Project::RefreshShadersList() {
 }
 
 std::vector<std::shared_ptr<SceneShape>> Project::getAllShapes() {
-    return shapesGlobal;
+    std::vector<std::shared_ptr<SceneShape>> allShapes;
+    for(auto entry: shapesGlobal)
+        allShapes.push_back(entry.second);
+    return allShapes;
 }
 
 std::shared_ptr<SceneShape> Project::GetGlobalShape(const std::string& name) {
-    for(auto &shape : shapesGlobal) {
+    for(auto &shape : getAllShapes()) {
         if(shape->name == name)
             return shape;
     }
@@ -466,5 +462,10 @@ void Project::UpdateResolution(float width, float height) {
 
 void Project::UpdateMouse(float x, float y) {
     mousePos = Eigen::Vector2f(x, y);
+}
+
+void Project::SetBackgroundShader(std::string shaderName) {
+    backgroundShader = GetShader(shaderName);
+    SetShapeShader(backgroundShape, backgroundShader->getId());
 }
 
