@@ -208,12 +208,19 @@ void Project::Init(float width, float height)
 //    shp.addMover( std::make_shared<ObjectMoverBezier>(points, 2100, 500));
     //
 
-
     shp->material = mat1;
 
-    backgroundShape = -1;//AddShape(Plane, -1, TRIANGLES);
-    //SetShapeStatic(backgroundShape);
-    //SetBackgroundShader("newtonMoving");
+    backgroundShape = AddShape(Cube, -1, TRIANGLES);
+    selected_data_index = backgroundShape;
+    ShapeTransformation(scaleAll, 80, 0);
+//    selected_data_index = -1;
+
+
+    SetShapeStatic(backgroundShape);
+    SetBackgroundShader("newtonMoving");
+
+
+
     animationStatus = STOPPED;
     //SetShapeViewport(6, 1);
 //	ReadPixel(); //uncomment when you are reading from the z-buffer

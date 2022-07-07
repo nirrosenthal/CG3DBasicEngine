@@ -163,8 +163,6 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
             nextState = NextState(NEW, std::make_shared<ShapeEditingState>());
         }
     }
-    ImGui::ColorEdit4("Background", drawInfos[1]->Clear_RGBA.data(),
-                      ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_PickerHueWheel);
     auto layers = project->layerManager.layers;
     if (ImGui::CollapsingHeader("Layers", ImGuiTreeNodeFlags_DefaultOpen)) {
         for (auto const &layerEntry: layers)
