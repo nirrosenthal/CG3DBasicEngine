@@ -32,7 +32,7 @@ ShaderParam::ShaderParam(std::string name, ParamType tag, Shader *shader, bool i
   }
 
 bool ShaderParam::isForDisplay() {
-    return tag != RGB && tag != GLOBAL_TIME && tag != MOUSE_POS;
+    return tag != RESOLUTION && tag != GLOBAL_TIME && tag != MOUSE_POS;
 }
 
 ShaderIntParam::ShaderIntParam(std::string name, int value, Shader *shader):
