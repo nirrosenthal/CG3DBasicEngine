@@ -61,7 +61,7 @@
             && ypos >= windowLoc.topLeft.y && ypos <= windowLoc.bottomRight.y)
             return;
 
-		rndr->UpdatePosition(-(float)xpos,-(float)ypos); // tricking the engine for intuitive mouse movement
+		rndr->UpdatePosition((float)xpos,-(float)ypos); // tricking the engine for intuitive mouse movement
         scn->UpdateMouse((float)xpos, (float)ypos);
 
 		if (rndr->CheckViewport(xpos,ypos, 0))

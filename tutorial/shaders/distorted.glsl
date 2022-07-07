@@ -1,10 +1,9 @@
 #version 330
 #define PI 3.14159265
-#define lod 4. // Level of detail
-#define distortGrid 1.
-#define animSpeed 0.2;
+#define lod 4.0 // Level of detail
+#define distortGrid 1.0
+#define animSpeed 0.002;
 #define blueLineThickness 0.2
-precision highp float;
 in vec3 position0;
 
 uniform float time;
@@ -51,7 +50,7 @@ void main( void ) {
     vec2 fragCoord = position0.xy;
     vec2 uv = fragCoord/resolution.xy;
     float dt = time * animSpeed;
-    uv -= 1.;
+    uv -= 1.0;
     uv.x *= resolution.x / resolution.y;
     dt += noise(uv*0.5 * lod + dt + uv.yx * lod * 0.5 + dot(uv,uv));
     float s = sin(dt);
@@ -75,7 +74,7 @@ void main( void ) {
     //this mathematically determines which grid cell we're in
     vec2 id = floor(uv * gridDensity);
 
-    vec3 col = vec3(abs(id/gridDensity*2.).xy + length((id - noise(id.xy*lod) * id)/gridDensity - cos(dt + length(uv-noise(uv*lod + dt )))*2.),0.0);
+    vec3 col = vec3(abs(id/gridDensity*2.0).xy + length((id - noise(id.xy*lod) * id)/gridDensity - cos(dt + length(uv-noise(uv*lod + dt )))*2.),0.0);
 
 
     gl_FragColor = vec4(noise((col.yz * 0.5 - col.xz + col.xy)*lod + dt) * col.zyx*0.15, 1.0);

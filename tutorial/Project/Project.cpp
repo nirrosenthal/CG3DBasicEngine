@@ -161,14 +161,16 @@ std::shared_ptr<SceneShape> Project::AddGlobalShape(std::string name, igl::openg
 
 }
 
-void Project::Init()
+void Project::Init(float width, float height)
 {
 //    glEnable(GL_BLEND);
 //    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     lastFileSystemRefreshingTimeSeconds = 0;
+    resolution = Eigen::Vector2f(width, height);
     globalTime = 0;
 	unsigned int texIDs[3] = { 1 , 2, 3};
 	unsigned int slots[3] = { 1 , 2, 3 };
+
 
     AddShader("shaders/pickingShader");
     AddShader("shaders/cubemapShader");

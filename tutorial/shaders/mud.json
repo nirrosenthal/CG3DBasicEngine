@@ -1,0 +1,14 @@
+[
+  {
+    "name": "global_time",
+    "type": "global_time"
+  },
+  {
+    "name": "resolution",
+    "type": "resolution"
+  },
+  {
+    "name": "mouse",
+    "type": "mouse_pos"
+  }
+]

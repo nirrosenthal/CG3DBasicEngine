@@ -27,7 +27,7 @@ public:
 
 	Project();
 //	Project(float angle,float relationWH,float near, float far);
-	void Init();
+	void Init(float width, float height);
 	void Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, const Eigen::Matrix4f& Model, unsigned int  shaderIndx, unsigned int shapeIndx);
 	void WhenRotate();
 	void WhenTranslate();

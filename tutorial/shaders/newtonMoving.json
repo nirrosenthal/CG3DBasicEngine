@@ -1,0 +1,10 @@
+[
+  {
+    "name": "iGlobalTime",
+    "type": "global_time"
+  },
+  {
+    "name": "iResolution",
+    "type": "resolution"
+  }
+]
