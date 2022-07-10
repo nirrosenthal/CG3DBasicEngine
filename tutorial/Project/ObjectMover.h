@@ -22,8 +22,8 @@ public:
 
 class ObjectMoverSplit: public ObjectMover {
 public:
-    ObjectMoverSplit(std::shared_ptr<ObjectMover> firstMover);
-    ObjectMoverSplit(std::vector<std::shared_ptr<ObjectMover>> movers);
+    ObjectMoverSplit(std::shared_ptr<ObjectMover> firstMover, std::string name);
+    ObjectMoverSplit(std::vector<std::shared_ptr<ObjectMover>> movers, std::string name);
     ObjectMoverSplit();
     Eigen::Vector3f getPosition(float time);
     float getStartTime();
@@ -34,6 +34,7 @@ public:
     std::vector<std::shared_ptr<ObjectMover>> movers;
     std::shared_ptr<ObjectMover> clone();
     std::shared_ptr<ObjectMoverSplit> cloneAndCast();
+    std::string name;
 };
 
 class ObjectMoverConstant: public ObjectMover {
@@ -47,7 +48,6 @@ public:
     float startTime;
     float endTime;
     std::shared_ptr<ObjectMover> clone();
-private:
     Eigen::Vector3f position;
 };
 

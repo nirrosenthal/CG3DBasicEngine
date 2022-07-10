@@ -148,7 +148,7 @@ Project::Project(): igl::opengl::glfw::Viewer() {
 //}
 
 std::shared_ptr<SceneShape> Project::AddGlobalShape(std::string name, igl::opengl::glfw::Viewer::shapes shapeType,
-                             std::shared_ptr<ObjectMover> mover, std::shared_ptr<Layer> layer, std::string shader) {
+                             std::shared_ptr<ObjectMoverSplit> mover, std::shared_ptr<Layer> layer, std::string shader) {
 
     int index = AddShape(shapeType, -1, TRIANGLES);
     std::shared_ptr<SceneShape> scnShape = std::make_shared<SceneShape>(name, shapeType, mover, layer,index);
@@ -198,15 +198,16 @@ void Project::Init(float width, float height)
                                               Eigen::Vector3f(0,20,0),
                                               Eigen::Vector3f(0,0,0)};
 
+
     std::shared_ptr<ObjectMoverBezier> bez = std::make_shared<ObjectMoverBezier>(points, 0, 500);
+    auto constMover = std::make_shared<ObjectMoverConstant>(Eigen::Vector3f(0,0,0), 500, 50);
+    std::shared_ptr<ObjectMoverBezier> bezRev = std::make_shared<ObjectMoverBezier>(pointsRev, 550, 500);
+
+    std::vector<std::shared_ptr<ObjectMover>> movers = {bez, constMover, bezRev};
+    AddMovementCurve(std::make_shared<ObjectMoverSplit>(movers, "default"));
+    std::shared_ptr<ObjectMoverSplit> mover = GetCurve("default");
     auto defaultLayer = layerManager.addLayer("default");
-    std::shared_ptr<SceneShape> shp = AddGlobalShape("test", Cube, bez, defaultLayer, "basicShader");
-    shapesGlobal[shp->getIndex()]->addMover(std::make_shared<ObjectMoverConstant>(Eigen::Vector3f(0,0,0),
-                                                                                500, 50));
-    shapesGlobal[shp->getIndex()]->addMover(std::make_shared<ObjectMoverBezier>(pointsRev, 550, 500));
-//    shp.addMover( std::make_shared<ObjectMoverConstant>(Eigen::Vector3f(0,0,0), 1000, 100));
-//    shp.addMover( std::make_shared<ObjectMoverBezier>(points, 2100, 500));
-    //
+    std::shared_ptr<SceneShape> shp = AddGlobalShape("test", Cube, mover, defaultLayer, "basicShader");
 
     shp->material = mat1;
 
@@ -483,4 +484,33 @@ std::string Project::GetBackgroundShader() {
         return "";
     return backgroundShader->getName();
 }
+
+std::vector<std::string> Project::GetAllMovementCurves() {
+    std::vector<std::string> curves;
+    for(auto &entry : movementCurves)
+        curves.push_back(entry.first);
+    return curves;
+}
+
+bool Project::AddMovementCurve(std::shared_ptr<ObjectMoverSplit> curve) {
+    if(movementCurves.find(curve->name) != movementCurves.end())
+        return false;
+    movementCurves[curve->name] = curve;
+    return true;
+}
+
+void Project::SetNewMoversForCurve(std::string name, std::vector<std::shared_ptr<ObjectMover>> newMovers) {
+    movementCurves[name]->movers = newMovers;
+}
+
+std::shared_ptr<ObjectMoverSplit> Project::GetCurve(std::string name) {
+    if(movementCurves.find(name) == movementCurves.end())
+        return nullptr;
+    return movementCurves[name];
+}
+
+void Project::SetShapeCurve(int shapeId, std::string curveName) {
+    shapesGlobal[shapeId]->mover = movementCurves[curveName];
+}
+
 

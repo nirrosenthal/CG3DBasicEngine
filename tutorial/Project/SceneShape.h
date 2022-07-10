@@ -14,7 +14,7 @@
 class SceneShape {
 public:
     SceneShape(std::string shapeName, igl::opengl::glfw::Viewer::shapes shapeType,
-               std::shared_ptr<ObjectMover> moverr, std::shared_ptr<Layer> layer, int index);
+               std::shared_ptr<ObjectMoverSplit> moverr, std::shared_ptr<Layer> layer, int index);
     std::shared_ptr<Layer> getLayer();
     void changeLayer(std::shared_ptr<Layer> layer);
     int getIndex();
@@ -36,7 +36,7 @@ public:
     bool isScaledToZero;
     int index;
     igl::opengl::glfw::Viewer::shapes type;
-    ObjectMoverSplit mover;
+    std::shared_ptr<ObjectMoverSplit> mover;
 
 private:
     std::shared_ptr<Layer> layer;

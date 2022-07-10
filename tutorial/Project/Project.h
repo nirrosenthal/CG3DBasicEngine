@@ -53,7 +53,7 @@ public:
     std::string GetShaderName(int shaderId);
     int GetShaderId(std::string shaderName);
     std::vector<std::shared_ptr<SceneShape>> getAllShapes();
-    std::shared_ptr<SceneShape> AddGlobalShape(std::string name, shapes shapeType, std::shared_ptr<ObjectMover> mover,
+    std::shared_ptr<SceneShape> AddGlobalShape(std::string name, shapes shapeType, std::shared_ptr<ObjectMoverSplit> mover,
                                                std::shared_ptr<Layer> layer, std::string shader);
     std::shared_ptr<SceneShape> GetGlobalShape(const std::string& name);
     bool AddGlobalShader(std::shared_ptr<SceneShader> shader);
@@ -63,8 +63,13 @@ public:
     void UpdateMouse(float x, float y);
     std::string GetBackgroundShader();
     void SetBackgroundShader(std::string shaderName);
-private:
+    std::vector<std::string> GetAllMovementCurves();
+    bool AddMovementCurve(std::shared_ptr<ObjectMoverSplit> curve);
+    void SetNewMoversForCurve(std::string name, std::vector<std::shared_ptr<ObjectMover>> newMovers);
+    std::shared_ptr<ObjectMoverSplit> GetCurve(std::string name);
+    void SetShapeCurve(int shapeId, std::string curveName);
 
+private:
     std::map<int, std::shared_ptr<SceneShape>> shapesGlobal;
     Renderer *renderer = nullptr;
     long globalTime;
@@ -79,6 +84,7 @@ private:
     long lastFileSystemRefreshingTimeSeconds;
     int backgroundShape;
     std::shared_ptr<SceneShader> backgroundShader;
+    std::map<std::string, std::shared_ptr<ObjectMoverSplit>> movementCurves;
 };
 
 

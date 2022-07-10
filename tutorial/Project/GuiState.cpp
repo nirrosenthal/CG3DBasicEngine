@@ -242,6 +242,15 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
             }
         }
     }
+    if (ImGui::CollapsingHeader("Movement Curves", ImGuiTreeNodeFlags_DefaultOpen)){
+        for(const auto& curve : project->GetAllMovementCurves()) {
+            if(ImGui::Button(curve.c_str()))
+                nextState = NextState(NEW, std::make_shared<MovementCurveEditingState>(curve, project->GetCurve(curve)));
+        }
+    }
+    if(ImGui::Button("Create a new Curve")){
+        nextState = NextState(NEW, std::make_shared<MovementCurveEditingState>());
+    }
 
     std::string tempStr = "material";
     const char* current_material_item = tempStr.c_str();
@@ -430,7 +439,7 @@ ShapeEditingState::ShapeEditingState(std::shared_ptr<SceneShape> shp, std::share
         type(std::make_shared<igl::opengl::glfw::Viewer::shapes>(shp->type)),
         layer(shp->getLayer()),
         shader(shp->shader),
-        mover(*(shp->mover.cloneAndCast()))
+        mover(shp->mover->cloneAndCast())
 {
 }
 
@@ -547,6 +556,24 @@ ShapeEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &cam
                 ImGui::EndCombo();
             }
         }
+        if (ImGui::CollapsingHeader("Movement Curves", ImGuiTreeNodeFlags_DefaultOpen)) {
+            auto allCurves = project->GetAllMovementCurves();
+            std::string moverName;
+            if(mover != nullptr)
+                moverName = mover->name;
+            if (ImGui::BeginCombo("##Mover combo", moverName.c_str())) {
+                for(auto curve : allCurves) {
+                    bool isSelected = moverName == curve;
+                    if(ImGui::Selectable(curve.c_str(), isSelected)) {
+                        mover = project->GetCurve(curve);
+                    }
+                    if (isSelected) {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+                ImGui::EndCombo();
+            }
+        }
 
         bool saveSucceed = true;
         if(ImGui::Button("Save")){
@@ -568,13 +595,12 @@ ShapeEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &cam
                 nextState = NextState(NEW, std::make_shared<ErrorMsgState>("Type cannot be empty!"));
                 saveSucceed = false;
             }
+            if(mover == nullptr) {
+                nextState = NextState(NEW, std::make_shared<ErrorMsgState>("Curve cannot be empty!"));
+                saveSucceed = false;
+            }
             if(editingMode == CREATE_NEW && saveSucceed) {
-                std::vector<Eigen::Vector3f> points = {Eigen::Vector3f(0,0,0),
-                                                       Eigen::Vector3f(0,20,0),
-                                                       Eigen::Vector3f(-10,-10,-100),
-                                                       Eigen::Vector3f(0,0,0)};
-                std::shared_ptr<ObjectMoverBezier> bez = std::make_shared<ObjectMoverBezier>(points, 0, 500);
-                project->AddGlobalShape(name, *type, bez, layer, project->GetShaderName(shader));
+                project->AddGlobalShape(name, *type, mover, layer, project->GetShaderName(shader));
             } else if(editingMode == EDIT_EXISTING && saveSucceed) {
                 auto shape = project->GetGlobalShape(std::string(name));
                 shape->name = name;
@@ -704,5 +730,124 @@ ShaderEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &ca
     if(ImGui::Button("Close")) {
         nextState = NextState(EXIT);
     }
+    return nextState;
+}
+
+MovementCurveEditingState::MovementCurveEditingState(std::string name, std::shared_ptr<ObjectMoverSplit> mover):
+    GuiState(CURVE_EDITING), curveName(strdup(name.c_str())), editingMode(EDIT_EXISTING),
+    startTime(mover->getStartTime()){
+        for(auto &subMover : mover->movers)
+            movers.push_back(std::make_shared<ObjectMoverForGui>(subMover));
+    }
+
+MovementCurveEditingState::MovementCurveEditingState(): GuiState(CURVE_EDITING), editingMode(CREATE_NEW),
+    startTime(0), curveName(strdup("")) {}
+
+NextState MovementCurveEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera,
+                                         Eigen::Vector4i &viewWindow, std::vector<DrawInfo *> drawInfos, ImFont *font,
+                                         ImFont *boldFont) {
+    NextState nextState(CONTINUE);
+    BeginCentered("Editing Curve");
+    if(editingMode == CREATE_NEW) {
+        Header("New Curve", boldFont);
+    } else {
+        Header(("Editing: " + std::string(curveName)).c_str(), boldFont);
+    }
+    ImGui::Text("Name: ");
+    ImGui::SameLine();
+    if(editingMode == CREATE_NEW){
+        ImGui::InputText("##NAME", curveName, 30);
+    } else {
+        ImGui::Text(curveName);
+    }
+    ImGui::Text("Start Time: ");
+    ImGui::SameLine();
+    ImGui::InputFloat("##start time of curve", &startTime);
+    for(size_t i=0; i<movers.size(); i++) {
+        auto mover = movers[i];
+        if(ImGui::Button(("Delete##" + std::string(curveName) + std::to_string(i)).c_str())) {
+            movers.erase(movers.begin()+i);
+            i--;
+            continue;
+        }
+        ImGui::Text("Duration: ");
+        ImGui::SameLine();
+        ImGui::InputFloat(("##duration of mover" + std::to_string(i)).c_str(), &mover->duration);
+        if(ImGui::RadioButton(("Constant##" + std::string(curveName) + std::to_string(i)).c_str(), mover->moverType == CONSTANT)){
+            mover->moverType = CONSTANT;
+        }
+        ImGui::SameLine();
+        if(ImGui::RadioButton(("Bezier##" + std::string(curveName) + std::to_string(i)).c_str(), mover->moverType == BEZIER)){
+            mover->moverType = BEZIER;
+        }
+        std::vector<float *> *points = &mover->points;
+        for(size_t j=0; j<points->size(); j++) {
+            float *point = (*points)[j];
+            if(ImGui::Button(("X##Delete" + std::string(curveName) + std::to_string(i) + "Point" + std::to_string(j)).c_str())) {
+                delete[] point;
+                points->erase(points->begin()+j);
+                j--;
+                continue;
+            }
+            ImGui::SameLine();
+            ImGui::InputFloat3(("##Input" + std::string(curveName) + std::to_string(i) + "Point" + std::to_string(j)).c_str(), point);
+        }
+        if(ImGui::Button(("Add Point##" + std::to_string(i)).c_str()))
+            mover->points.push_back(new float[3]{0,0,0});
+    }
+    if(ImGui::Button("Add Mover")){
+        movers.push_back(std::make_shared<ObjectMoverForGui>());
+    }
+    if(ButtonCenteredOnLine("Save")){
+        nextState = NextState(EXIT);
+        bool saveSucceed = true;
+        std::vector<std::shared_ptr<ObjectMover>> objectsForSave;
+        auto nextStartTime = startTime;
+        for(auto m : movers) {
+            if(m->points.size() == 0){
+                nextState = NextState(NEW, std::make_shared<ErrorMsgState>("Movers muse have 1 points at least"));
+                saveSucceed = false;
+                break;
+            }
+            if(m->moverType == CONSTANT && m->points.size() > 1) {
+                nextState = NextState(NEW, std::make_shared<ErrorMsgState>("Constant movers may have only one point"));
+                saveSucceed = false;
+                break;
+            }
+
+            std::shared_ptr<ObjectMover> savedMover;
+            if(m->moverType == CONSTANT) {
+                savedMover = std::make_shared<ObjectMoverConstant>(Eigen::Vector3f(m->points[0][0],
+                                                                                   m->points[0][1],
+                                                                                   m->points[0][2]),
+                                                                                   nextStartTime,
+                                                                                   m->duration);
+            } else {
+                std::vector<Eigen::Vector3f> bezPoints;
+                for(auto p : m->points) {
+                    bezPoints.push_back(Eigen::Vector3f(p[0], p[1], p[2]));
+                }
+                savedMover = std::make_shared<ObjectMoverBezier>(bezPoints, nextStartTime, m->duration);
+            }
+            objectsForSave.push_back(savedMover);
+            nextStartTime += m->duration;
+
+        }
+        if(saveSucceed) {
+            if(editingMode == CREATE_NEW) {
+                if (!project->AddMovementCurve(std::make_shared<ObjectMoverSplit>(objectsForSave, curveName)))
+                    nextState = NextState(NEW, std::make_shared<ErrorMsgState>("Curve: " +
+                        std::string(curveName) + " exists"));
+            } else {
+                project->SetNewMoversForCurve(std::string(curveName), objectsForSave);
+            }
+        }
+
+    }
+    ImGui::SameLine();
+    if(ButtonCenteredOnLine("Close")) {
+        nextState = NextState(EXIT);
+    }
+
     return nextState;
 }

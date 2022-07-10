@@ -5,17 +5,11 @@
 #include "SceneShape.h"
 
 SceneShape::SceneShape(std::string shapeName, igl::opengl::glfw::Viewer::shapes shapeType,
-                       std::shared_ptr<ObjectMover> moverr, std::shared_ptr<Layer> layer, int index) :
+                       std::shared_ptr<ObjectMoverSplit> moverr, std::shared_ptr<Layer> layer, int index) :
                        name(shapeName), type(shapeType),layer(layer), index(index),
                        dimensions(Eigen::Vector3f(1,1,1)), isScaledToZero(false),
-                       lastDrawnPosition(Eigen::Vector3f(0,0,0)) {
-    if(moverr->getTag() == SPLIT) {
-        this->mover = *std::static_pointer_cast<ObjectMoverSplit>(moverr);
-    }
-    else {
-        this->mover = ObjectMoverSplit(moverr);
-    }
-}
+                       lastDrawnPosition(Eigen::Vector3f(0,0,0)), mover(moverr)
+                       {}
 
 std::shared_ptr<Layer> SceneShape::getLayer() {
     return layer;
@@ -29,11 +23,11 @@ int SceneShape::getIndex() {
 
 
 bool SceneShape::isDrawn(float time) {
-    return mover.isDrawnAt(time) && !layer->isHidden();
+    return mover->isDrawnAt(time) && !layer->isHidden();
 }
 
 Eigen::Vector3f SceneShape::getPosition(float time) {
-    return mover.getPosition(time);
+    return mover->getPosition(time);
 }
 
 Eigen::Vector3f SceneShape::getlastDrawnPosition() {
@@ -45,7 +39,7 @@ void SceneShape::setlastDrawnPosition(Eigen::Vector3f pos) {
 }
 
 void SceneShape::addMover(std::shared_ptr<ObjectMover> mover) {
-    this->mover.addMover(mover);
+    this->mover->addMover(mover);
 
 }
 
@@ -75,7 +69,7 @@ void SceneShape::removeChild(int removedChild) {
 }
 
 float SceneShape::getEndTime() {
-    return mover.getEndTime();
+    return mover->getEndTime();
 }
 
 

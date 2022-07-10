@@ -2,11 +2,14 @@
 // Created by ditto on 01/07/2022.
 //
 #include "Project.h"
+#include "ObjectMoverForGui.h"
 
 #ifndef ASSIGNMENT1_CPP_GUISTATE_H
 #define ASSIGNMENT1_CPP_GUISTATE_H
-enum GuiStatus{MENU, ERROR, SHAPE_EDITING, SHADER_EDITING};
+enum GuiStatus{MENU, ERROR, SHAPE_EDITING, SHADER_EDITING, CURVE_EDITING};
 enum GuiStep{CONTINUE, NEW, EXIT};
+enum EntityEditingMode {CREATE_NEW, EDIT_EXISTING};
+
 
 class GuiState;
 class NextState {
@@ -60,7 +63,6 @@ private:
 
 };
 
-enum ShapeEditingMode {CREATE_NEW, EDIT_EXISTING};
 class ShapeEditingState: public GuiState {
 public:
     ShapeEditingState();
@@ -72,12 +74,12 @@ public:
     ~ShapeEditingState();
 
 private:
-    ShapeEditingMode editingMode;
+    EntityEditingMode editingMode;
     char *name;
     int shader;
     std::string texture;
     std::shared_ptr<igl::opengl::glfw::Viewer::shapes> type;
-    ObjectMoverSplit mover;
+    std::shared_ptr<ObjectMoverSplit> mover;
     std::shared_ptr<Layer> layer;
     Eigen::Vector3f lastDrawnPosition;
     int parent;
@@ -94,6 +96,21 @@ public:
 private:
     std::vector<std::shared_ptr<ShaderParam>> shaderParams;
     std::string shaderName;
+};
+
+class MovementCurveEditingState: public GuiState {
+public:
+    MovementCurveEditingState(std::string name, std::shared_ptr<ObjectMoverSplit> mover);
+    MovementCurveEditingState();
+    NextState Run(Project* project,
+                  std::vector<igl::opengl::Camera*> &camera,
+                  Eigen::Vector4i& viewWindow,std::vector<DrawInfo *> drawInfos,
+                  ImFont* font, ImFont *boldFont);
+    float startTime;
+private:
+    std::vector<std::shared_ptr<ObjectMoverForGui>> movers;
+    char *curveName;
+    EntityEditingMode editingMode;
 };
 
 

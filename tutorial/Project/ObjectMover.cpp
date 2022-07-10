@@ -6,7 +6,8 @@
 
 #include <utility>
 
-ObjectMoverSplit::ObjectMoverSplit(std::shared_ptr<ObjectMover> firstMover) {
+ObjectMoverSplit::ObjectMoverSplit(std::shared_ptr<ObjectMover> firstMover, std::string name):
+    name(name) {
     if(firstMover->getStartTime() < 0)
         throw std::invalid_argument("Input mover must start at t>0!");
     movers.push_back(firstMover);
@@ -17,7 +18,8 @@ ObjectMoverSplit::ObjectMoverSplit() {
     movers.push_back(firstMover);
 }
 
-ObjectMoverSplit::ObjectMoverSplit(std::vector<std::shared_ptr<ObjectMover>> movers): movers(std::move(movers)) {}
+ObjectMoverSplit::ObjectMoverSplit(std::vector<std::shared_ptr<ObjectMover>> movers, std::string name):
+    movers(std::move(movers)), name(name) {}
 
 Eigen::Vector3f ObjectMoverSplit::getPosition(float time) {
    for(const std::shared_ptr<ObjectMover>& mover : movers) {
@@ -58,7 +60,7 @@ std::shared_ptr<ObjectMover> ObjectMoverSplit::clone() {
     for(auto &mover : movers)
        newMovers.push_back(mover->clone());
 
-    return std::make_shared<ObjectMoverSplit>(movers);
+    return std::make_shared<ObjectMoverSplit>(movers, name);
 }
 
 std::shared_ptr<ObjectMoverSplit> ObjectMoverSplit::cloneAndCast() {
