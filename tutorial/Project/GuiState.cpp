@@ -805,7 +805,7 @@ NextState MovementCurveEditingState::Run(Project *project, std::vector<igl::open
         auto nextStartTime = startTime;
         for(auto m : movers) {
             if(m->points.size() == 0){
-                nextState = NextState(NEW, std::make_shared<ErrorMsgState>("Movers muse have 1 points at least"));
+                nextState = NextState(NEW, std::make_shared<ErrorMsgState>("Movers must have 1 points at least"));
                 saveSucceed = false;
                 break;
             }
