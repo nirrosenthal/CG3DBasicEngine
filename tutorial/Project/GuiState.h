@@ -5,7 +5,7 @@
 
 #ifndef ASSIGNMENT1_CPP_GUISTATE_H
 #define ASSIGNMENT1_CPP_GUISTATE_H
-enum GuiStatus{MENU, ERROR, SHAPE_EDITING};
+enum GuiStatus{MENU, ERROR, SHAPE_EDITING, SHADER_EDITING};
 enum GuiStep{CONTINUE, NEW, EXIT};
 
 class GuiState;
@@ -41,7 +41,10 @@ public:
 private:
     float hidpi_scaling_;
     float pixel_ratio_;
-    char* newLayerName = strdup("");
+    char *newLayerName = strdup("");
+//    char *shapesSearchPattern = strdup("");
+    char *shadersSearchPattern = strdup("");
+//    char *layersSearchPattern = strdup("");
 
 };
 
@@ -79,8 +82,20 @@ private:
     Eigen::Vector3f lastDrawnPosition;
     int parent;
     std::vector<int> children;
-    std::vector<std::shared_ptr<ShaderParam>> shaderParams;
 };
+
+class ShaderEditingState: public GuiState {
+public:
+    ShaderEditingState(std::shared_ptr<SceneShader> scnShader);
+    NextState Run(Project* project,
+                  std::vector<igl::opengl::Camera*> &camera,
+                  Eigen::Vector4i& viewWindow,std::vector<DrawInfo *> drawInfos,
+                  ImFont* font, ImFont *boldFont);
+private:
+    std::vector<std::shared_ptr<ShaderParam>> shaderParams;
+    std::string shaderName;
+};
+
 
 
 #endif //ASSIGNMENT1_CPP_GUISTATE_H

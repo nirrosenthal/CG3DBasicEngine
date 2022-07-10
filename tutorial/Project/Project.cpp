@@ -478,3 +478,9 @@ void Project::SetBackgroundShader(std::string shaderName) {
     SetShapeShader(backgroundShape, backgroundShader->getId());
 }
 
+std::string Project::GetBackgroundShader() {
+    if(backgroundShader == nullptr)
+        return "";
+    return backgroundShader->getName();
+}
+
