@@ -758,7 +758,7 @@ NextState MovementCurveEditingState::Run(Project *project, std::vector<igl::open
     if(editingMode == CREATE_NEW){
         ImGui::InputText("##NAME", curveName, 30);
     } else {
-        ImGui::Text(curveName);
+        ImGui::Text("%s", curveName);
     }
     ImGui::Text("Start Time: ");
     ImGui::SameLine();
