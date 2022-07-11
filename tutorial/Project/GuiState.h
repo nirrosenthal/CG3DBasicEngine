@@ -6,7 +6,7 @@
 
 #ifndef ASSIGNMENT1_CPP_GUISTATE_H
 #define ASSIGNMENT1_CPP_GUISTATE_H
-enum GuiStatus{MENU, ERROR, SHAPE_EDITING, SHADER_EDITING, CURVE_EDITING};
+enum GuiStatus{MENU, ERROR, SHAPE_EDITING, SHADER_EDITING, CURVE_EDITING, MEDIA_SLIDER};
 enum GuiStep{CONTINUE, NEW, EXIT};
 enum EntityEditingMode {CREATE_NEW, EDIT_EXISTING};
 
@@ -111,6 +111,15 @@ private:
     std::vector<std::shared_ptr<ObjectMoverForGui>> movers;
     char *curveName;
     EntityEditingMode editingMode;
+};
+
+class MediaSliderState: public GuiState {
+public:
+    MediaSliderState();
+    NextState Run(Project* project,
+                  std::vector<igl::opengl::Camera*> &camera,
+                  Eigen::Vector4i& viewWindow,std::vector<DrawInfo *> drawInfos,
+                  ImFont* font, ImFont *boldFont);
 };
 
 

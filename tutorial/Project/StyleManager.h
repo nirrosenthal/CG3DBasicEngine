@@ -134,6 +134,17 @@ bool BeginCentered(const char* name) {
     return ImGui::Begin(name, nullptr, flags);
 }
 
+bool BeginSliderWindow(const char* name) {
+    ImGuiIO& io = ImGui::GetIO();
+    ImVec2 pos(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.95f);
+    ImGui::SetNextWindowPos(pos, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove
+                             | ImGuiWindowFlags_NoDecoration
+                             | ImGuiWindowFlags_AlwaysAutoResize
+                             | ImGuiWindowFlags_NoSavedSettings;
+    return ImGui::Begin(name, nullptr, flags);
+}
+
 void Header(const char *text, ImFont *boldFont)
 {
     ImGui::PushFont(boldFont);

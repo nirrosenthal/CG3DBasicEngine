@@ -274,7 +274,7 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
         ImGui::EndCombo();
     }
 
-    if (ImGui::CollapsingHeader("Camera Split", ImGuiTreeNodeFlags_DefaultOpen)) {
+    if (ImGui::CollapsingHeader("Camera Split")) {
         if(ImGui::RadioButton("No Split",&(((ProjectViewerData *)project->data())->camera_split),0)){
             MenuManager::OnCameraSplitChange(MenuManager::CameraSplitMode::no_split);
         }
@@ -339,17 +339,7 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
 //                     ImVec2(playButton.getWidth(), playButton.getHeight()));
         switch(project->getAnimationStatus()) {
             case PLAYING:
-                if(ImGui::Button("Pause")){
-                    project->Pause();
-                }
-                ImGui::SameLine();
-                if(ImGui::Button("Stop")){ //                 if(ImGui::Button("Stop", ImVec2(60, 30)){
-                    project->Stop();
-                }
-                ImGui::SameLine();
-                if(ImGui::Button("Replay")){
-                    project->Replay();
-                }
+                throw std::runtime_error("Menu shouldn't be open on animation status PLAYING");
                 break;
             case PAUSED:
 //                if(ImGui::ImageButton((void*)(intptr_t)(playButton.getTexture()),
@@ -358,6 +348,7 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
 //                }
                 if(ImGui::Button("Play")){
                     project->Play();
+                    nextState = NextState(NEW, std::make_shared<MediaSliderState>());
                 }
                 ImGui::SameLine();
                 if(ImGui::Button("Stop")){
@@ -366,26 +357,24 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
                 ImGui::SameLine();
                 if(ImGui::Button("Replay")){
                     project->Replay();
+                    nextState = NextState(NEW, std::make_shared<MediaSliderState>());
                 }
                 break;
             case STOPPED:
                 if(ImGui::Button("Play")){
                     project->Play();
+                    nextState = NextState(NEW, std::make_shared<MediaSliderState>());
                 }
                 break;
         }
-
-        // Adding to viewer time param
-        if (ImGui::CollapsingHeader("Slider", ImGuiTreeNodeFlags_DefaultOpen))
+        float time = (float)project->GetGlobalTime();
+        float maxTime = project->maxTime();
+        if (ImGui::SliderFloat("##Time Scale", &time, 0, maxTime, "%.1f"))
         {
-            float time = (float)project->GetGlobalTime();
-            float maxTime = project->maxTime();
-            ImGui::DragFloat("End time", &maxTime, 0.05f, 0.0f, 100.0f, "%.0f");
-            if (ImGui::SliderFloat("##Time Scale", &time, 0, maxTime, "%.1f"))
-            {
-                project->SetGlobalTime((long)time);
-            }
+            project->SetGlobalTime((long)time);
         }
+
+
     }
 
     if((ImGui::IsKeyPressed(GLFW_KEY_RIGHT_CONTROL) || ImGui::IsKeyPressed(GLFW_KEY_LEFT_CONTROL)) &&
@@ -849,5 +838,52 @@ NextState MovementCurveEditingState::Run(Project *project, std::vector<igl::open
         nextState = NextState(EXIT);
     }
 
+    return nextState;
+}
+
+MediaSliderState::MediaSliderState(): GuiState(MEDIA_SLIDER){
+
+}
+
+NextState
+MediaSliderState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera, Eigen::Vector4i &viewWindow,
+                      std::vector<DrawInfo *> drawInfos, ImFont *font, ImFont *boldFont) {
+    NextState nextState(CONTINUE);
+    BeginSliderWindow("Slider");
+    ImGuiIO& io = ImGui::GetIO();
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + io.DisplaySize.x * 0.352);
+    switch(project->getAnimationStatus()) {
+        case PLAYING:
+            if(ImGui::Button("Pause")){
+                project->Pause();
+                nextState = NextState(EXIT);
+            }
+            ImGui::SameLine();
+            if(ImGui::Button("Stop")){
+                project->Stop();
+                nextState = NextState(EXIT);
+            }
+            ImGui::SameLine();
+            if(ImGui::Button("Replay")){
+                project->Replay();
+            }
+            break;
+        case PAUSED:
+        case STOPPED:
+            throw std::runtime_error("Slider shouldn't be open on animation status " +
+                std::to_string(project->getAnimationStatus()));
+            break;
+    }
+    float time = (float)project->GetGlobalTime();
+    float maxTime = project->maxTime();
+    ImGui::SetNextItemWidth(io.DisplaySize.x * 0.8);
+    if (ImGui::SliderFloat("##Time Scale", &time, 0, maxTime, "%.1f"))
+    {
+        project->SetGlobalTime((long)time);
+    }
+    if(project->GetGlobalTime() >= project->maxTime()) {
+        project->Stop();
+        nextState = NextState(EXIT);
+    }
     return nextState;
 }
