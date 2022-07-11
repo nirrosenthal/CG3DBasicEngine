@@ -40,8 +40,16 @@
 	{
 		Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
 		Project* scn = (Project*)rndr->GetScene();
-		if(scn->getAnimationStatus() == PLAYING)
+        WindowLocation windowLoc = scn->GetWindowLocation();
+        auto mouse = scn->GetMouse();
+        float xpos = mouse[0];
+        float ypos = mouse[1];
+        if((xpos >= windowLoc.topLeft.x && xpos <= windowLoc.bottomRight.x
+            && ypos >= windowLoc.topLeft.y && ypos <= windowLoc.bottomRight.y) ||
+                scn->getAnimationStatus() == PLAYING) {
             return;
+        }
+
 		if (rndr->IsPicked())
 		{
 			rndr->UpdateZpos((int)yoffset);
@@ -59,14 +67,12 @@
 		Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
 		Project* scn = (Project*)rndr->GetScene();
         WindowLocation windowLoc = scn->GetWindowLocation();
+        scn->UpdateMouse((float)xpos, (float)ypos);
         if((xpos >= windowLoc.topLeft.x && xpos <= windowLoc.bottomRight.x
             && ypos >= windowLoc.topLeft.y && ypos <= windowLoc.bottomRight.y) ||
             scn->getAnimationStatus() == PLAYING)
             return;
-
 		rndr->UpdatePosition((float)xpos,-(float)ypos); // tricking the engine for intuitive mouse movement
-        scn->UpdateMouse((float)xpos, (float)ypos);
-
 		if (rndr->CheckViewport(xpos,ypos, 0))
 		{
 			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)

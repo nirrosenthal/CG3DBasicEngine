@@ -513,4 +513,8 @@ void Project::SetShapeCurve(int shapeId, std::string curveName) {
     shapesGlobal[shapeId]->mover = movementCurves[curveName];
 }
 
+Eigen::Vector2f Project::GetMouse() {
+    return mousePos;
+}
+
 

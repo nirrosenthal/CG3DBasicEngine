@@ -61,6 +61,7 @@ public:
     std::shared_ptr<SceneShader> GetShader(const int shaderId);
     void UpdateResolution(float width, float height);
     void UpdateMouse(float x, float y);
+    Eigen::Vector2f GetMouse();
     std::string GetBackgroundShader();
     void SetBackgroundShader(std::string shaderName);
     std::vector<std::string> GetAllMovementCurves();
