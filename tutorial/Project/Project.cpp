@@ -2,6 +2,14 @@
 #include <iostream>
 #include <chrono>
 
+#  if __cplusplus >= 201703L && __has_include(<filesystem>)
+#    include <filesystem>
+     namespace filesystem = std::filesystem;
+#  elif __has_include(<experimental/filesystem>)
+#    include <experimental/filesystem>
+     namespace filesystem = std::experimental::filesystem;
+#  endif
+
 bool endsWith (std::string const &fullString, std::string const &ending) {
     if (fullString.length() >= ending.length()) {
         return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
@@ -417,7 +425,7 @@ std::vector<std::string> Project::GetAllShaders() {
 
 void Project::RefreshShadersList() {
     allShaders.clear();
-    for(auto const &file : std::filesystem::directory_iterator(SHADERS_FOLDER)) {
+    for(auto const &file : filesystem::directory_iterator(SHADERS_FOLDER)) {
         std::string path = file.path().u8string();
         if(endsWith(path, ".glsl")) {
             path = path.substr(0, path.find_last_of('.'));
