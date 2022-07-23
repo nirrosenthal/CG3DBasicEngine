@@ -11,7 +11,7 @@
 #  elif __has_include(<boost/filesystem.hpp>)
 #    include <boost/filesystem.hpp>
 #    define USING_BOOST true
-namespace filesystem = boost::filesystem;
+     namespace filesystem = boost::filesystem;
 #  elif __has_include(<experimental/filesystem>)
 #    include <experimental/filesystem>
 #    define USING_BOOST false
