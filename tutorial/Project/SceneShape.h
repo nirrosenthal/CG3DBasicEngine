@@ -10,10 +10,13 @@
 #include "ObjectMover.h"
 #include "LayerManager.h"
 
+enum ShapeSource {FROM_FILE, HARD_CODED};
 
 class SceneShape {
 public:
     SceneShape(std::string shapeName, igl::opengl::glfw::Viewer::shapes shapeType,
+               std::shared_ptr<ObjectMoverSplit> moverr, std::shared_ptr<Layer> layer, int *indexes);
+    SceneShape(std::string shapeName, std::string file,
                std::shared_ptr<ObjectMoverSplit> moverr, std::shared_ptr<Layer> layer, int *indexes);
     std::shared_ptr<Layer> getLayer();
     void changeLayer(std::shared_ptr<Layer> layer);
@@ -37,6 +40,8 @@ public:
     int index;
     igl::opengl::glfw::Viewer::shapes type;
     std::shared_ptr<ObjectMoverSplit> mover;
+    ShapeSource getSource() {return source;};
+    std::string getFile() {return file;};
 
 private:
     std::shared_ptr<Layer> layer;
@@ -44,6 +49,9 @@ private:
     int ids[4];
     int parent;
     std::vector<int> children;
+    ShapeSource source;
+    std::string file;
+
 };
 
 

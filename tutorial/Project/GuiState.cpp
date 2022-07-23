@@ -414,6 +414,7 @@ NextState ErrorMsgState::Run(Project *project, std::vector<igl::opengl::Camera *
 ShapeEditingState::ShapeEditingState():
  GuiState(SHAPE_EDITING),
  editingMode(CREATE_NEW),
+ source(HARD_CODED),
  name(strdup("")),
  type(nullptr),
  shader(-1)
@@ -423,7 +424,9 @@ ShapeEditingState::ShapeEditingState():
 ShapeEditingState::ShapeEditingState(std::shared_ptr<SceneShape> shp, std::shared_ptr<SceneShader> scnShader):
         GuiState(SHAPE_EDITING),
         editingMode(EDIT_EXISTING),
+        source(shp->getSource()),
         name(strdup(shp->name.c_str())),
+        file(shp->getFile()),
         type(std::make_shared<igl::opengl::glfw::Viewer::shapes>(shp->type)),
         layer(shp->getLayer()),
         shader(shp->shader),
@@ -479,88 +482,119 @@ ShapeEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &cam
         else
             ImGui::Text("%s", name);
     }
-    if (ImGui::CollapsingHeader("Type", ImGuiTreeNodeFlags_DefaultOpen)) {
-        std::string firstTypeName = "";
-        if(type != nullptr)
-            firstTypeName = SHAPE_TYPES_REV[*type];
-        if(editingMode == EDIT_EXISTING)
-            ImGui::Text("%s", firstTypeName.c_str());
-        else {
-            if (ImGui::BeginCombo("##Type combo", firstTypeName.c_str())) {
-                for (int i = igl::opengl::glfw::Viewer::shapes::Axis;
-                     i != igl::opengl::glfw::Viewer::shapes::Sphere; i++) {
-                    igl::opengl::glfw::Viewer::shapes currentType = static_cast<igl::opengl::glfw::Viewer::shapes>(i);
-                    std::string typeName = SHAPE_TYPES_REV[currentType];
-                    bool isSelected = type != nullptr && currentType == *type;
-                    if (ImGui::Selectable(typeName.c_str(), isSelected)) {
-                        type = std::make_shared<igl::opengl::glfw::Viewer::shapes>(currentType);
-                    }
-                    if (isSelected) {
-                        ImGui::SetItemDefaultFocus();
-                    }
+    if (ImGui::CollapsingHeader("Source", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (ImGui::RadioButton("From Menu", source == HARD_CODED)) {
+            source = HARD_CODED;
+        }
+        ImGui::SameLine();
+        if (ImGui::RadioButton("From File", source == FROM_FILE)) {
+            source = FROM_FILE;
+        }
+    }
+    if (source == HARD_CODED) {
+        if (ImGui::CollapsingHeader("Type", ImGuiTreeNodeFlags_DefaultOpen)) {
+            std::string firstTypeName = "";
+            if (type != nullptr)
+                firstTypeName = SHAPE_TYPES_REV[*type];
+            if (editingMode == EDIT_EXISTING)
+                ImGui::Text("%s", firstTypeName.c_str());
+            else {
+                if (ImGui::BeginCombo("##Type combo", firstTypeName.c_str())) {
+                    for (int i = igl::opengl::glfw::Viewer::shapes::Axis;
+                         i != igl::opengl::glfw::Viewer::shapes::Sphere; i++) {
+                        igl::opengl::glfw::Viewer::shapes currentType = static_cast<igl::opengl::glfw::Viewer::shapes>(i);
+                        std::string typeName = SHAPE_TYPES_REV[currentType];
+                        bool isSelected = type != nullptr && currentType == *type;
+                        if (ImGui::Selectable(typeName.c_str(), isSelected)) {
+                            type = std::make_shared<igl::opengl::glfw::Viewer::shapes>(currentType);
+                        }
+                        if (isSelected) {
+                            ImGui::SetItemDefaultFocus();
+                        }
 
+
+                    }
+                    ImGui::EndCombo();
 
                 }
-                ImGui::EndCombo();
-
             }
         }
+    }
 
-        if (ImGui::CollapsingHeader("Shader"), ImGuiTreeNodeFlags_DefaultOpen) {
-            auto allShaders = project->GetAllShaders();
-            std::string shaderName = project->GetShaderName(shader);
-            if (ImGui::BeginCombo("##Shader combo", shaderName.c_str())) {
-                for(auto &currentShader: allShaders) {
-                    bool isSelected = currentShader == shaderName;
-                    if(ImGui::Selectable(currentShader.c_str(), isSelected)) {
-                        shader = project->GetShaderId(currentShader);
-                        std::shared_ptr<SceneShader> scnShader = project->GetShader(shader);
+    if (source == FROM_FILE) {
+        if (ImGui::CollapsingHeader("File", ImGuiTreeNodeFlags_DefaultOpen)) {
+            auto allFiles = project->GetAllShapeFiles();
+            if (editingMode == EDIT_EXISTING)
+                ImGui::Text("%s", file.c_str());
+            else {
+                if (ImGui::BeginCombo("##File combo", file.c_str())) {
+                    for (auto shapeFile: allFiles) {
+                        bool isSelected = file == shapeFile;
+                        if (ImGui::Selectable(shapeFile.c_str(), isSelected)) {
+                            file = shapeFile;
+                        }
+                        if (isSelected)
+                            ImGui::SetItemDefaultFocus();
                     }
-                    if (isSelected) {
-                        ImGui::SetItemDefaultFocus();
-                    }
+                    ImGui::EndCombo();
                 }
-                ImGui::EndCombo();
             }
         }
+    }
 
-        if (ImGui::CollapsingHeader("Layer", ImGuiTreeNodeFlags_DefaultOpen)) {
-            auto allLayers = project->layerManager.layers;
-            std::string layerName;
-            if(layer != nullptr)
-                layerName = layer->getName();
-            if (ImGui::BeginCombo("##Layer combo", layerName.c_str())) {
-                for(auto currentLayerEntry: allLayers) {
-                    auto currentLayer = currentLayerEntry.second;
-                    bool isSelected = currentLayer == layer;
-
-                    if(ImGui::Selectable(currentLayer->getName().c_str(), isSelected)) {
-                        layer = currentLayer;
-                    }
-                    if (isSelected) {
-                        ImGui::SetItemDefaultFocus();
-                    }
+    if (ImGui::CollapsingHeader("Shader"), ImGuiTreeNodeFlags_DefaultOpen) {
+        auto allShaders = project->GetAllShaders();
+        std::string shaderName = project->GetShaderName(shader);
+        if (ImGui::BeginCombo("##Shader combo", shaderName.c_str())) {
+            for(auto &currentShader: allShaders) {
+                bool isSelected = currentShader == shaderName;
+                if(ImGui::Selectable(currentShader.c_str(), isSelected)) {
+                    shader = project->GetShaderId(currentShader);
+                    std::shared_ptr<SceneShader> scnShader = project->GetShader(shader);
                 }
-                ImGui::EndCombo();
+                if (isSelected) {
+                    ImGui::SetItemDefaultFocus();
+                }
             }
+            ImGui::EndCombo();
         }
-        if (ImGui::CollapsingHeader("Movement Curves", ImGuiTreeNodeFlags_DefaultOpen)) {
-            auto allCurves = project->GetAllMovementCurves();
-            std::string moverName;
-            if(mover != nullptr)
-                moverName = mover->name;
-            if (ImGui::BeginCombo("##Mover combo", moverName.c_str())) {
-                for(auto curve : allCurves) {
-                    bool isSelected = moverName == curve;
-                    if(ImGui::Selectable(curve.c_str(), isSelected)) {
-                        mover = project->GetCurve(curve);
-                    }
-                    if (isSelected) {
-                        ImGui::SetItemDefaultFocus();
-                    }
+    }
+
+    if (ImGui::CollapsingHeader("Layer", ImGuiTreeNodeFlags_DefaultOpen)) {
+        auto allLayers = project->layerManager.layers;
+        std::string layerName;
+        if(layer != nullptr)
+            layerName = layer->getName();
+        if (ImGui::BeginCombo("##Layer combo", layerName.c_str())) {
+            for(auto currentLayerEntry: allLayers) {
+                auto currentLayer = currentLayerEntry.second;
+                bool isSelected = currentLayer == layer;
+                if(ImGui::Selectable(currentLayer->getName().c_str(), isSelected)) {
+                    layer = currentLayer;
                 }
-                ImGui::EndCombo();
+                if (isSelected) {
+                    ImGui::SetItemDefaultFocus();
+                }
             }
+            ImGui::EndCombo();
+        }
+    }
+    if (ImGui::CollapsingHeader("Movement Curves", ImGuiTreeNodeFlags_DefaultOpen)) {
+        auto allCurves = project->GetAllMovementCurves();
+        std::string moverName;
+        if(mover != nullptr)
+            moverName = mover->name;
+        if (ImGui::BeginCombo("##Mover combo", moverName.c_str())) {
+            for(auto curve : allCurves) {
+                bool isSelected = moverName == curve;
+                if(ImGui::Selectable(curve.c_str(), isSelected)) {
+                    mover = project->GetCurve(curve);
+                }
+                if (isSelected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+            ImGui::EndCombo();
         }
 
         bool saveSucceed = true;
@@ -579,8 +613,12 @@ ShapeEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &cam
                 nextState = NextState(NEW, std::make_shared<ErrorMsgState>("Layer cannot be empty!"));
                 saveSucceed = false;
             }
-            if(type == nullptr) {
+            if(source == HARD_CODED && type == nullptr) {
                 nextState = NextState(NEW, std::make_shared<ErrorMsgState>("Type cannot be empty!"));
+                saveSucceed = false;
+            }
+            if(source == FROM_FILE && file.empty()) {
+                nextState = NextState(NEW, std::make_shared<ErrorMsgState>("File cannot be empty!"));
                 saveSucceed = false;
             }
             if(mover == nullptr) {
@@ -588,7 +626,10 @@ ShapeEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &cam
                 saveSucceed = false;
             }
             if(editingMode == CREATE_NEW && saveSucceed) {
-                project->AddGlobalShape(name, *type, mover, layer, project->GetShaderName(shader));
+                if(source == HARD_CODED)
+                    project->AddGlobalShape(name, *type, mover, layer, project->GetShaderName(shader));
+                else
+                    project->AddGlobalShape(name, file, mover, layer, project->GetShaderName(shader));
             } else if(editingMode == EDIT_EXISTING && saveSucceed) {
                 auto shape = project->GetGlobalShape(std::string(name));
                 shape->name = name;

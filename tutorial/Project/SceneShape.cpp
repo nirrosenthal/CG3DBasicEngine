@@ -8,14 +8,24 @@ SceneShape::SceneShape(std::string shapeName, igl::opengl::glfw::Viewer::shapes 
                        std::shared_ptr<ObjectMoverSplit> moverr, std::shared_ptr<Layer> layer, int *indexes) :
                        name(shapeName), type(shapeType),layer(layer),
                        dimensions(Eigen::Vector3f(1,1,1)), isScaledToZero(false),
-                       mover(moverr)
+                       mover(moverr), source(HARD_CODED)
                        {
                             for(int i=0; i<4; i++) {
                                 lastDrawnPositions[i] = Eigen::Vector3f(0,0,0);
                                 ids[i] = indexes[i];
                             }
                        }
-
+SceneShape::SceneShape(std::string shapeName, std::string file, std::shared_ptr<ObjectMoverSplit> moverr,
+                       std::shared_ptr<Layer> layer, int *indexes):
+                       name(shapeName), file(file),layer(layer),
+                       dimensions(Eigen::Vector3f(1,1,1)), isScaledToZero(false),
+                       mover(moverr), source(FROM_FILE)
+                        {
+                            for(int i=0; i<4; i++) {
+                                lastDrawnPositions[i] = Eigen::Vector3f(0,0,0);
+                                ids[i] = indexes[i];
+                            }
+                        }
 std::shared_ptr<Layer> SceneShape::getLayer() {
     return layer;
 }
@@ -85,5 +95,7 @@ void SceneShape::removeChild(int removedChild) {
 float SceneShape::getEndTime() {
     return mover->getEndTime();
 }
+
+
 
 

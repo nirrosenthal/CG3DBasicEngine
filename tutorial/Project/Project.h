@@ -4,6 +4,7 @@
 #include "SceneShader.h"
 #include "igl/opengl/glfw/renderer.h"
 #include "ProjectViewerData.h"
+
 #  if __has_include(<filesystem>)
 #    include <filesystem>
 #    define USING_BOOST false
@@ -27,6 +28,7 @@ struct WindowLocation {
 };
 
 const std::string SHADERS_FOLDER = "shaders/";
+const std::string SHAPES_FOLDER = "data/";
 const std::string TEXTURES_FOLDER = "textures/";
 class Project : public igl::opengl::glfw::Viewer
 {
@@ -70,6 +72,8 @@ public:
     std::vector<std::shared_ptr<SceneShape>> getAllShapes();
     std::shared_ptr<SceneShape> AddGlobalShape(std::string name, shapes shapeType, std::shared_ptr<ObjectMoverSplit> mover,
                                                std::shared_ptr<Layer> layer, std::string shader);
+    std::shared_ptr<SceneShape> AddGlobalShape(std::string name, std::string file, std::shared_ptr<ObjectMoverSplit> mover,
+                                               std::shared_ptr<Layer> layer, std::string shader);
     std::shared_ptr<SceneShape> GetGlobalShape(const std::string& name);
     bool AddGlobalShader(std::shared_ptr<SceneShader> shader);
     std::shared_ptr<SceneShader> GetShader(const std::string& shaderName);
@@ -87,6 +91,8 @@ public:
     void SplitX();
     void SplitY();
     void Unsplit();
+    std::vector<std::string> GetAllShapeFiles();
+
 
 private:
     std::map<int, std::shared_ptr<SceneShape>> shapesGlobal;
@@ -99,7 +105,9 @@ private:
     std::map<std::string, std::shared_ptr<SceneShader>> createdShadersByName;
     std::map<int, std::shared_ptr<SceneShader>> createdShadersById;
     std::vector<std::string> allShaders;
+    std::vector<std::string> allShapeFiles;
     void RefreshShadersList();
+    void RefreshShapeFilesList();
     long lastFileSystemRefreshingTimeSeconds;
     int backgroundShape[4];
     std::shared_ptr<SceneShader> backgroundShader;

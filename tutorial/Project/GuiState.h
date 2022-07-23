@@ -78,7 +78,9 @@ private:
     char *name;
     int shader;
     std::string texture;
+    ShapeSource source;
     std::shared_ptr<igl::opengl::glfw::Viewer::shapes> type;
+    std::string file;
     std::shared_ptr<ObjectMoverSplit> mover;
     std::shared_ptr<Layer> layer;
     Eigen::Vector3f lastDrawnPosition;

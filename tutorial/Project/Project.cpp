@@ -151,6 +151,23 @@ Project::Project(igl::opengl::glfw::imgui::ImGuiMenu* menu): igl::opengl::glfw::
 //{ 	
 //}
 
+std::shared_ptr<SceneShape> Project::AddGlobalShape(std::string name, std::string file, std::shared_ptr<ObjectMoverSplit> mover,
+                        std::shared_ptr<Layer> layer, std::string shader) {
+    int indexes[4];
+    std::string fullShapeFile = SHAPES_FOLDER + file + ".obj";
+    for(int i=0; i<4; i++) {
+        indexes[i] = AddShapeFromFile(fullShapeFile, -1, TRIANGLES, i);
+    }
+    std::shared_ptr<SceneShape> scnShape = std::make_shared<SceneShape>(name, file, mover, layer, indexes);
+    layer->addShape(scnShape);
+    scnShape->shader = GetShader(shader)->getId();
+    scnShape->material = 0;
+    for(int i=0; i<4; i++) {
+        shapesGlobal[indexes[i]] = scnShape;
+    }
+    return scnShape;
+}
+
 std::shared_ptr<SceneShape> Project::AddGlobalShape(std::string name, igl::opengl::glfw::Viewer::shapes shapeType,
                              std::shared_ptr<ObjectMoverSplit> mover, std::shared_ptr<Layer> layer, std::string shader) {
     int indexes[4];
@@ -420,11 +437,44 @@ std::vector<std::string> Project::GetAllShaders() {
     long currentTime = getCurrentUnixTime();
     if(currentTime - lastFileSystemRefreshingTimeSeconds > 60) {
         RefreshShadersList();
+        RefreshShapeFilesList();
         lastFileSystemRefreshingTimeSeconds = currentTime;
     }
 
     return allShaders;
 }
+
+std::vector<std::string> Project::GetAllShapeFiles() {
+    long currentTime = getCurrentUnixTime();
+    if(currentTime - lastFileSystemRefreshingTimeSeconds > 60) {
+        RefreshShadersList();
+        RefreshShapeFilesList();
+        lastFileSystemRefreshingTimeSeconds = currentTime;
+    }
+    return allShapeFiles;
+}
+
+
+
+void Project::RefreshShapeFilesList() {
+    allShapeFiles.clear();
+    for(auto const &file : filesystem::directory_iterator(SHAPES_FOLDER)) {
+        std::string path;
+        # if !USING_BOOST
+            path = file.path().u8string();
+        # else
+            path = file.path().string();
+        # endif
+        if(endsWith(path, ".obj")) {
+            path = path.substr(0, path.find_last_of('.'));
+            path = path.substr(SHAPES_FOLDER.length(), path.length());
+            allShapeFiles.push_back(path);
+        }
+    }
+    std::sort(allShapeFiles.begin(), allShapeFiles.end());
+
+}
+
 
 void Project::RefreshShadersList() {
     allShaders.clear();
@@ -607,5 +657,7 @@ void Project::Unsplit() {
 
     delete oldRenderer;
 }
+
+
 
 
