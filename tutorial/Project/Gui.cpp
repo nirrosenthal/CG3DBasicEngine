@@ -3,7 +3,6 @@
 //
 
 #include "Gui.h"
-#include "MenuManager.h"
 #include "Project.h"
 #include "stb_image.h"
 
@@ -69,8 +68,8 @@ Gui::Gui() :
 void Gui::init(Display *disp) {
     ImGuiMenu::init(disp);
     ImGuiIO &io = ImGui::GetIO();
-    font = io.Fonts->AddFontFromFileTTF("textures/Calibri.ttf", 12);
-    boldFont = io.Fonts->AddFontFromFileTTF("textures/calibrib.ttf", 14);
+    font = io.Fonts->AddFontFromFileTTF("textures/Calibri.ttf", 25);
+    boldFont = io.Fonts->AddFontFromFileTTF("textures/calibrib.ttf", 28);
     guiStates.push(std::make_shared<MenuState>(hidpi_scaling_, pixel_ratio_));
 }
 

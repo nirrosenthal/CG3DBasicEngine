@@ -4,7 +4,6 @@
 
 #include "GuiState.h"
 #include "StyleManager.h"
-#include "MenuManager.h"
 
 NextState::NextState(GuiStep step): step(step), state(nullptr){}
 NextState::NextState(GuiStep step, std::shared_ptr<GuiState> state): step(step), state(state) {}
@@ -252,37 +251,37 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
         nextState = NextState(NEW, std::make_shared<MovementCurveEditingState>());
     }
 
-    std::string tempStr = "material";
-    const char* current_material_item = tempStr.c_str();
-    if (ImGui::BeginCombo("##materials combo", current_material_item))
-    {
-        for (size_t n = 0; n < project->materials.size(); n++)
-        {
-            bool is_selected = strcmp(current_material_item ,("material" + (std::to_string(n))).c_str())==0;
-            std::cout<<"compare: "<<std::string(current_material_item)<<" with "<<("material" + (std::to_string(n))).c_str()<<std::endl;
-            if (ImGui::Selectable(("material" + (std::to_string(n))).c_str(), is_selected))
-            {
-                current_material_item = ("material" + (std::to_string(n))).c_str();
-                ((ProjectViewerData *)project->data())->material_indx = n;
-                MenuManager::OnSelectMaterial(n);
-            }
-            if (is_selected){
-                ImGui::SetItemDefaultFocus();
-            }
-        }
-
-        ImGui::EndCombo();
-    }
+//    std::string tempStr = "material";
+//    const char* current_material_item = tempStr.c_str();
+//    if (ImGui::BeginCombo("##materials combo", current_material_item))
+//    {
+//        for (size_t n = 0; n < project->materials.size(); n++)
+//        {
+//            bool is_selected = strcmp(current_material_item ,("material" + (std::to_string(n))).c_str())==0;
+//            std::cout<<"compare: "<<std::string(current_material_item)<<" with "<<("material" + (std::to_string(n))).c_str()<<std::endl;
+//            if (ImGui::Selectable(("material" + (std::to_string(n))).c_str(), is_selected))
+//            {
+//                current_material_item = ("material" + (std::to_string(n))).c_str();
+//                ((ProjectViewerData *)project->data())->material_indx = n;
+//                // implement add material
+//            }
+//            if (is_selected){
+//                ImGui::SetItemDefaultFocus();
+//            }
+//        }
+//
+//        ImGui::EndCombo();
+//    }
 
     if (ImGui::CollapsingHeader("Camera Split")) {
         if(ImGui::RadioButton("No Split",&(((ProjectViewerData *)project->data())->camera_split),0)){
-            MenuManager::OnCameraSplitChange(MenuManager::CameraSplitMode::no_split);
+            // implement if no split requested
         }
         if(ImGui::RadioButton("Split x",&(((ProjectViewerData *)project->data())->camera_split),1)){
-            MenuManager::OnCameraSplitChange(MenuManager::CameraSplitMode::split_x);
+            // implement if x - split requested
         }
         if(ImGui::RadioButton("Split y",&(((ProjectViewerData *)project->data())->camera_split),2)){
-            MenuManager::OnCameraSplitChange(MenuManager::CameraSplitMode::split_y);
+            // implement if y - split requested
         }
 
         ImGui::Text("Select Camera for screen 1:");
@@ -329,7 +328,7 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
         ImGui::InputText("##@@@.",(((ProjectViewerData *)project->data())->camera_name));
         if(ImGui::Button("Add Camera")){
             ((ProjectViewerData *)project->data())->cameras.push_back(((ProjectViewerData *)project->data())->camera_name);
-            MenuManager::OnAddCamera(((ProjectViewerData *)project->data())->camera_name);
+            // implement add camera
         }
     }
 
