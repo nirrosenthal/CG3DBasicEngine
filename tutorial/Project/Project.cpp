@@ -4,11 +4,19 @@
 
 #  if __has_include(<filesystem>)
 #    include <filesystem>
+#    define USING_BOOST false
      namespace filesystem = std::filesystem;
+#  elif __has_include(<boost/filesystem.hpp>)
+#    include <boost/filesystem.hpp>
+#    define USING_BOOST true
+namespace filesystem = boost::filesystem;
 #  elif __has_include(<experimental/filesystem>)
 #    include <experimental/filesystem>
-     namespace filesystem = std::experimental::filesystem;
+#    define USING_BOOST false
+namespace filesystem = std::experimental::filesystem;
 #  endif
+
+
 
 bool endsWith (std::string const &fullString, std::string const &ending) {
     if (fullString.length() >= ending.length()) {
@@ -426,7 +434,12 @@ std::vector<std::string> Project::GetAllShaders() {
 void Project::RefreshShadersList() {
     allShaders.clear();
     for(auto const &file : filesystem::directory_iterator(SHADERS_FOLDER)) {
-        std::string path = file.path().u8string();
+        std::string path;
+        # if !USING_BOOST
+            path = file.path().u8string();
+        # else
+            path = file.path().string();
+        # endif
         if(endsWith(path, ".glsl")) {
             path = path.substr(0, path.find_last_of('.'));
             path = path.substr(SHADERS_FOLDER.length(), path.length());
