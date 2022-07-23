@@ -482,13 +482,15 @@ ShapeEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &cam
         else
             ImGui::Text("%s", name);
     }
-    if (ImGui::CollapsingHeader("Source", ImGuiTreeNodeFlags_DefaultOpen)) {
-        if (ImGui::RadioButton("From Menu", source == HARD_CODED)) {
-            source = HARD_CODED;
-        }
-        ImGui::SameLine();
-        if (ImGui::RadioButton("From File", source == FROM_FILE)) {
-            source = FROM_FILE;
+    if (editingMode == CREATE_NEW) {
+        if (ImGui::CollapsingHeader("Source", ImGuiTreeNodeFlags_DefaultOpen)) {
+            if (ImGui::RadioButton("From Menu", source == HARD_CODED)) {
+                source = HARD_CODED;
+            }
+            ImGui::SameLine();
+            if (ImGui::RadioButton("From File", source == FROM_FILE)) {
+                source = FROM_FILE;
+            }
         }
     }
     if (source == HARD_CODED) {

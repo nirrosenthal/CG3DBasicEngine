@@ -422,9 +422,9 @@ void Renderer::MouseProccessing(int button, int mode, int viewportIndx)
     {
 
 		if(button == 2)
-			scn->MouseProccessing(button, zrel, zrel, CalcMoveCoeff(mode & 7, viewports[viewportIndx].w()), cameras[0]->MakeTransd(), viewportIndx);
+			scn->MouseProccessing(button, zrel, zrel, CalcMoveCoeff(mode & 7, viewports[viewportIndx].w()), cameras[viewportIndx]->MakeTransd(), viewportIndx);
 		else
-			scn->MouseProccessing(button, xrel, yrel, CalcMoveCoeff(mode & 7, viewports[viewportIndx].w()), cameras[0]->MakeTransd(), viewportIndx);
+			scn->MouseProccessing(button, xrel, yrel, CalcMoveCoeff(mode & 7, viewports[viewportIndx].w()), cameras[viewportIndx]->MakeTransd(), viewportIndx);
     }
 
 }
@@ -481,7 +481,8 @@ IGL_INLINE void Renderer::Init(igl::opengl::glfw::Viewer* scene, std::list<int>x
 {
     scn = scene;
     menu = _menu;
-    MoveCamera(0, zTranslate, 10);
+    for(int i=0; i<cameras.size(); i++)
+        MoveCamera(i, zTranslate, 10);
     Eigen::Vector4i viewport;
     glGetIntegerv(GL_VIEWPORT, viewport.data());
     buffers.push_back(new igl::opengl::DrawBuffer());
@@ -491,6 +492,7 @@ IGL_INLINE void Renderer::Init(igl::opengl::glfw::Viewer* scene, std::list<int>x
     yViewport.push_front(0);
     std::list<int>::iterator xit = xViewport.begin();
     int indx = 0;
+    int camera = 0;
     
     for (++xit; xit != xViewport.end(); ++xit)
     {
@@ -500,7 +502,7 @@ IGL_INLINE void Renderer::Init(igl::opengl::glfw::Viewer* scene, std::list<int>x
             viewports.emplace_back(*std::prev(xit), *std::prev(yit), *xit - *std::prev(xit), *yit - *std::prev(yit));
 
             if ((1 << indx) & pickingBits) {
-                DrawInfo* new_draw_info = new DrawInfo(indx, 0, 0, 0,
+                DrawInfo* new_draw_info = new DrawInfo(indx, camera, 0, 0,
                                                   1 | inAction | depthTest | stencilTest | passStencil | blackClear |
                                                   clearStencil | clearDepth | onPicking ,
                                                   next_property_id);
@@ -511,10 +513,11 @@ IGL_INLINE void Renderer::Init(igl::opengl::glfw::Viewer* scene, std::list<int>x
                 //}
                 drawInfos.emplace_back(new_draw_info);
             }
-            DrawInfo* temp = new DrawInfo(indx, 0, 1, 0, (int)(indx < 1) | depthTest | clearDepth ,next_property_id);
+            DrawInfo* temp = new DrawInfo(indx, camera, 1, 0, (int)(indx < 1) | depthTest | clearDepth ,next_property_id);
             next_property_id <<= 1;
             drawInfos.emplace_back(temp);
             indx++;
+            camera++;
         }
     }
 

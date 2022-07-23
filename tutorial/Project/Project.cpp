@@ -606,10 +606,10 @@ void Project::SplitX() {
 
 
     renderer = new Renderer(CAMERA_ANGLE, (float)resolution[0]/(float)resolution[1], NEAR, FAR);
-    renderer->Init(this,x,y,1, menu);
     renderer->AddCamera(Eigen::Vector3d(10,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 1);
     renderer->AddCamera(Eigen::Vector3d(20,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 2);
     renderer->AddCamera(Eigen::Vector3d(30,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 3);
+    renderer->Init(this,x,y,1, menu);
 
 
     //renderer->Init(this,x,y,1, me);
@@ -633,10 +633,11 @@ void Project::SplitY() {
     //newMenu->init(display, false);
 
     renderer = new Renderer(CAMERA_ANGLE, (float)resolution[0]/(float)resolution[1], NEAR, FAR);
-    renderer->Init(this,x,y,1, menu);
     renderer->AddCamera(Eigen::Vector3d(10,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 1);
     renderer->AddCamera(Eigen::Vector3d(20,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 2);
     renderer->AddCamera(Eigen::Vector3d(30,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 3);
+    renderer->Init(this,x,y,1, menu);
+
 
     //renderer->Init(this,x,y,1, me);
     display->SetRenderer(renderer);
@@ -658,10 +659,11 @@ void Project::Unsplit() {
 
 
     renderer = new Renderer(CAMERA_ANGLE, (float)resolution[0]/(float)resolution[1], NEAR, FAR);
-    renderer->Init(this,x,y,1, menu);
     renderer->AddCamera(Eigen::Vector3d(10,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 1);
     renderer->AddCamera(Eigen::Vector3d(20,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 2);
     renderer->AddCamera(Eigen::Vector3d(30,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 3);
+    renderer->Init(this,x,y,1, menu);
+
 
     display->SetRenderer(renderer);
     display->launch_rendering(renderer);

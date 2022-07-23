@@ -50,6 +50,7 @@ public:
 	void Animate() override;
 	void ScaleAllShapes(float amt, int viewportIndx);
     void SetRenderer(Renderer *renderer);
+    Renderer *GetRenderer() {return renderer;};
     void SetDisplay(Display *display);
     void SetParent(int shape, int newParent);
     int GetParent(int shape);
