@@ -2,19 +2,6 @@
 #include <iostream>
 #include <chrono>
 
-#  if __has_include(<filesystem>)
-#    include <filesystem>
-#    define USING_BOOST false
-     namespace filesystem = std::filesystem;
-#  elif __has_include(<boost/filesystem.hpp>)
-#    include <boost/filesystem.hpp>
-#    define USING_BOOST true
-namespace filesystem = boost::filesystem;
-#  elif __has_include(<experimental/filesystem>)
-#    include <experimental/filesystem>
-#    define USING_BOOST false
-     namespace filesystem = std::experimental::filesystem;
-#  endif
 
 
 
