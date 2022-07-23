@@ -5,11 +5,16 @@
 #include "SceneShape.h"
 
 SceneShape::SceneShape(std::string shapeName, igl::opengl::glfw::Viewer::shapes shapeType,
-                       std::shared_ptr<ObjectMoverSplit> moverr, std::shared_ptr<Layer> layer, int index) :
-                       name(shapeName), type(shapeType),layer(layer), index(index),
+                       std::shared_ptr<ObjectMoverSplit> moverr, std::shared_ptr<Layer> layer, int *indexes) :
+                       name(shapeName), type(shapeType),layer(layer),
                        dimensions(Eigen::Vector3f(1,1,1)), isScaledToZero(false),
-                       lastDrawnPosition(Eigen::Vector3f(0,0,0)), mover(moverr)
-                       {}
+                       mover(moverr)
+                       {
+                            for(int i=0; i<4; i++) {
+                                lastDrawnPositions[i] = Eigen::Vector3f(0,0,0);
+                                ids[i] = indexes[i];
+                            }
+                       }
 
 std::shared_ptr<Layer> SceneShape::getLayer() {
     return layer;
@@ -30,12 +35,21 @@ Eigen::Vector3f SceneShape::getPosition(float time) {
     return mover->getPosition(time);
 }
 
-Eigen::Vector3f SceneShape::getlastDrawnPosition() {
-    return lastDrawnPosition;
+Eigen::Vector3f SceneShape::getlastDrawnPosition(int id) {
+    for(int i=0; i<4; i++) {
+        if (id == ids[i]) {
+            return lastDrawnPositions[i];
+        }
+    }
 }
 
-void SceneShape::setlastDrawnPosition(Eigen::Vector3f pos) {
-    lastDrawnPosition = pos;
+void SceneShape::setlastDrawnPosition(Eigen::Vector3f pos, int id) {
+    for(int i=0; i<4; i++) {
+        if(id == ids[i]) {
+            lastDrawnPositions[i] = pos;
+            break;
+        }
+    }
 }
 
 void SceneShape::addMover(std::shared_ptr<ObjectMover> mover) {

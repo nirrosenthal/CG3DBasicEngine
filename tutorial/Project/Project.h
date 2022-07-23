@@ -6,6 +6,8 @@
 #include "ProjectViewerData.h"
 #include <filesystem>
 
+class Gui;
+
 enum AnimationStatus {PLAYING, STOPPED, PAUSED};
 struct WindowLocation {
     ImVec2 topLeft;
@@ -25,7 +27,7 @@ public:
     IGL_INLINE void Draw(int shaderIndx, const Eigen::Matrix4f &Proj, const Eigen::Matrix4f &View,
                          int viewportIndx, unsigned int flgs,unsigned int property_id) override;
 
-	Project();
+	Project(igl::opengl::glfw::imgui::ImGuiMenu* menu);
 //	Project(float angle,float relationWH,float near, float far);
 	void Init(float width, float height);
 	void Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, const Eigen::Matrix4f& Model, unsigned int  shaderIndx, unsigned int shapeIndx);
@@ -34,6 +36,7 @@ public:
 	void Animate() override;
 	void ScaleAllShapes(float amt, int viewportIndx);
     void SetRenderer(Renderer *renderer);
+    void SetDisplay(Display *display);
     void SetParent(int shape, int newParent);
     int GetParent(int shape);
     std::vector<int> GetChildren(int shape);
@@ -69,6 +72,9 @@ public:
     void SetNewMoversForCurve(std::string name, std::vector<std::shared_ptr<ObjectMover>> newMovers);
     std::shared_ptr<ObjectMoverSplit> GetCurve(std::string name);
     void SetShapeCurve(int shapeId, std::string curveName);
+    void SplitX();
+    void SplitY();
+    void Unsplit();
 
 private:
     std::map<int, std::shared_ptr<SceneShape>> shapesGlobal;
@@ -83,9 +89,11 @@ private:
     std::vector<std::string> allShaders;
     void RefreshShadersList();
     long lastFileSystemRefreshingTimeSeconds;
-    int backgroundShape;
+    int backgroundShape[4];
     std::shared_ptr<SceneShader> backgroundShader;
     std::map<std::string, std::shared_ptr<ObjectMoverSplit>> movementCurves;
+    Display *display;
+    igl::opengl::glfw::imgui::ImGuiMenu* menu;
 };
 
 

@@ -55,7 +55,8 @@ IGL_INLINE void Project::Draw(int shaderIndx, const Eigen::Matrix4f &Proj, const
 
     for (int i = 0; i < data_list.size(); i++)
     {
-        if(i != backgroundShape && !shapesGlobal[i]->isDrawn(globalTime))
+        if(i != backgroundShape[0] && i != backgroundShape[1] && i != backgroundShape[2] && i != backgroundShape[3]
+        && !shapesGlobal[i]->isDrawn(globalTime))
             continue;
         auto shape = data_list[i];
         if (shape->Is2Render(viewportIndx))
@@ -154,7 +155,7 @@ IGL_INLINE int Project::append_mesh(bool visible) {
     data_list.back()->id = next_data_id++;
     return data_list.back()->id;
 }
-Project::Project(): igl::opengl::glfw::Viewer() {
+Project::Project(igl::opengl::glfw::imgui::ImGuiMenu* menu): igl::opengl::glfw::Viewer(), menu(menu) {
     delete data_list.front();
     data_list.front() = new ProjectViewerData();
 }
@@ -165,27 +166,29 @@ Project::Project(): igl::opengl::glfw::Viewer() {
 
 std::shared_ptr<SceneShape> Project::AddGlobalShape(std::string name, igl::opengl::glfw::Viewer::shapes shapeType,
                              std::shared_ptr<ObjectMoverSplit> mover, std::shared_ptr<Layer> layer, std::string shader) {
-
-    int index = AddShape(shapeType, -1, TRIANGLES);
-    std::shared_ptr<SceneShape> scnShape = std::make_shared<SceneShape>(name, shapeType, mover, layer,index);
-    scnShape->setlastDrawnPosition(Eigen::Vector3f(0,0,0));
+    int indexes[4];
+    for(int i=0; i<4; i++) {
+        indexes[i] = AddShape(shapeType, -1, TRIANGLES, i);
+    }
+    std::shared_ptr<SceneShape> scnShape = std::make_shared<SceneShape>(name, shapeType, mover, layer, indexes);
     layer->addShape(scnShape);
     scnShape->shader = GetShader(shader)->getId();
     scnShape->material = 0;
-    shapesGlobal[index] = scnShape;
+    for(int i=0; i<4; i++) {
+        shapesGlobal[indexes[i]] = scnShape;
+    }
     return scnShape;
 
 }
 
-void Project::Init(float width, float height)
-{
+void Project::Init(float width, float height) {
 //    glEnable(GL_BLEND);
 //    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     lastFileSystemRefreshingTimeSeconds = 0;
     resolution = Eigen::Vector2f(width, height);
     globalTime = 0;
-	unsigned int texIDs[3] = { 1 , 2, 3};
-	unsigned int slots[3] = { 1 , 2, 3 };
+    unsigned int texIDs[3] = {1, 2, 3};
+    unsigned int slots[3] = {1, 2, 3};
 
 
     AddShader("shaders/pickingShader");
@@ -199,24 +202,24 @@ void Project::Init(float width, float height)
     int box = AddTexture("textures/box0.bmp", 2);
     //AddTexture("../res/textures/Cat_bump.jpg", 2);
 
-    int mat1 = AddMaterial(texIDs,slots, 1);
-    int mat2 = AddMaterial(texIDs+1, slots+1, 1);
+    int mat1 = AddMaterial(texIDs, slots, 1);
+    int mat2 = AddMaterial(texIDs + 1, slots + 1, 1);
     int mat3 = AddMaterial(texIDs + 2, slots + 2, 1);
     int mat4 = AddMaterial(texIDs + 3, slots + 3, 1);
 
-    std::vector<Eigen::Vector3f> points = {Eigen::Vector3f(0,0,0),
-                                           Eigen::Vector3f(0,20,0),
-                                           Eigen::Vector3f(-10,-10,-100),
-                                           Eigen::Vector3f(0,0,0)};
+    std::vector<Eigen::Vector3f> points = {Eigen::Vector3f(0, 0, 0),
+                                           Eigen::Vector3f(0, 20, 0),
+                                           Eigen::Vector3f(-10, -10, -100),
+                                           Eigen::Vector3f(0, 0, 0)};
 
-    std::vector<Eigen::Vector3f> pointsRev = {Eigen::Vector3f(0,0,0),
-                                              Eigen::Vector3f(-10,-10,-100),
-                                              Eigen::Vector3f(0,20,0),
-                                              Eigen::Vector3f(0,0,0)};
+    std::vector<Eigen::Vector3f> pointsRev = {Eigen::Vector3f(0, 0, 0),
+                                              Eigen::Vector3f(-10, -10, -100),
+                                              Eigen::Vector3f(0, 20, 0),
+                                              Eigen::Vector3f(0, 0, 0)};
 
 
     std::shared_ptr<ObjectMoverBezier> bez = std::make_shared<ObjectMoverBezier>(points, 0, 500);
-    auto constMover = std::make_shared<ObjectMoverConstant>(Eigen::Vector3f(0,0,0), 500, 50);
+    auto constMover = std::make_shared<ObjectMoverConstant>(Eigen::Vector3f(0, 0, 0), 500, 50);
     std::shared_ptr<ObjectMoverBezier> bezRev = std::make_shared<ObjectMoverBezier>(pointsRev, 550, 500);
 
     std::vector<std::shared_ptr<ObjectMover>> movers = {bez, constMover, bezRev};
@@ -227,13 +230,15 @@ void Project::Init(float width, float height)
 
     shp->material = mat1;
 
-    backgroundShape = AddShape(Cube, -1, TRIANGLES);
-    selected_data_index = backgroundShape;
-    ShapeTransformation(scaleAll, 80, 0);
+    for (size_t i = 0; i < 4; i++){
+        backgroundShape[i] = AddShape(Cube, -1, TRIANGLES, i);
+        selected_data_index = backgroundShape[i];
+        ShapeTransformation(scaleAll, 80, 0);
+        SetShapeStatic(backgroundShape[i]);
+    }
 //    selected_data_index = -1;
 
 
-    SetShapeStatic(backgroundShape);
     SetBackgroundShader("distorted");
 
 
@@ -262,22 +267,24 @@ void Project::Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, c
         time = globalTime;
     else
         time = 0;
+
+
 	int r = ((shapeIndx+1) & 0x000000FF) >>  0;
 	int g = ((shapeIndx+1) & 0x0000FF00) >>  8;
 	int b = ((shapeIndx+1) & 0x00FF0000) >> 16;
     Shader *s = shaders[shaderIndx];
-    if(shapeIndx != backgroundShape) {
+    if(shapeIndx != backgroundShape[0] && shapeIndx != backgroundShape[1] && shapeIndx != backgroundShape[2] && shapeIndx != backgroundShape[3]) {
         std::shared_ptr<SceneShape> scnShape = shapesGlobal[shapeIndx];
         SetShapeShader(shapeIndx, scnShape->shader);
         SetShapeMaterial(shapeIndx, scnShape->material);
-        selected_data_index = scnShape->getIndex();
-        Eigen::Vector3f pos = scnShape->getlastDrawnPosition();
+        selected_data_index = shapeIndx;
+        Eigen::Vector3f pos = scnShape->getlastDrawnPosition(shapeIndx);
         Eigen::Vector3f newPos = scnShape->getPosition((float) time);
         Eigen::Vector3f delta = newPos - pos;
         ShapeTransformation(xTranslate, delta[0], 0);
         ShapeTransformation(yTranslate, delta[1], 0);
         ShapeTransformation(zTranslate, delta[2], 0);
-        shapesGlobal[shapeIndx]->setlastDrawnPosition(newPos);
+        shapesGlobal[shapeIndx]->setlastDrawnPosition(newPos, shapeIndx);
     }
 
 	s->Bind();
@@ -346,6 +353,7 @@ void Project::ScaleAllShapes(float amt,int viewportIndx)
 
 Project::~Project(void)
 {
+    delete renderer;
 }
 
 void Project::SetRenderer(Renderer *renderer) {
@@ -452,8 +460,10 @@ void Project::RefreshShadersList() {
 
 std::vector<std::shared_ptr<SceneShape>> Project::getAllShapes() {
     std::vector<std::shared_ptr<SceneShape>> allShapes;
-    for(auto entry: shapesGlobal)
-        allShapes.push_back(entry.second);
+    for(auto entry: shapesGlobal) {
+        if(std::find(allShapes.begin(), allShapes.end(), entry.second) == allShapes.end())
+            allShapes.push_back(entry.second);
+    }
     return allShapes;
 }
 
@@ -497,7 +507,9 @@ void Project::UpdateMouse(float x, float y) {
 
 void Project::SetBackgroundShader(std::string shaderName) {
     backgroundShader = GetShader(shaderName);
-    SetShapeShader(backgroundShape, backgroundShader->getId());
+    for(size_t i=0; i<4; i++) {
+        SetShapeShader(backgroundShape[i], backgroundShader->getId());
+    }
 }
 
 std::string Project::GetBackgroundShader() {
@@ -536,6 +548,77 @@ void Project::SetShapeCurve(int shapeId, std::string curveName) {
 
 Eigen::Vector2f Project::GetMouse() {
     return mousePos;
+}
+
+void Project::SetDisplay(Display *display) {
+    this->display = display;
+}
+
+void Project::SplitX() {
+    std::list<int> x, y;
+    x.push_back(resolution[0]/2);
+    x.push_back(resolution[0]);
+    y.push_back(resolution[1]-1);
+    y.push_back(resolution[1]);
+    auto oldRenderer = renderer;
+    float CAMERA_ANGLE = 45.0f;
+    const float NEAR = 1.0f;
+    const float FAR = 120.0f;
+    //igl::opengl::glfw::imgui::ImGuiMenu* newMenu = menu->clone();
+    //newMenu->init(display, false);
+
+    renderer = new Renderer(CAMERA_ANGLE, (float)resolution[0]/(float)resolution[1], NEAR, FAR);
+    renderer->Init(this,x,y,1, menu);
+
+    //renderer->Init(this,x,y,1, me);
+    display->SetRenderer(renderer);
+    display->launch_rendering(renderer);
+
+    delete oldRenderer;
+}
+
+void Project::SplitY() {
+    std::list<int> x, y;
+    x.push_back(resolution[0]-1);
+    x.push_back(resolution[0]);
+    y.push_back(resolution[1]/2);
+    y.push_back(resolution[1]);
+    auto oldRenderer = renderer;
+    float CAMERA_ANGLE = 45.0f;
+    const float NEAR = 1.0f;
+    const float FAR = 120.0f;
+    //igl::opengl::glfw::imgui::ImGuiMenu* newMenu = menu->clone();
+    //newMenu->init(display, false);
+
+    renderer = new Renderer(CAMERA_ANGLE, (float)resolution[0]/(float)resolution[1], NEAR, FAR);
+    renderer->Init(this,x,y,1, menu);
+
+    //renderer->Init(this,x,y,1, me);
+    display->SetRenderer(renderer);
+    display->launch_rendering(renderer);
+
+    delete oldRenderer;
+}
+
+void Project::Unsplit() {
+    std::list<int> x, y;
+    x.push_back(resolution[0]-1);
+    x.push_back(resolution[0]);
+    y.push_back(resolution[1]-1);
+    y.push_back(resolution[1]);
+    auto oldRenderer = renderer;
+    float CAMERA_ANGLE = 45.0f;
+    const float NEAR = 1.0f;
+    const float FAR = 120.0f;
+
+
+    renderer = new Renderer(CAMERA_ANGLE, (float)resolution[0]/(float)resolution[1], NEAR, FAR);
+    renderer->Init(this,x,y,1, menu);
+
+    display->SetRenderer(renderer);
+    display->launch_rendering(renderer);
+
+    delete oldRenderer;
 }
 
 

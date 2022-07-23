@@ -12,24 +12,26 @@ int main(int argc,char *argv[])
 	const float FAR = 120.0f;
 	const int infoIndx = 2; 
 	std::list<int> x, y;
+	x.push_back(DISPLAY_WIDTH-1);
 	x.push_back(DISPLAY_WIDTH);
+	y.push_back(DISPLAY_HEIGHT-1);
 	y.push_back(DISPLAY_HEIGHT);
     Display disp = Display(DISPLAY_WIDTH, DISPLAY_HEIGHT, "OPENGL");
-    igl::opengl::glfw::imgui::ImGuiMenu* menu = new Gui();
+    Gui *menu = new Gui();
 
     Renderer* rndr = new Renderer(CAMERA_ANGLE, (float)DISPLAY_WIDTH/(float)DISPLAY_HEIGHT, NEAR, FAR);
-	Project *scn = new Project();  //initializing scene
+	Project *scn = new Project(menu);  //initializing scene
 
     Init(disp,menu); //adding callback functions
 	scn->Init((float)DISPLAY_WIDTH, (float)DISPLAY_HEIGHT);    //adding shaders, textures, shapes to scene
-    rndr->Init(scn,x,y,1,menu); // adding scene and viewports to the renderer
+    rndr->Init(scn,x,y,1, (igl::opengl::glfw::imgui::ImGuiMenu*)menu); // adding scene and viewports to the renderer
     disp.SetRenderer(rndr);
     scn->SetRenderer(rndr);
+    scn->SetDisplay(&disp);
 
     disp.launch_rendering(rndr);
 
 	delete scn;
-	delete rndr;
 	delete menu;
 	
 	return 0;

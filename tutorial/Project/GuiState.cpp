@@ -274,14 +274,14 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
 //    }
 
     if (ImGui::CollapsingHeader("Camera Split")) {
-        if(ImGui::RadioButton("No Split",&(((ProjectViewerData *)project->data())->camera_split),0)){
-            // implement if no split requested
+        if(ImGui::RadioButton("Unsplit",&(((ProjectViewerData *)project->data())->camera_split),0)){
+            project->Unsplit();
         }
-        if(ImGui::RadioButton("Split x",&(((ProjectViewerData *)project->data())->camera_split),1)){
-            // implement if x - split requested
+        if(ImGui::RadioButton("Split X",&(((ProjectViewerData *)project->data())->camera_split),1)){
+            project->SplitX();
         }
-        if(ImGui::RadioButton("Split y",&(((ProjectViewerData *)project->data())->camera_split),2)){
-            // implement if y - split requested
+        if(ImGui::RadioButton("Split Y",&(((ProjectViewerData *)project->data())->camera_split),2)){
+            project->SplitY();
         }
 
         ImGui::Text("Select Camera for screen 1:");

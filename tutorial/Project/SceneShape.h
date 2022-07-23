@@ -14,15 +14,15 @@
 class SceneShape {
 public:
     SceneShape(std::string shapeName, igl::opengl::glfw::Viewer::shapes shapeType,
-               std::shared_ptr<ObjectMoverSplit> moverr, std::shared_ptr<Layer> layer, int index);
+               std::shared_ptr<ObjectMoverSplit> moverr, std::shared_ptr<Layer> layer, int *indexes);
     std::shared_ptr<Layer> getLayer();
     void changeLayer(std::shared_ptr<Layer> layer);
     int getIndex();
     std::string name;
     bool isDrawn(float time);
     Eigen::Vector3f getPosition(float time);
-    Eigen::Vector3f getlastDrawnPosition();
-    void setlastDrawnPosition(Eigen::Vector3f pos);
+    Eigen::Vector3f getlastDrawnPosition(int id);
+    void setlastDrawnPosition(Eigen::Vector3f pos, int id);
     void addMover(std::shared_ptr<ObjectMover> mover);
     int getParent();
     void setParent(int newParent);
@@ -40,7 +40,8 @@ public:
 
 private:
     std::shared_ptr<Layer> layer;
-    Eigen::Vector3f lastDrawnPosition;
+    Eigen::Vector3f lastDrawnPositions[4];
+    int ids[4];
     int parent;
     std::vector<int> children;
 };
