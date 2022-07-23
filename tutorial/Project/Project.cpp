@@ -2,7 +2,7 @@
 #include <iostream>
 #include <chrono>
 
-#  if __cplusplus >= 201703L && __has_include(<filesystem>)
+#  if __has_include(<filesystem>)
 #    include <filesystem>
      namespace filesystem = std::filesystem;
 #  elif __has_include(<experimental/filesystem>)
