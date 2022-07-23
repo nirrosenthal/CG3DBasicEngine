@@ -20,6 +20,9 @@ int main(int argc,char *argv[])
     Gui *menu = new Gui();
 
     Renderer* rndr = new Renderer(CAMERA_ANGLE, (float)DISPLAY_WIDTH/(float)DISPLAY_HEIGHT, NEAR, FAR);
+    rndr->AddCamera(Eigen::Vector3d(0,0,0), 60, (float)DISPLAY_WIDTH/(float)DISPLAY_HEIGHT, NEAR, FAR, 1);
+    rndr->AddCamera(Eigen::Vector3d(0,0,0), 60, (float)DISPLAY_WIDTH/(float)DISPLAY_HEIGHT, NEAR, FAR, 2);
+    rndr->AddCamera(Eigen::Vector3d(0,0,0), 60, (float)DISPLAY_WIDTH/(float)DISPLAY_HEIGHT, NEAR, FAR, 3);
 	Project *scn = new Project(menu);  //initializing scene
 
     Init(disp,menu); //adding callback functions
