@@ -24,10 +24,14 @@ int main(int argc,char *argv[])
     rndr->AddCamera(Eigen::Vector3d(0,0,0), 60, (float)DISPLAY_WIDTH/(float)DISPLAY_HEIGHT, NEAR, FAR, 2);
     rndr->AddCamera(Eigen::Vector3d(0,0,0), 60, (float)DISPLAY_WIDTH/(float)DISPLAY_HEIGHT, NEAR, FAR, 3);
 	Project *scn = new Project(menu);  //initializing scene
+    scn->SetViewportWidth(DISPLAY_WIDTH);
+    scn->SetViewportHeight(DISPLAY_HEIGHT);
 
     Init(disp,menu); //adding callback functions
 	scn->Init((float)DISPLAY_WIDTH, (float)DISPLAY_HEIGHT);    //adding shaders, textures, shapes to scene
     rndr->Init(scn,x,y,1, (igl::opengl::glfw::imgui::ImGuiMenu*)menu); // adding scene and viewports to the renderer
+    rndr->AddDraw(2 , 0, 3, 0,   rndr->blend | rndr->scaleAbit | rndr-> depthTest | rndr->onPicking);
+
     disp.SetRenderer(rndr);
     scn->SetRenderer(rndr);
     scn->SetDisplay(&disp);

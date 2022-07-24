@@ -688,6 +688,9 @@ void Project::Unsplit() {
 
 }
 
+void Project::SetViewportWidth(int w) {this->VP_Width = w;}
+void Project::SetViewportHeight(int w) {this->VP_Height = w;}
+
 
 
 

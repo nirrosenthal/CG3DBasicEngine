@@ -96,10 +96,19 @@ public:
     void SplitY();
     void Unsplit();
     std::vector<std::string> GetAllShapeFiles();
+<<<<<<< Updated upstream
     SplitCameraOption GetSplitCameraOption();
+=======
+    std::vector<int> pickedShapes;
+    void SetViewportWidth(int w);
+    void SetViewportHeight(int w);
+
+    int VP_Width;
+    int VP_Height;
+    std::map<int, std::shared_ptr<SceneShape>> shapesGlobal;
+>>>>>>> Stashed changes
 
 private:
-    std::map<int, std::shared_ptr<SceneShape>> shapesGlobal;
     Renderer *renderer = nullptr;
     long globalTime;
     WindowLocation windowLocation;
@@ -118,10 +127,13 @@ private:
     std::map<std::string, std::shared_ptr<ObjectMoverSplit>> movementCurves;
     Display *display;
     igl::opengl::glfw::imgui::ImGuiMenu* menu;
+<<<<<<< Updated upstream
     SplitCameraOption splitCameraOption;
     void SetSplitCameraOption(SplitCameraOption camera_option);
 
 
+=======
+>>>>>>> Stashed changes
 
 };
 
