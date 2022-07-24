@@ -82,8 +82,23 @@ IGL_INLINE void Gui::draw_viewer_menu(igl::opengl::glfw::Viewer *viewer,
     NextState nextState = guiStates.top()->Run((Project *)viewer, camera, viewWindow, drawInfos, font, boldFont);
     if(nextState.step == NEW)
         guiStates.push(nextState.state);
-    else if(nextState.step == EXIT)
+    else if(nextState.step == EXIT) {
         guiStates.pop();
+        // set back to previous split state (back from animation)
+        std::cout<<"restored to previous split screen state in GUI"<<std::endl;
+        SplitCameraOption previousState = ((Project *)viewer)->GetPrevSplitCameraOption();
+        switch(previousState) {
+            case UNSPLIT:
+            ((Project *)viewer)->Unsplit();
+            break;
+            case SPLITX:
+                ((Project *)viewer)->SplitX();
+                break;
+            case SPLITY:
+            ((Project *)viewer)->SplitY();
+                break;
+        }
+    }
 
     ImVec2 topLeft = ImGui::GetWindowPos();
     ImVec2 winSize = ImGui::GetWindowSize();

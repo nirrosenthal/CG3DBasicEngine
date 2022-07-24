@@ -246,6 +246,7 @@ void Project::Init(float width, float height) {
     SetBackgroundShader("distorted");
 
     splitCameraOption = UNSPLIT;
+    prevSplitCameraOption = UNSPLIT;
     animationStatus = STOPPED;
     //SetShapeViewport(6, 1);
 //	ReadPixel(); //uncomment when you are reading from the z-buffer
@@ -596,15 +597,21 @@ void Project::SetDisplay(Display *display) {
     this->display = display;
 }
 
-void Project::SetSplitCameraOption(SplitCameraOption camera_option) {
-    splitCameraOption = camera_option;
+void Project::SetSplitCameraOption(SplitCameraOption cameraOption) {
+    splitCameraOption = cameraOption;
 }
 
 SplitCameraOption Project::GetSplitCameraOption() {
     return splitCameraOption;
 }
 
+SplitCameraOption Project::GetPrevSplitCameraOption() {
+    return prevSplitCameraOption;
+}
 
+void Project::SetPrevSplitCameraOption(SplitCameraOption prevCameraOption) {
+    prevSplitCameraOption = prevCameraOption;
+}
 
 void Project::SplitX() {
     std::list<int> x, y;

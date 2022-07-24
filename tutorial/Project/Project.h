@@ -97,6 +97,8 @@ public:
     void Unsplit();
     std::vector<std::string> GetAllShapeFiles();
     SplitCameraOption GetSplitCameraOption();
+    SplitCameraOption GetPrevSplitCameraOption();
+    void SetPrevSplitCameraOption(SplitCameraOption prevCameraOption);
     std::vector<int> pickedShapes;
     void SetViewportWidth(int w);
     void SetViewportHeight(int w);
@@ -126,7 +128,8 @@ private:
     Display *display;
     igl::opengl::glfw::imgui::ImGuiMenu* menu;
     SplitCameraOption splitCameraOption;
-    void SetSplitCameraOption(SplitCameraOption camera_option);
+    SplitCameraOption prevSplitCameraOption;
+    void SetSplitCameraOption(SplitCameraOption cameraOption);
     void CalculateShapePosition(int shapeIndex);
     void CalculateShapeSize(int shapeIndex);
     std::unordered_map<int, bool> deletedShapes;

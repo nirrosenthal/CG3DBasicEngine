@@ -21,6 +21,18 @@ MenuState::MenuState(float hidpi_scaling_, float pixel_ratio_):
  {
  }
 
+std::map<std::string, SplitCameraOption> CAMERA_SPLIT_OPTIONS = {
+        {"Unsplit", UNSPLIT},
+        {"Split x", SPLITX},
+        {"Split y", SPLITY}
+};
+
+std::map<SplitCameraOption,std::string> CAMERA_SPLIT_OPTIONS_REV = {
+        {UNSPLIT,"Unsplit"},
+        {SPLITX,"Split x"},
+        {SPLITY,"Split y"}
+};
+
 NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera, Eigen::Vector4i &viewWindow,
                          std::vector<DrawInfo *> drawInfos, ImFont* font, ImFont *boldFont) {
     bool* p_open = NULL;
@@ -254,17 +266,7 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
 //        ImGui::EndCombo();
 //    }
 
-        std::map<std::string, SplitCameraOption> CAMERA_SPLIT_OPTIONS = {
-                {"Unsplit", UNSPLIT},
-                {"Split x", SPLITX},
-                {"Split y", SPLITY}
-        };
 
-        std::map<SplitCameraOption,std::string> CAMERA_SPLIT_OPTIONS_REV = {
-            {UNSPLIT,"Unsplit"},
-            {SPLITX,"Split x"},
-            {SPLITY,"Split y"}
-        };
 
         ImGui::Text("Camera split option");
 
@@ -275,6 +277,7 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
                 std::string splitString = entry.second;
                 bool isSelected = splitEnum == project->GetSplitCameraOption();
                 if (ImGui::Selectable(splitString.c_str(), isSelected)) {
+                    // manually set camera options so that we could save the previous state when entering animation mode
                     switch (splitEnum) {
                         case UNSPLIT:
                             project->Unsplit();
@@ -918,12 +921,19 @@ MediaSliderState::Run(Project *project, std::vector<igl::opengl::Camera *> &came
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + io.DisplaySize.x * 0.352);
     switch(project->getAnimationStatus()) {
         case PLAYING:
+            // always be in unsplit mode when animation
+            if(project->GetSplitCameraOption()!=UNSPLIT) {
+                project->SetPrevSplitCameraOption(project->GetSplitCameraOption());
+                project->Unsplit();
+            }
+
             if(ImGui::Button("Pause")){
                 project->Pause();
                 nextState = NextState(EXIT);
             }
             ImGui::SameLine();
             if(ImGui::Button("Stop")){
+                // restore version of previous state
                 project->Stop();
                 nextState = NextState(EXIT);
             }

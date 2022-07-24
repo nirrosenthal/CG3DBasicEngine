@@ -26,8 +26,6 @@ private:
 };
 
 
-
-
 class Gui : public igl::opengl::glfw::imgui::ImGuiMenu {
 public:
     Gui();
