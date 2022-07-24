@@ -10,19 +10,12 @@ enum GuiStatus{MENU, ERROR, SHAPE_EDITING, SHADER_EDITING, CURVE_EDITING, MEDIA_
 enum GuiStep{CONTINUE, NEW, EXIT};
 enum EntityEditingMode {CREATE_NEW, EDIT_EXISTING};
 
-class GuiState;
-class NextState {
-public:
-    NextState(GuiStep step);
-    NextState(GuiStep step, std::shared_ptr<GuiState> state);
-    GuiStep step;
-    std::shared_ptr<GuiState> state;
-};
+
 class GuiState {
 public:
     GuiState(GuiStatus tag);
     GuiStatus getTag() {return tag;};
-    virtual NextState Run(Project* project,
+    virtual void Run(Project* project,
                      std::vector<igl::opengl::Camera*> &camera,
                      Eigen::Vector4i& viewWindow,std::vector<DrawInfo *> drawInfos,
                      ImFont* font, ImFont *boldFont)=0;
@@ -34,7 +27,7 @@ private:
 class MenuState: public GuiState {
 public:
     MenuState(float hidpi_scaling_, float pixel_ratio_);
-    NextState Run(Project* project,
+    void Run(Project* project,
                   std::vector<igl::opengl::Camera*> &camera,
                   Eigen::Vector4i& viewWindow,std::vector<DrawInfo *> drawInfos,
                   ImFont* font, ImFont *boldFont);
@@ -53,7 +46,7 @@ private:
 class ErrorMsgState: public GuiState {
 public:
     ErrorMsgState(std::string errorMessage);
-    NextState Run(Project* project,
+    void Run(Project* project,
                   std::vector<igl::opengl::Camera*> &camera,
                   Eigen::Vector4i& viewWindow,std::vector<DrawInfo *> drawInfos,
                   ImFont* font, ImFont *boldFont);
@@ -66,7 +59,7 @@ class ShapeEditingState: public GuiState {
 public:
     ShapeEditingState();
     ShapeEditingState(std::shared_ptr<SceneShape> shp, std::shared_ptr<SceneShader> scnShader);
-    NextState Run(Project* project,
+    void Run(Project* project,
                   std::vector<igl::opengl::Camera*> &camera,
                   Eigen::Vector4i& viewWindow,std::vector<DrawInfo *> drawInfos,
                   ImFont* font, ImFont *boldFont);
@@ -91,7 +84,7 @@ private:
 class ShaderEditingState: public GuiState {
 public:
     ShaderEditingState(std::shared_ptr<SceneShader> scnShader);
-    NextState Run(Project* project,
+    void Run(Project* project,
                   std::vector<igl::opengl::Camera*> &camera,
                   Eigen::Vector4i& viewWindow,std::vector<DrawInfo *> drawInfos,
                   ImFont* font, ImFont *boldFont);
@@ -104,7 +97,7 @@ class MovementCurveEditingState: public GuiState {
 public:
     MovementCurveEditingState(std::string name, std::shared_ptr<ObjectMoverSplit> mover);
     MovementCurveEditingState();
-    NextState Run(Project* project,
+    void Run(Project* project,
                   std::vector<igl::opengl::Camera*> &camera,
                   Eigen::Vector4i& viewWindow,std::vector<DrawInfo *> drawInfos,
                   ImFont* font, ImFont *boldFont);
@@ -118,7 +111,7 @@ private:
 class MediaSliderState: public GuiState {
 public:
     MediaSliderState();
-    NextState Run(Project* project,
+    void Run(Project* project,
                   std::vector<igl::opengl::Camera*> &camera,
                   Eigen::Vector4i& viewWindow,std::vector<DrawInfo *> drawInfos,
                   ImFont* font, ImFont *boldFont);

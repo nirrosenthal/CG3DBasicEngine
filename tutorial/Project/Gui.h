@@ -34,7 +34,6 @@ public:
     ~Gui();
 private:
 //    Icon playButton;
-    std::stack<std::shared_ptr<GuiState>> guiStates;
     ImFont* font = nullptr;
     ImFont *boldFont = nullptr;
 };

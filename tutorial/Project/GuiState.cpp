@@ -5,9 +5,6 @@
 #include "GuiState.h"
 #include "StyleManager.h"
 
-NextState::NextState(GuiStep step): step(step), state(nullptr){}
-NextState::NextState(GuiStep step, std::shared_ptr<GuiState> state): step(step), state(state) {}
-
 // {Axis, xCylinder,yCylinder,zCylinder, Plane, Cube, Octahedron, Tethrahedron, LineCopy, MeshCopy, Sphere }
 GuiState::GuiState(GuiStatus tag): tag(tag) {
 
@@ -33,7 +30,7 @@ std::map<SplitCameraOption,std::string> CAMERA_SPLIT_OPTIONS_REV = {
         {SPLITY,"Split y"}
 };
 
-NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera, Eigen::Vector4i &viewWindow,
+void MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera, Eigen::Vector4i &viewWindow,
                          std::vector<DrawInfo *> drawInfos, ImFont* font, ImFont *boldFont) {
     bool* p_open = NULL;
     static bool no_titlebar = false;
@@ -46,8 +43,6 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
     static bool no_nav = false;
     static bool no_background = false;
     static bool no_bring_to_front = false;
-
-    NextState nextState = NextState(CONTINUE);
 
     ImGuiWindowFlags window_flags = 0;
     if (no_titlebar)        window_flags |= ImGuiWindowFlags_NoTitleBar;
@@ -164,11 +159,12 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
             }
             ImGui::SameLine();
             if(ImGui::Button(shp->name.c_str()))
-                nextState = NextState(NEW, std::make_shared<ShapeEditingState>(shp, project->GetShader(shp->shader)));
+                project->guiStates.push(std::make_shared<ShapeEditingState>(shp, project->GetShader(shp->shader)));
+
         }
     }
     if(ImGui::Button("Create a new shape## new shape")){
-        nextState = NextState(NEW, std::make_shared<ShapeEditingState>());
+        project->guiStates.push(std::make_shared<ShapeEditingState>());
     }
     if (ImGui::CollapsingHeader("Search For Shaders", ImGuiTreeNodeFlags_DefaultOpen)) {
         ImGui::InputText("##shader search pattern", shadersSearchPattern, 30);
@@ -196,10 +192,9 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
             if(ImGui::Button((shader + "##SHADER").c_str())) {
                 std::shared_ptr <SceneShader> selectedShader = project->GetShader(shader);
                 if (selectedShader == nullptr) {
-                    nextState = NextState(NEW,
-                                          std::make_shared<ErrorMsgState>("An unknown error has occurred"));
+                    project->guiStates.push(std::make_shared<ErrorMsgState>("An unknown error has occurred"));
                 } else {
-                    nextState = NextState(NEW, std::make_shared<ShaderEditingState>(selectedShader));
+                    project->guiStates.push(std::make_shared<ShaderEditingState>(selectedShader));
                 }
             }
         }
@@ -214,7 +209,7 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
             if(ImGui::Button(buttonLabel.c_str())){
                 if(!project->layerManager.removeLayer(layer)) {
                     std::string errorMsg = "Failed to remove layer " + layerName + ".\r\nPlease make sure it has no shapes and try again.";
-                    nextState = NextState(NEW, std::make_shared<ErrorMsgState>(errorMsg));
+                    project->guiStates.push(std::make_shared<ErrorMsgState>(errorMsg));
                 }
             }
             ImGui::SameLine();
@@ -237,11 +232,11 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
     if (ImGui::CollapsingHeader("Movement Curves", ImGuiTreeNodeFlags_DefaultOpen)){
         for(const auto& curve : project->GetAllMovementCurves()) {
             if(ImGui::Button(curve.c_str()))
-                nextState = NextState(NEW, std::make_shared<MovementCurveEditingState>(curve, project->GetCurve(curve)));
+                project->guiStates.push(std::make_shared<MovementCurveEditingState>(curve, project->GetCurve(curve)));
         }
     }
     if(ImGui::Button("Create a new Curve")){
-        nextState = NextState(NEW, std::make_shared<MovementCurveEditingState>());
+        project->guiStates.push(std::make_shared<MovementCurveEditingState>());
     }
 
 //    std::string tempStr = "material";
@@ -289,6 +284,7 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
                             project->SplitY();
                             break;
                     }
+                    project->SetPrevSplitCameraOption(project->GetSplitCameraOption());
                 }
                 if (isSelected) {
                     ImGui::SetItemDefaultFocus();
@@ -360,8 +356,8 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
 //                    ((Project*)viewer)->Play();
 //                }
                 if(ImGui::Button("Play")){
+                    project->guiStates.push(std::make_shared<MediaSliderState>());
                     project->Play();
-                    nextState = NextState(NEW, std::make_shared<MediaSliderState>());
                 }
                 ImGui::SameLine();
                 if(ImGui::Button("Stop")){
@@ -369,14 +365,14 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
                 }
                 ImGui::SameLine();
                 if(ImGui::Button("Replay")){
+                    project->guiStates.push(std::make_shared<MediaSliderState>());
                     project->Replay();
-                    nextState = NextState(NEW, std::make_shared<MediaSliderState>());
                 }
                 break;
             case STOPPED:
                 if(ImGui::Button("Play")){
+                    project->guiStates.push(std::make_shared<MediaSliderState>());
                     project->Play();
-                    nextState = NextState(NEW, std::make_shared<MediaSliderState>());
                 }
                 break;
         }
@@ -392,12 +388,11 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
 
     if((ImGui::IsKeyPressed(GLFW_KEY_RIGHT_CONTROL) || ImGui::IsKeyPressed(GLFW_KEY_LEFT_CONTROL)) &&
                ImGui::IsKeyPressed(GLFW_KEY_N))
-        nextState = NextState(NEW, std::make_shared<ShapeEditingState>());
+        project->guiStates.push(std::make_shared<ShapeEditingState>());
 
 
     ImGui::PopFont();
 
-    return nextState;
 }
 
 MenuState::~MenuState() {
@@ -406,9 +401,8 @@ MenuState::~MenuState() {
 
 ErrorMsgState::ErrorMsgState(std::string errorMessage): GuiState(ERROR), errorMessage(errorMessage) {}
 
-NextState ErrorMsgState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera, Eigen::Vector4i &viewWindow,
+void ErrorMsgState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera, Eigen::Vector4i &viewWindow,
                              std::vector<DrawInfo *> drawInfos, ImFont* font, ImFont *boldFont) {
-    NextState nextState(CONTINUE);
     BeginCentered("Error");
     Header("Error", boldFont);
     ImGui::Text("%s", errorMessage.c_str());
@@ -416,13 +410,12 @@ NextState ErrorMsgState::Run(Project *project, std::vector<igl::opengl::Camera *
     //ImVec2 pos(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f);
 
     if(ButtonCenteredOnLine("Close"))
-        nextState = NextState(EXIT);
+        project->guiStates.pop();
 
     ImVec2 topLeft = ImGui::GetWindowPos();
     ImVec2 winSize = ImGui::GetWindowSize();
     ImVec2 bottomRight(topLeft.x + winSize.x, topLeft.y + winSize.y);
 
-    return nextState;
 }
 
 ShapeEditingState::ShapeEditingState():
@@ -479,10 +472,9 @@ std::map<igl::opengl::glfw::Viewer::shapes, std::string> SHAPE_TYPES_REV = {
         {igl::opengl::glfw::Viewer::shapes::Sphere, "Sphere"}
 };
 
-NextState
+void
 ShapeEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera, Eigen::Vector4i &viewWindow,
                        std::vector<DrawInfo *> drawInfos, ImFont *font, ImFont *boldFont) {
-    NextState nextState(CONTINUE);
 
     BeginCentered("Shape Editing");
     std::string header;
@@ -622,30 +614,29 @@ ShapeEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &cam
 
         bool saveSucceed = true;
         if(ImGui::Button("Save")){
-            nextState = NextState(EXIT);
             if(std::string(name).empty()) {
-                nextState = NextState(NEW, std::make_shared<ErrorMsgState>("Name cannot be empty!"));
+                project->guiStates.push(std::make_shared<ErrorMsgState>("Name cannot be empty!"));
                 saveSucceed = false;
             }
             if(project->layerManager.getLayer(name) != nullptr) {
-                nextState = NextState(NEW, std::make_shared<ErrorMsgState>(
+                project->guiStates.push(std::make_shared<ErrorMsgState>(
                         "Shape: " + std::string(name) + " already exists!"));
                 saveSucceed = false;
             }
             if(layer == nullptr) {
-                nextState = NextState(NEW, std::make_shared<ErrorMsgState>("Layer cannot be empty!"));
+                project->guiStates.push(std::make_shared<ErrorMsgState>("Layer cannot be empty!"));
                 saveSucceed = false;
             }
             if(source == HARD_CODED && type == nullptr) {
-                nextState = NextState(NEW, std::make_shared<ErrorMsgState>("Type cannot be empty!"));
+                project->guiStates.push(std::make_shared<ErrorMsgState>("Type cannot be empty!"));
                 saveSucceed = false;
             }
             if(source == FROM_FILE && file.empty()) {
-                nextState = NextState(NEW, std::make_shared<ErrorMsgState>("File cannot be empty!"));
+                project->guiStates.push(std::make_shared<ErrorMsgState>("File cannot be empty!"));
                 saveSucceed = false;
             }
             if(mover == nullptr) {
-                nextState = NextState(NEW, std::make_shared<ErrorMsgState>("Curve cannot be empty!"));
+                project->guiStates.push(std::make_shared<ErrorMsgState>("Curve cannot be empty!"));
                 saveSucceed = false;
             }
             if(editingMode == CREATE_NEW && saveSucceed) {
@@ -667,17 +658,16 @@ ShapeEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &cam
                 if(sizePercents != shape->GetScale()) {
                     shape->Rescale(sizePercents);
                 }
+                project->guiStates.pop();
             }
 
         }
         ImGui::SameLine();
         if(ImGui::Button("Close")){
-            nextState = NextState(EXIT);
+           project->guiStates.pop();
         }
     }
 
-
-    return nextState;
 }
 
 ShapeEditingState::~ShapeEditingState() {
@@ -691,10 +681,9 @@ ShaderEditingState::ShaderEditingState(std::shared_ptr<SceneShader> scnShader):
         shaderParams.push_back(param->clone());
 }
 
-NextState
+void
 ShaderEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera, Eigen::Vector4i &viewWindow,
                         std::vector<DrawInfo *> drawInfos, ImFont *font, ImFont *boldFont) {
-    NextState nextState(CONTINUE);
     BeginCentered("Editing shader");
 
     // filtering params for display ONLY
@@ -778,15 +767,15 @@ ShaderEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &ca
     }
     if(!paramsForDisplay.empty()) {
         if (ImGui::Button("Save")) {
-            nextState = NextState(EXIT);
             project->GetShader(shaderName)->setParams(shaderParams);
+            project->guiStates.pop();
         }
         ImGui::SameLine();
     }
     if(ImGui::Button("Close")) {
-        nextState = NextState(EXIT);
+        project->guiStates.pop();
     }
-    return nextState;
+
 }
 
 MovementCurveEditingState::MovementCurveEditingState(std::string name, std::shared_ptr<ObjectMoverSplit> mover):
@@ -799,10 +788,9 @@ MovementCurveEditingState::MovementCurveEditingState(std::string name, std::shar
 MovementCurveEditingState::MovementCurveEditingState(): GuiState(CURVE_EDITING), editingMode(CREATE_NEW),
     startTime(0), curveName(strdup("")) {}
 
-NextState MovementCurveEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera,
+void MovementCurveEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera,
                                          Eigen::Vector4i &viewWindow, std::vector<DrawInfo *> drawInfos, ImFont *font,
                                          ImFont *boldFont) {
-    NextState nextState(CONTINUE);
     BeginCentered("Editing Curve");
     if(editingMode == CREATE_NEW) {
         Header("New Curve", boldFont);
@@ -855,18 +843,17 @@ NextState MovementCurveEditingState::Run(Project *project, std::vector<igl::open
         movers.push_back(std::make_shared<ObjectMoverForGui>());
     }
     if(ButtonCenteredOnLine("Save")){
-        nextState = NextState(EXIT);
         bool saveSucceed = true;
         std::vector<std::shared_ptr<ObjectMover>> objectsForSave;
         auto nextStartTime = startTime;
         for(auto m : movers) {
             if(m->points.size() == 0){
-                nextState = NextState(NEW, std::make_shared<ErrorMsgState>("Movers must have 1 points at least"));
+                project->guiStates.push(std::make_shared<ErrorMsgState>("Movers must have 1 points at least"));
                 saveSucceed = false;
                 break;
             }
             if(m->moverType == CONSTANT && m->points.size() > 1) {
-                nextState = NextState(NEW, std::make_shared<ErrorMsgState>("Constant movers may have only one point"));
+                project->guiStates.push(std::make_shared<ErrorMsgState>("Constant movers may have only one point"));
                 saveSucceed = false;
                 break;
             }
@@ -892,50 +879,43 @@ NextState MovementCurveEditingState::Run(Project *project, std::vector<igl::open
         if(saveSucceed) {
             if(editingMode == CREATE_NEW) {
                 if (!project->AddMovementCurve(std::make_shared<ObjectMoverSplit>(objectsForSave, curveName)))
-                    nextState = NextState(NEW, std::make_shared<ErrorMsgState>("Curve: " +
+                    project->guiStates.push(std::make_shared<ErrorMsgState>("Curve: " +
                         std::string(curveName) + " exists"));
             } else {
                 project->SetNewMoversForCurve(std::string(curveName), objectsForSave);
             }
+            project->guiStates.pop();
         }
 
     }
     ImGui::SameLine();
     if(ButtonCenteredOnLine("Close")) {
-        nextState = NextState(EXIT);
+        project->guiStates.pop();
     }
 
-    return nextState;
 }
 
 MediaSliderState::MediaSliderState(): GuiState(MEDIA_SLIDER){
 
 }
 
-NextState
+void
 MediaSliderState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera, Eigen::Vector4i &viewWindow,
                       std::vector<DrawInfo *> drawInfos, ImFont *font, ImFont *boldFont) {
-    NextState nextState(CONTINUE);
     BeginSliderWindow("Slider");
     ImGuiIO& io = ImGui::GetIO();
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + io.DisplaySize.x * 0.352);
     switch(project->getAnimationStatus()) {
         case PLAYING:
-            // always be in unsplit mode when animation
-            if(project->GetSplitCameraOption()!=UNSPLIT) {
-                project->SetPrevSplitCameraOption(project->GetSplitCameraOption());
-                project->Unsplit();
-            }
-
             if(ImGui::Button("Pause")){
+                project->guiStates.pop();
                 project->Pause();
-                nextState = NextState(EXIT);
             }
             ImGui::SameLine();
             if(ImGui::Button("Stop")){
                 // restore version of previous state
+                project->guiStates.pop();
                 project->Stop();
-                nextState = NextState(EXIT);
             }
             ImGui::SameLine();
             if(ImGui::Button("Replay")){
@@ -957,7 +937,6 @@ MediaSliderState::Run(Project *project, std::vector<igl::opengl::Camera *> &came
     }
     if(project->GetGlobalTime() >= project->maxTime()) {
         project->Stop();
-        nextState = NextState(EXIT);
+        project->guiStates.pop();
     }
-    return nextState;
 }

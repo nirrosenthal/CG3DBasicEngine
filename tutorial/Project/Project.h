@@ -20,6 +20,7 @@
 #  endif
 
 class Gui;
+class GuiState;
 
 enum AnimationStatus {PLAYING, STOPPED, PAUSED};
 struct WindowLocation {
@@ -105,9 +106,11 @@ public:
     void DeleteShape(std::shared_ptr<SceneShape> shape);
     int VP_Width;
     int VP_Height;
+    std::stack<std::shared_ptr<GuiState>> guiStates;
 
 
 private:
+    SplitCameraOption previousState;
     Renderer *renderer = nullptr;
     long globalTime;
     std::map<int, std::shared_ptr<SceneShape>> shapesGlobal;

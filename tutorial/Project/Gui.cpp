@@ -70,7 +70,7 @@ void Gui::init(Display *disp) {
     ImGuiIO &io = ImGui::GetIO();
     font = io.Fonts->AddFontFromFileTTF("textures/Calibri.ttf", 25);
     boldFont = io.Fonts->AddFontFromFileTTF("textures/calibrib.ttf", 28);
-    guiStates.push(std::make_shared<MenuState>(hidpi_scaling_, pixel_ratio_));
+
 }
 
 
@@ -79,26 +79,10 @@ IGL_INLINE void Gui::draw_viewer_menu(igl::opengl::glfw::Viewer *viewer,
                                       std::vector<igl::opengl::Camera*> &camera,
                                       Eigen::Vector4i& viewWindow,
                                       std::vector<DrawInfo *> drawInfos) {
-    NextState nextState = guiStates.top()->Run((Project *)viewer, camera, viewWindow, drawInfos, font, boldFont);
-    if(nextState.step == NEW)
-        guiStates.push(nextState.state);
-    else if(nextState.step == EXIT) {
-        guiStates.pop();
-        // set back to previous split state (back from animation)
-        std::cout<<"restored to previous split screen state in GUI"<<std::endl;
-        SplitCameraOption previousState = ((Project *)viewer)->GetPrevSplitCameraOption();
-        switch(previousState) {
-            case UNSPLIT:
-            ((Project *)viewer)->Unsplit();
-            break;
-            case SPLITX:
-                ((Project *)viewer)->SplitX();
-                break;
-            case SPLITY:
-            ((Project *)viewer)->SplitY();
-                break;
-        }
-    }
+    if(((Project *) viewer)->guiStates.empty())
+        ((Project *) viewer)->guiStates.push(std::make_shared<MenuState>(hidpi_scaling_, pixel_ratio_));
+    ((Project *) viewer)->guiStates.top()->Run((Project *)viewer, camera, viewWindow, drawInfos, font, boldFont);
+
 
     ImVec2 topLeft = ImGui::GetWindowPos();
     ImVec2 winSize = ImGui::GetWindowSize();
@@ -111,8 +95,6 @@ IGL_INLINE void Gui::draw_viewer_menu(igl::opengl::glfw::Viewer *viewer,
 
 
 Gui::~Gui() {
-    while(!guiStates.empty())
-        guiStates.pop();
     delete font;
     delete boldFont;
 }

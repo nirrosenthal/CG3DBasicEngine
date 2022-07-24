@@ -393,16 +393,40 @@ std::vector<int> Project::GetChildren(int shape) {
 AnimationStatus Project::getAnimationStatus() {return animationStatus;}
 
 void Project::Play() {
+    previousState = GetSplitCameraOption();
     animationStatus = PLAYING;
+    Unsplit();
 }
 
 void Project::Pause() {
+    switch(previousState) {
+        case UNSPLIT:
+            Unsplit();
+            break;
+        case SPLITX:
+            SplitX();
+            break;
+        case SPLITY:
+            SplitY();
+            break;
+    }
     animationStatus = PAUSED;
 }
 
 void Project::Stop() {
     globalTime = 0;
     animationStatus = STOPPED;
+    switch(previousState) {
+        case UNSPLIT:
+            Unsplit();
+            break;
+        case SPLITX:
+            SplitX();
+            break;
+        case SPLITY:
+            SplitY();
+            break;
+    }
 }
 
 void Project::Replay() {
