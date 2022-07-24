@@ -924,8 +924,7 @@ MediaSliderState::Run(Project *project, std::vector<igl::opengl::Camera *> &came
             break;
         case PAUSED:
         case STOPPED:
-            throw std::runtime_error("Slider shouldn't be open on animation status " +
-                std::to_string(project->getAnimationStatus()));
+            project->guiStates.pop();
             break;
     }
     float time = (float)project->GetGlobalTime();
@@ -934,9 +933,5 @@ MediaSliderState::Run(Project *project, std::vector<igl::opengl::Camera *> &came
     if (ImGui::SliderFloat("##Time Scale", &time, 0, maxTime, "%.1f"))
     {
         project->SetGlobalTime((long)time);
-    }
-    if(project->GetGlobalTime() >= project->maxTime()) {
-        project->Stop();
-        project->guiStates.pop();
     }
 }

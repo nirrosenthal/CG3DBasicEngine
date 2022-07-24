@@ -105,6 +105,8 @@ IGL_INLINE void Project::Draw(int shaderIndx, const Eigen::Matrix4f &Proj, const
             }
         }
     }
+    if(globalTime >= maxTime())
+        Stop();
 }
 
 IGL_INLINE ProjectViewerData* Project::data(int mesh_id /*= -1*/)
@@ -400,6 +402,7 @@ void Project::Play() {
 }
 
 void Project::Pause() {
+    animationStatus = PAUSED;
     switch(previousState) {
         case UNSPLIT:
             Unsplit();
@@ -411,7 +414,6 @@ void Project::Pause() {
             SplitY();
             break;
     }
-    animationStatus = PAUSED;
 }
 
 void Project::Stop() {
