@@ -572,21 +572,29 @@ void Project::UpdateResolution(float width, float height) {
     resolution = Eigen::Vector2f(width, height);
 }
 
+float distance(Eigen::Vector2f first, Eigen::Vector2f second) {
+    return sqrt(pow(first[0] - second[0], 2) + pow(first[1]- second[1], 2));
+}
+
 void Project::UpdateMouse(float x, float y) {
     mousePos = Eigen::Vector2f(x, y);
 
 
-    if(mouseStatus == LEFT_CLICK) {
-        float xAngle = (pressStartPosition[0]-x)/resolution[0];
+    if(mouseStatus == LEFT_CLICK && distance(mousePos, pressStartPosition) > 0.01) {
+        float xAngle = 2*(pressStartPosition[0]-x)/resolution[0];
 //        if(xAngle<0)
 //            xAngle += 360;
-        float yAngle = (pressStartPosition[1]-y)/resolution[1];
-//        if(yAngle < 0)
-//            yAngle += 360;
+        float yAngle = 2*(pressStartPosition[1]-y)/resolution[1];
+//        if(splitCameraOption == SPLITX)
+//            xAngle /= 2;
+//        else if(splitCameraOption == SPLITY)
+//            yAngle /= 2;
+////        if(yAngle < 0)
+////            yAngle += 360;
         renderer->MoveCamera(GetConrolledCameraId(), yRotate, xAngle);
         renderer->MoveCamera(GetConrolledCameraId(), xRotate, yAngle);
+        pressStartPosition = mousePos;
     }
-    pressStartPosition = mousePos;
 
 }
 
