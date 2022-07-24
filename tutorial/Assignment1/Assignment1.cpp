@@ -1,7 +1,6 @@
 #include "Assignment1.h"
 #include <iostream>
 
-
 static void printMat(const Eigen::Matrix4d& mat)
 {
 	std::cout<<" matrix:"<<std::endl;
@@ -137,9 +136,10 @@ Eigen::Vector3cf Assignment1::FindCubicRoots()
 	}
 	else
 	{
+        float pi = 3.14159;
 		roots[0] = -1.0f*bOver3a;
-		roots[1] = std::complex<float>(cosf(3.14159f/3.0f),sinf(3.14159f/3.0f))*bOver3a;
-		roots[2] = std::complex<float>(cosf(2.0f*3.14159f/3.0f),sinf(2*3.14159f/3.0f))*bOver3a;
+		roots[1] = std::complex<float>(cosf(pi/3.0f),sinf(pi/3.0f))*bOver3a;
+		roots[2] = std::complex<float>(cosf(2.0f*pi/3.0f),sinf(2*pi/3.0f))*bOver3a;
 	}
 
 	return roots;

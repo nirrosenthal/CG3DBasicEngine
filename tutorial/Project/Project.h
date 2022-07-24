@@ -27,6 +27,9 @@ struct WindowLocation {
     ImVec2 bottomRight;
 };
 
+enum SplitCameraOption {UNSPLIT,SPLITX,SPLITY};
+
+
 const std::string SHADERS_FOLDER = "shaders/";
 const std::string SHAPES_FOLDER = "data/";
 const std::string TEXTURES_FOLDER = "textures/";
@@ -93,7 +96,7 @@ public:
     void SplitY();
     void Unsplit();
     std::vector<std::string> GetAllShapeFiles();
-
+    SplitCameraOption GetSplitCameraOption();
 
 private:
     std::map<int, std::shared_ptr<SceneShape>> shapesGlobal;
@@ -115,6 +118,11 @@ private:
     std::map<std::string, std::shared_ptr<ObjectMoverSplit>> movementCurves;
     Display *display;
     igl::opengl::glfw::imgui::ImGuiMenu* menu;
+    SplitCameraOption splitCameraOption;
+    void SetSplitCameraOption(SplitCameraOption camera_option);
+
+
+
 };
 
 

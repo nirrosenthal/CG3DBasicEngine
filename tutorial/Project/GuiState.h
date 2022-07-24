@@ -10,7 +10,6 @@ enum GuiStatus{MENU, ERROR, SHAPE_EDITING, SHADER_EDITING, CURVE_EDITING, MEDIA_
 enum GuiStep{CONTINUE, NEW, EXIT};
 enum EntityEditingMode {CREATE_NEW, EDIT_EXISTING};
 
-
 class GuiState;
 class NextState {
 public:

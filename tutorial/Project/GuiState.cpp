@@ -273,16 +273,46 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
 //        ImGui::EndCombo();
 //    }
 
-    if (ImGui::CollapsingHeader("Camera Split")) {
-        if(ImGui::RadioButton("Unsplit",&(((ProjectViewerData *)project->data())->camera_split),0)){
-            project->Unsplit();
+        std::map<std::string, SplitCameraOption> CAMERA_SPLIT_OPTIONS = {
+                {"Unsplit", UNSPLIT},
+                {"Split x", SPLITX},
+                {"Split y", SPLITY}
+        };
+
+        std::map<SplitCameraOption,std::string> CAMERA_SPLIT_OPTIONS_REV = {
+            {UNSPLIT,"Unsplit"},
+            {SPLITX,"Split x"},
+            {SPLITY,"Split y"}
+        };
+
+        ImGui::Text("Camera split option");
+
+        const std::string splitOption = CAMERA_SPLIT_OPTIONS_REV[project->GetSplitCameraOption()];
+        if (ImGui::BeginCombo("##split options combo", splitOption.c_str())) {
+            for (auto entry: CAMERA_SPLIT_OPTIONS_REV) {
+                SplitCameraOption splitEnum = entry.first;
+                std::string splitString = entry.second;
+                bool isSelected = splitEnum == project->GetSplitCameraOption();
+                if (ImGui::Selectable(splitString.c_str(), isSelected)) {
+                    switch (splitEnum) {
+                        case UNSPLIT:
+                            project->Unsplit();
+                            break;
+                        case SPLITX:
+                            project->SplitX();
+                            break;
+                        case SPLITY:
+                            project->SplitY();
+                            break;
+                    }
+                }
+                if (isSelected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+            ImGui::EndCombo();
         }
-        if(ImGui::RadioButton("Split X",&(((ProjectViewerData *)project->data())->camera_split),1)){
-            project->SplitX();
-        }
-        if(ImGui::RadioButton("Split Y",&(((ProjectViewerData *)project->data())->camera_split),2)){
-            project->SplitY();
-        }
+
 
         ImGui::Text("Select Camera for screen 1:");
         const char* current_item = ((ProjectViewerData *)project->data())->cameras.at(((ProjectViewerData *)project->data())->cameraScreen1Indx).c_str();
@@ -330,7 +360,7 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
             ((ProjectViewerData *)project->data())->cameras.push_back(((ProjectViewerData *)project->data())->camera_name);
             // implement add camera
         }
-    }
+
 
     if (ImGui::CollapsingHeader("Animation", ImGuiTreeNodeFlags_DefaultOpen))
     {
