@@ -111,6 +111,7 @@ public:
 
 
 private:
+    const float FAR = 20000.0f;
     Renderer *renderer = nullptr;
     long globalTime;
     std::map<int, std::shared_ptr<SceneShape>> shapesGlobal;

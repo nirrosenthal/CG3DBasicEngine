@@ -236,9 +236,9 @@ void Project::Init(float width, float height) {
     shp->material = mat1;
 
     for (size_t i = 0; i < 4; i++){
-        backgroundShape[i] = AddShape(Cube, -1, TRIANGLES, i);
+        backgroundShape[i] = AddShape(Sphere, -1, TRIANGLES, i);
         selected_data_index = backgroundShape[i];
-        ShapeTransformation(scaleAll, 80, 0);
+        ShapeTransformation(scaleAll, 1000, 0);
         SetShapeStatic(backgroundShape[i]);
     }
 //    selected_data_index = -1;
@@ -623,7 +623,6 @@ void Project::SplitX() {
     auto oldRenderer = renderer;
     float CAMERA_ANGLE = 45.0f;
     const float NEAR = 1.0f;
-    const float FAR = 120.0f;
     //igl::opengl::glfw::imgui::ImGuiMenu* newMenu = menu->clone();
     //newMenu->init(display, false);
 
@@ -653,7 +652,6 @@ void Project::SplitY() {
     auto oldRenderer = renderer;
     float CAMERA_ANGLE = 45.0f;
     const float NEAR = 1.0f;
-    const float FAR = 120.0f;
     //igl::opengl::glfw::imgui::ImGuiMenu* newMenu = menu->clone();
     //newMenu->init(display, false);
     controlledCamera = TOP;
@@ -680,7 +678,6 @@ void Project::Unsplit() {
     auto oldRenderer = renderer;
     float CAMERA_ANGLE = 45.0f;
     const float NEAR = 1.0f;
-    const float FAR = 120.0f;
 
     controlledCamera = MAIN;
     renderer = new Renderer(CAMERA_ANGLE, (float)resolution[0]/(float)resolution[1], NEAR, FAR);
