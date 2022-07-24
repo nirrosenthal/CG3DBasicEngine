@@ -112,7 +112,7 @@ void handlePicking(double xStart, double yStart, double xEnd, double yEnd, Proje
         }
         else
         {
-            rndr->MoveCamera(0, rndr->zTranslate, (float)yoffset);
+            rndr->MoveCamera(0, rndr->zTranslate, -(float)yoffset);
         }
 
 
