@@ -112,7 +112,7 @@ void handlePicking(double xStart, double yStart, double xEnd, double yEnd, Proje
         }
         else
         {
-            rndr->MoveCamera(0, rndr->zTranslate, -(float)yoffset);
+            rndr->MoveCamera(scn->GetConrolledCameraId(), rndr->zTranslate, -(float)yoffset);
         }
 
 
@@ -187,24 +187,26 @@ void handlePicking(double xStart, double yStart, double xEnd, double yEnd, Proje
 //				else
 //					scn->Activate();
 //				break;
-
+            case GLFW_KEY_LEFT_CONTROL:
+                scn->ChangeControlledCamera();
+                break;
 			case GLFW_KEY_UP:
 
-				rndr->MoveCamera(0, scn->xRotate, 0.05f);
+				rndr->MoveCamera(scn->GetConrolledCameraId(), scn->xRotate, 0.05f);
 				
 				break;
 			case GLFW_KEY_DOWN:
 				//scn->shapeTransformation(scn->xGlobalRotate,-5.f);
 				//cout<< "down: "<<endl;
-				rndr->MoveCamera(0, scn->xRotate, -0.05f);
+				rndr->MoveCamera(scn->GetConrolledCameraId(), scn->xRotate, -0.05f);
 				break;
 			case GLFW_KEY_LEFT:
-				rndr->MoveCamera(0, scn->yRotate, 0.05f);
+				rndr->MoveCamera(scn->GetConrolledCameraId(), scn->yRotate, 0.05f);
 				break;
 			case GLFW_KEY_RIGHT:
 				//scn->shapeTransformation(scn->xGlobalRotate,-5.f);
 				//cout<< "down: "<<endl;
-				rndr->MoveCamera(0, scn->yRotate, -0.05f);
+				rndr->MoveCamera(scn->GetConrolledCameraId(), scn->yRotate, -0.05f);
 				break;
 //			case GLFW_KEY_U:
 //				rndr->MoveCamera(0, scn->yTranslate, 0.25f);

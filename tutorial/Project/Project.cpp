@@ -191,6 +191,7 @@ void Project::Init(float width, float height) {
     lastFileSystemRefreshingTimeSeconds = 0;
     resolution = Eigen::Vector2f(width, height);
     globalTime = 0;
+    controlledCamera = MAIN;
     unsigned int texIDs[3] = {1, 2, 3};
     unsigned int slots[3] = {1, 2, 3};
 
@@ -235,9 +236,9 @@ void Project::Init(float width, float height) {
     shp->material = mat1;
 
     for (size_t i = 0; i < 4; i++){
-        backgroundShape[i] = AddShape(Cube, -1, TRIANGLES, i);
+        backgroundShape[i] = AddShape(Sphere, -1, TRIANGLES, i);
         selected_data_index = backgroundShape[i];
-        ShapeTransformation(scaleAll, 80, 0);
+        ShapeTransformation(scaleAll, 1000, 0);
         SetShapeStatic(backgroundShape[i]);
     }
 //    selected_data_index = -1;
@@ -646,18 +647,17 @@ void Project::SplitX() {
     auto oldRenderer = renderer;
     float CAMERA_ANGLE = 45.0f;
     const float NEAR = 1.0f;
-    const float FAR = 120.0f;
     //igl::opengl::glfw::imgui::ImGuiMenu* newMenu = menu->clone();
     //newMenu->init(display, false);
 
 
     renderer = new Renderer(CAMERA_ANGLE, (float)resolution[0]/(float)resolution[1], NEAR, FAR);
-    renderer->AddCamera(Eigen::Vector3d(10,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 1);
-    renderer->AddCamera(Eigen::Vector3d(20,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 2);
-    renderer->AddCamera(Eigen::Vector3d(30,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 3);
+    renderer->AddCamera(Eigen::Vector3d(0,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 1);
+    renderer->AddCamera(Eigen::Vector3d(0,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 2);
+    renderer->AddCamera(Eigen::Vector3d(0,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 3);
     renderer->Init(this,x,y,1, menu);
 
-
+    controlledCamera = LEFT;
     //renderer->Init(this,x,y,1, me);
     display->SetRenderer(renderer);
     delete oldRenderer;
@@ -676,14 +676,13 @@ void Project::SplitY() {
     auto oldRenderer = renderer;
     float CAMERA_ANGLE = 45.0f;
     const float NEAR = 1.0f;
-    const float FAR = 120.0f;
     //igl::opengl::glfw::imgui::ImGuiMenu* newMenu = menu->clone();
     //newMenu->init(display, false);
-
+    controlledCamera = TOP;
     renderer = new Renderer(CAMERA_ANGLE, (float)resolution[0]/(float)resolution[1], NEAR, FAR);
-    renderer->AddCamera(Eigen::Vector3d(10,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 1);
-    renderer->AddCamera(Eigen::Vector3d(20,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 2);
-    renderer->AddCamera(Eigen::Vector3d(30,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 3);
+    renderer->AddCamera(Eigen::Vector3d(0,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 1);
+    renderer->AddCamera(Eigen::Vector3d(0,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 2);
+    renderer->AddCamera(Eigen::Vector3d(0,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 3);
     renderer->Init(this,x,y,1, menu);
 
 
@@ -692,9 +691,6 @@ void Project::SplitY() {
     delete oldRenderer;
     SetSplitCameraOption(SPLITY);
     display->launch_rendering(renderer);
-
-
-
 }
 
 void Project::Unsplit() {
@@ -706,13 +702,12 @@ void Project::Unsplit() {
     auto oldRenderer = renderer;
     float CAMERA_ANGLE = 45.0f;
     const float NEAR = 1.0f;
-    const float FAR = 120.0f;
 
-
+    controlledCamera = MAIN;
     renderer = new Renderer(CAMERA_ANGLE, (float)resolution[0]/(float)resolution[1], NEAR, FAR);
-    renderer->AddCamera(Eigen::Vector3d(10,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 1);
-    renderer->AddCamera(Eigen::Vector3d(20,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 2);
-    renderer->AddCamera(Eigen::Vector3d(30,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 3);
+    renderer->AddCamera(Eigen::Vector3d(0,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 1);
+    renderer->AddCamera(Eigen::Vector3d(0,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 2);
+    renderer->AddCamera(Eigen::Vector3d(0,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 3);
     renderer->Init(this,x,y,1, menu);
 
 
@@ -736,6 +731,37 @@ void Project::DeleteShape(std::shared_ptr<SceneShape> shape) {
 
 void Project::SetViewportWidth(int w) {this->VP_Width = w;}
 void Project::SetViewportHeight(int w) {this->VP_Height = w;}
+
+void Project::ChangeControlledCamera() {
+    switch (splitCameraOption) {
+        case SPLITX:
+            if(controlledCamera == LEFT)
+                controlledCamera = RIGHT;
+            else
+                controlledCamera = LEFT;
+            break;
+        case SPLITY:
+            if(controlledCamera == TOP)
+                controlledCamera = BOTTOM;
+            else
+                controlledCamera = TOP;
+    }
+
+}
+
+int Project::GetConrolledCameraId() {
+    switch (controlledCamera) {
+        case MAIN:
+        case BOTTOM:
+        case LEFT:
+            return 0;
+        case TOP:
+            return 1;
+        case RIGHT:
+            return 2;
+    }
+}
+
 
 
 

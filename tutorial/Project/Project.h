@@ -29,6 +29,7 @@ struct WindowLocation {
 };
 
 enum SplitCameraOption {UNSPLIT,SPLITX,SPLITY};
+enum ControlledCamera {MAIN, TOP, BOTTOM, LEFT, RIGHT};
 
 
 const std::string SHADERS_FOLDER = "shaders/";
@@ -106,10 +107,13 @@ public:
     void DeleteShape(std::shared_ptr<SceneShape> shape);
     int VP_Width;
     int VP_Height;
+    void ChangeControlledCamera();
+    int GetConrolledCameraId();
     std::stack<std::shared_ptr<GuiState>> guiStates;
 
 
 private:
+    const float FAR = 20000.0f;
     SplitCameraOption previousState;
     Renderer *renderer = nullptr;
     long globalTime;
@@ -137,6 +141,7 @@ private:
     void CalculateShapeSize(int shapeIndex);
     std::unordered_map<int, bool> deletedShapes;
     bool isDeleted(int id);
+    ControlledCamera controlledCamera;
 
 };
 
