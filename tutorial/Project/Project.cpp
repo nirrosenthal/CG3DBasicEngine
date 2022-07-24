@@ -194,6 +194,7 @@ void Project::Init(float width, float height) {
     resolution = Eigen::Vector2f(width, height);
     globalTime = 0;
     controlledCamera = MAIN;
+    mouseStatus = NOT_PRESSED;
     unsigned int texIDs[3] = {1, 2, 3};
     unsigned int slots[3] = {1, 2, 3};
 
@@ -573,6 +574,20 @@ void Project::UpdateResolution(float width, float height) {
 
 void Project::UpdateMouse(float x, float y) {
     mousePos = Eigen::Vector2f(x, y);
+
+
+    if(mouseStatus == LEFT_CLICK) {
+        float xAngle = (pressStartPosition[0]-x)/resolution[0];
+//        if(xAngle<0)
+//            xAngle += 360;
+        float yAngle = (pressStartPosition[1]-y)/resolution[1];
+//        if(yAngle < 0)
+//            yAngle += 360;
+        renderer->MoveCamera(GetConrolledCameraId(), yRotate, xAngle);
+        renderer->MoveCamera(GetConrolledCameraId(), xRotate, yAngle);
+    }
+    pressStartPosition = mousePos;
+
 }
 
 void Project::SetBackgroundShader(std::string shaderName) {
@@ -654,9 +669,9 @@ void Project::SplitX() {
 
 
     renderer = new Renderer(CAMERA_ANGLE, (float)resolution[0]/(float)resolution[1], NEAR, FAR);
-    renderer->AddCamera(Eigen::Vector3d(0,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 1);
-    renderer->AddCamera(Eigen::Vector3d(0,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 2);
-    renderer->AddCamera(Eigen::Vector3d(0,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 3);
+    renderer->AddCamera(Eigen::Vector3d(0,0,0), 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 1);
+    renderer->AddCamera(Eigen::Vector3d(0,0,0), 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 2);
+    renderer->AddCamera(Eigen::Vector3d(0,0,0), 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 3);
     renderer->Init(this,x,y,1, menu);
 
     controlledCamera = LEFT;
@@ -682,9 +697,9 @@ void Project::SplitY() {
     //newMenu->init(display, false);
     controlledCamera = TOP;
     renderer = new Renderer(CAMERA_ANGLE, (float)resolution[0]/(float)resolution[1], NEAR, FAR);
-    renderer->AddCamera(Eigen::Vector3d(0,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 1);
-    renderer->AddCamera(Eigen::Vector3d(0,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 2);
-    renderer->AddCamera(Eigen::Vector3d(0,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 3);
+    renderer->AddCamera(Eigen::Vector3d(0,0,0), 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 1);
+    renderer->AddCamera(Eigen::Vector3d(0,0,0), 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 2);
+    renderer->AddCamera(Eigen::Vector3d(0,0,0), 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 3);
     renderer->Init(this,x,y,1, menu);
 
 
@@ -707,9 +722,9 @@ void Project::Unsplit() {
 
     controlledCamera = MAIN;
     renderer = new Renderer(CAMERA_ANGLE, (float)resolution[0]/(float)resolution[1], NEAR, FAR);
-    renderer->AddCamera(Eigen::Vector3d(0,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 1);
-    renderer->AddCamera(Eigen::Vector3d(0,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 2);
-    renderer->AddCamera(Eigen::Vector3d(0,0,0), 60, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 3);
+    renderer->AddCamera(Eigen::Vector3d(0,0,0), 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 1);
+    renderer->AddCamera(Eigen::Vector3d(0,0,0), 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 2);
+    renderer->AddCamera(Eigen::Vector3d(0,0,0), 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 3);
     renderer->Init(this,x,y,1, menu);
 
 
@@ -762,6 +777,45 @@ int Project::GetConrolledCameraId() {
         case RIGHT:
             return 2;
     }
+}
+
+void Project::RightClick(float x, float y) {
+    pressStartPosition = Eigen::Vector2f(x, y);
+    mouseStatus = RIGHT_CLICK;
+}
+
+void Project::LeftClick(float x, float y) {
+    pressStartPosition = Eigen::Vector2f(x, y);
+    mouseStatus = LEFT_CLICK;
+}
+
+void Project::UnpressMouse(float x, float y) {
+    switch (mouseStatus) {
+        case LEFT_CLICK:
+            HandleLeftClickEnd(x, y);
+            break;
+        case RIGHT_CLICK:
+            HandleRightClickEnd(x, y);
+            break;
+        case NOT_PRESSED:
+            throw std::runtime_error("Mouse was not pressed - cannot unpress!");
+            break;
+    }
+
+    mouseStatus = NOT_PRESSED;
+}
+
+bool Project::IsMousePressed() {
+    return mouseStatus != NOT_PRESSED;
+}
+
+void Project::HandleLeftClickEnd(float x, float y) {
+//    renderer->MoveCamera(GetConrolledCameraId(), yRotate, 10*(pressStartPosition[0]-x)/resolution[0]);
+//    renderer->MoveCamera(GetConrolledCameraId(), xRotate, 10*(pressStartPosition[1]-y)/resolution[1]);
+}
+
+void Project::HandleRightClickEnd(float x, float y) {
+
 }
 
 

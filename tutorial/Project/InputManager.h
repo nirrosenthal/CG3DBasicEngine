@@ -76,6 +76,7 @@ void handlePicking(double xStart, double yStart, double xEnd, double yEnd, Proje
                 glfwGetCursorPos(window, &xStart, &yStart);
             }
             rndr->UpdatePress(xStart, yStart);
+
         }
         else
         {
@@ -108,7 +109,7 @@ void handlePicking(double xStart, double yStart, double xEnd, double yEnd, Proje
         if (rndr->IsPicked())
         {
             rndr->UpdateZpos((int)yoffset);
-            rndr->MouseProccessing(GLFW_MOUSE_BUTTON_MIDDLE);
+            rndr->MouseProccessing(GLFW_MOUSE_BUTTON_MIDDLE, 0, scn->GetConrolledCameraId());
         }
         else
         {
@@ -132,7 +133,7 @@ void handlePicking(double xStart, double yStart, double xEnd, double yEnd, Proje
 
         double xStart, yStart;
 		rndr->UpdatePosition((float)xpos,-(float)ypos); // tricking the engine for intuitive mouse movement
-        if (rndr->CheckViewport(xpos,ypos, 0))
+        if (rndr->CheckViewport(xpos,ypos, scn->GetConrolledCameraId()))
         {
             if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
             {
@@ -140,20 +141,36 @@ void handlePicking(double xStart, double yStart, double xEnd, double yEnd, Proje
                 if (!rndr->IsPressed()){
                     rndr->Pressed();
                 }
+                if(!scn->IsMousePressed())
+                    scn->RightClick(xStart, yStart);
+
             }
             else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
             {
-
-                rndr->MouseProccessing(GLFW_MOUSE_BUTTON_LEFT);
+                glfwGetCursorPos(window, &xStart, &yStart);
+                scn->LeftClick(xStart, yStart);
+                rndr->MouseProccessing(GLFW_MOUSE_BUTTON_LEFT, 0, scn->GetConrolledCameraId());
             }
             else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE && rndr->IsPressed() ){
                 double xEnd, yEnd;
                 glfwGetCursorPos(window, &xEnd, &yEnd);
                 handlePicking(xStart, yStart, xEnd, yEnd, scn, rndr);
                 rndr->Pressed();
+                scn->UnpressMouse(xEnd, yEnd);
 
             }
+            else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE && rndr->IsPressed() ){
+                double xEnd, yEnd;
+                glfwGetCursorPos(window, &xEnd, &yEnd);
+                scn->UnpressMouse(xEnd, yEnd);
+            }
 
+        }
+        auto &io = ImGui::GetIO();
+        if(scn->IsMousePressed() && !io.MouseDown[0] && !io.MouseDown[1]) {
+            double xEnd, yEnd;
+            glfwGetCursorPos(window, &xEnd, &yEnd);
+            scn->UnpressMouse(xEnd, yEnd);
         }
 	}
 

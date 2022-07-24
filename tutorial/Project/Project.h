@@ -23,6 +23,7 @@ class Gui;
 class GuiState;
 
 enum AnimationStatus {PLAYING, STOPPED, PAUSED};
+enum MouseStatus {NOT_PRESSED, LEFT_CLICK, RIGHT_CLICK};
 struct WindowLocation {
     ImVec2 topLeft;
     ImVec2 bottomRight;
@@ -110,6 +111,10 @@ public:
     void ChangeControlledCamera();
     int GetConrolledCameraId();
     std::stack<std::shared_ptr<GuiState>> guiStates;
+    void RightClick(float x, float y);
+    void LeftClick(float x, float y);
+    void UnpressMouse(float x, float y);
+    bool IsMousePressed();
 
 
 private:
@@ -142,6 +147,10 @@ private:
     std::unordered_map<int, bool> deletedShapes;
     bool isDeleted(int id);
     ControlledCamera controlledCamera;
+    MouseStatus mouseStatus;
+    Eigen::Vector2f pressStartPosition;
+    void HandleLeftClickEnd(float x, float y);
+    void HandleRightClickEnd(float x, float y);
 
 };
 
