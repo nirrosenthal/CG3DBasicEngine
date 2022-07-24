@@ -38,7 +38,7 @@ void handlePicking(double xStart, double yStart, double xEnd, double yEnd, Proje
         scn->SetShapeViewport(shape, -3);
     }
     scn->pickedShapes.clear();
-    Eigen::Matrix4f projection = rndr->GetProjection(0);
+    Eigen::Matrix4f projection = rndr->cameras[0]->_projection;
     for (auto shapePair: scn->shapesGlobal) {
         if (shapePair.second->index != 0 && shapePair.second->index != 4){
             Eigen::Vector3f pos = shapePair.second->getPosition(0);
