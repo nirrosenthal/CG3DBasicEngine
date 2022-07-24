@@ -84,7 +84,7 @@ void handlePicking(double xStart, double yStart, double xEnd, double yEnd, Proje
             if (button == GLFW_MOUSE_BUTTON_RIGHT){
                 double xEnd, yEnd;
                 glfwGetCursorPos(window, &xEnd, &yEnd);
-                handlePicking(xStart,yStart,xEnd, yEnd,scn,rndr);
+//                handlePicking(xStart,yStart,xEnd, yEnd,scn,rndr);
                 rndr->Pressed();
             }
         }
