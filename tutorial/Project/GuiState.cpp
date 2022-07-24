@@ -640,10 +640,13 @@ ShapeEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &cam
                 saveSucceed = false;
             }
             if(editingMode == CREATE_NEW && saveSucceed) {
+                std::shared_ptr<SceneShape> shape;
                 if(source == HARD_CODED)
-                    project->AddGlobalShape(name, *type, mover, layer, project->GetShaderName(shader));
+                    shape = project->AddGlobalShape(name, *type, mover, layer, project->GetShaderName(shader));
                 else
-                    project->AddGlobalShape(name, file, mover, layer, project->GetShaderName(shader));
+                    shape = project->AddGlobalShape(name, file, mover, layer, project->GetShaderName(shader));
+                shape->Rescale(sizePercents);
+                project->guiStates.pop();
             } else if(editingMode == EDIT_EXISTING && saveSucceed) {
                 auto shape = project->GetGlobalShape(std::string(name));
                 shape->name = name;

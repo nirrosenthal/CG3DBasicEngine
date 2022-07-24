@@ -581,10 +581,10 @@ void Project::UpdateMouse(float x, float y) {
 
 
     if(mouseStatus == LEFT_CLICK && distance(mousePos, pressStartPosition) > 0.01) {
-        float xAngle = 2*(pressStartPosition[0]-x)/resolution[0];
+        float xAngle = 1.2*(pressStartPosition[0]-x)/resolution[0];
 //        if(xAngle<0)
 //            xAngle += 360;
-        float yAngle = 2*(pressStartPosition[1]-y)/resolution[1];
+        float yAngle = 1.2*(pressStartPosition[1]-y)/resolution[1];
 //        if(splitCameraOption == SPLITX)
 //            xAngle /= 2;
 //        else if(splitCameraOption == SPLITY)
