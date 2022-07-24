@@ -103,12 +103,12 @@ public:
     void DeleteShape(std::shared_ptr<SceneShape> shape);
     int VP_Width;
     int VP_Height;
-    std::map<int, std::shared_ptr<SceneShape>> shapesGlobal;
 
 
 private:
     Renderer *renderer = nullptr;
     long globalTime;
+    std::map<int, std::shared_ptr<SceneShape>> shapesGlobal;
     WindowLocation windowLocation;
     Eigen::Vector2f resolution;
     Eigen::Vector2f mousePos;

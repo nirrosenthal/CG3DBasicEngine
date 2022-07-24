@@ -39,17 +39,17 @@ void handlePicking(double xStart, double yStart, double xEnd, double yEnd, Proje
     }
     scn->pickedShapes.clear();
     Eigen::Matrix4f projection = rndr->cameras[0]->_projection;
-    for (auto shapePair: scn->shapesGlobal) {
-        if (shapePair.second->index != 0 && shapePair.second->index != 4){
-            Eigen::Vector3f pos = shapePair.second->getPosition(0);
+    for (auto shape: scn->getAllShapes()) {
+        if (shape->index != 0 && shape->index != 4){
+            Eigen::Vector3f pos = shape->getPosition(0);
             Eigen::Vector4f posVec = Eigen::Vector4f(pos.x(), pos.y(),pos.z(),1);
             Eigen::Vector4f res =  projection * posVec;
             float screenX, screenY;
             screenX = res.x();
             screenY = res.y();
             if(inside(xStart,yStart,xEnd,yEnd,screenX,screenY)){
-                scn->SetShapeViewport(shapePair.second->index, 2);
-                scn->pickedShapes.push_back(shapePair.second->index);
+                scn->SetShapeViewport(shape->index, 2);
+                scn->pickedShapes.push_back(shape->index);
             }
         }
     }
@@ -84,7 +84,6 @@ void handlePicking(double xStart, double yStart, double xEnd, double yEnd, Proje
             if (button == GLFW_MOUSE_BUTTON_RIGHT){
                 double xEnd, yEnd;
                 glfwGetCursorPos(window, &xEnd, &yEnd);
-//                handlePicking(xStart,yStart,xEnd, yEnd,scn,rndr);
                 rndr->Pressed();
             }
         }
