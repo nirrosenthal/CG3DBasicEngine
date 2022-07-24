@@ -70,6 +70,7 @@ public:
                   std::vector<igl::opengl::Camera*> &camera,
                   Eigen::Vector4i& viewWindow,std::vector<DrawInfo *> drawInfos,
                   ImFont* font, ImFont *boldFont);
+    float sizePercents;
     ~ShapeEditingState();
 
 private:

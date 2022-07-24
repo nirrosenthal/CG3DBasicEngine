@@ -42,8 +42,8 @@ IGL_INLINE void Project::Draw(int shaderIndx, const Eigen::Matrix4f &Proj, const
 
     for (int i = 0; i < data_list.size(); i++)
     {
-        if(i != backgroundShape[0] && i != backgroundShape[1] && i != backgroundShape[2] && i != backgroundShape[3]
-        && !shapesGlobal[i]->isDrawn(globalTime))
+        if(isDeleted(i) || (i != backgroundShape[0] && i != backgroundShape[1] && i != backgroundShape[2] &&
+            i != backgroundShape[3] && !shapesGlobal[i]->isDrawn(globalTime)))
             continue;
         auto shape = data_list[i];
         if (shape->Is2Render(viewportIndx))
@@ -260,34 +260,40 @@ float Project::maxTime() {
     return maxTime;
 }
 
+void Project::CalculateShapePosition(int shapeIndex) {
+    std::shared_ptr<SceneShape> scnShape = shapesGlobal[shapeIndex];
+    selected_data_index = shapeIndex;
+    Eigen::Vector3f pos = scnShape->getlastDrawnPosition(shapeIndex);
+    Eigen::Vector3f newPos = scnShape->getPosition((float) globalTime);
+    Eigen::Vector3f delta = newPos - pos;
+    ShapeTransformation(xTranslate, delta[0], 0);
+    ShapeTransformation(yTranslate, delta[1], 0);
+    ShapeTransformation(zTranslate, delta[2], 0);
+    shapesGlobal[shapeIndex]->setlastDrawnPosition(newPos, shapeIndex);
+}
+
+void Project::CalculateShapeSize(int shapeIndex) {
+    std::shared_ptr<SceneShape> scnShape = shapesGlobal[shapeIndex];
+    if(!scnShape->NeedsRescale(shapeIndex))
+        return;
+    selected_data_index = shapeIndex;
+    ShapeTransformation(scaleAll, scnShape->GetNormalizedScale(),0);
+    scnShape->MarkAsRescaled(shapeIndex);
+}
 
 void Project::Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, const Eigen::Matrix4f& Model, unsigned int  shaderIndx, unsigned int shapeIndx)
 {
-
-
-    long time;
-    if(globalTime != -1)
-        time = globalTime;
-    else
-        time = 0;
-
-
 	int r = ((shapeIndx+1) & 0x000000FF) >>  0;
 	int g = ((shapeIndx+1) & 0x0000FF00) >>  8;
 	int b = ((shapeIndx+1) & 0x00FF0000) >> 16;
     Shader *s = shaders[shaderIndx];
-    if(shapeIndx != backgroundShape[0] && shapeIndx != backgroundShape[1] && shapeIndx != backgroundShape[2] && shapeIndx != backgroundShape[3]) {
+    if(shapeIndx != backgroundShape[0] && shapeIndx != backgroundShape[1] &&
+        shapeIndx != backgroundShape[2] && shapeIndx != backgroundShape[3]) {
         std::shared_ptr<SceneShape> scnShape = shapesGlobal[shapeIndx];
         SetShapeShader(shapeIndx, scnShape->shader);
         SetShapeMaterial(shapeIndx, scnShape->material);
-        selected_data_index = shapeIndx;
-        Eigen::Vector3f pos = scnShape->getlastDrawnPosition(shapeIndx);
-        Eigen::Vector3f newPos = scnShape->getPosition((float) time);
-        Eigen::Vector3f delta = newPos - pos;
-        ShapeTransformation(xTranslate, delta[0], 0);
-        ShapeTransformation(yTranslate, delta[1], 0);
-        ShapeTransformation(zTranslate, delta[2], 0);
-        shapesGlobal[shapeIndx]->setlastDrawnPosition(newPos, shapeIndx);
+        CalculateShapePosition(shapeIndx);
+        CalculateShapeSize(shapeIndx);
     }
 
 	s->Bind();
@@ -683,9 +689,18 @@ void Project::Unsplit() {
     delete oldRenderer;
     SetSplitCameraOption(UNSPLIT);
     display->launch_rendering(renderer);
+}
 
+bool Project::isDeleted(int id) {
+    return deletedShapes.find(id) != deletedShapes.end();
+}
 
-
+void Project::DeleteShape(std::shared_ptr<SceneShape> shape) {
+    shape->getLayer()->deleteShape(shape);
+    for(int id : shape->GetIds()) {
+        shapesGlobal.erase(id);
+        deletedShapes[id] = true;
+    }
 }
 
 void Project::SetViewportWidth(int w) {this->VP_Width = w;}

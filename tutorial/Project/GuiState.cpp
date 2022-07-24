@@ -84,30 +84,6 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
 
     }
 
-    // Mesh
-    if (ImGui::CollapsingHeader("Mesh", ImGuiTreeNodeFlags_DefaultOpen))
-    {
-        float w = ImGui::GetContentRegionAvailWidth();
-        float p = ImGui::GetStyle().FramePadding.x;
-        if (ImGui::Button("Load##Mesh", ImVec2((w-p)/2.f, 0)))
-        {
-            int savedIndx = project->selected_data_index;
-            project->open_dialog_load_mesh();
-            if (project->data_list.size() > project->parents.size())
-            {
-                project->parents.push_back(-1);
-                ((ProjectViewerData *)project->data_list.back())->set_visible(false, 1);
-                ((ProjectViewerData *)project->data_list.back())->set_visible(true, 2);
-                project->data_list.back()->show_faces = 3;
-                project->selected_data_index = savedIndx;
-            }
-        }
-        ImGui::SameLine(0, p);
-        if (ImGui::Button("Save##Mesh", ImVec2((w-p)/2.f, 0)))
-        {
-            project->open_dialog_save_mesh();
-        }
-    }
     if (ImGui::CollapsingHeader("Background Shader", ImGuiTreeNodeFlags_DefaultOpen)) {
         std::string backgroundShader = project->GetBackgroundShader();
         if (ImGui::BeginCombo("##background shader combo", backgroundShader.c_str())) {
@@ -170,6 +146,11 @@ NextState MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
     };
     if (ImGui::CollapsingHeader("Shapes", ImGuiTreeNodeFlags_DefaultOpen)){
         for(const auto& shp : project->getAllShapes()) {
+            std::string deleteButtonLabel = "X##" + shp->name;
+            if(ImGui::Button(deleteButtonLabel.c_str())){
+                project->DeleteShape(shp);
+            }
+            ImGui::SameLine();
             if(ImGui::Button(shp->name.c_str()))
                 nextState = NextState(NEW, std::make_shared<ShapeEditingState>(shp, project->GetShader(shp->shader)));
         }
@@ -447,7 +428,8 @@ ShapeEditingState::ShapeEditingState():
  source(HARD_CODED),
  name(strdup("")),
  type(nullptr),
- shader(-1)
+ shader(-1),
+ sizePercents(100)
 {
 }
 
@@ -460,7 +442,8 @@ ShapeEditingState::ShapeEditingState(std::shared_ptr<SceneShape> shp, std::share
         type(std::make_shared<igl::opengl::glfw::Viewer::shapes>(shp->type)),
         layer(shp->getLayer()),
         shader(shp->shader),
-        mover(shp->mover->cloneAndCast())
+        mover(shp->mover->cloneAndCast()),
+        sizePercents(shp->GetScale())
 {
 }
 
@@ -573,6 +556,11 @@ ShapeEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &cam
             }
         }
     }
+    if(ImGui::CollapsingHeader("Size"), ImGuiTreeNodeFlags_DefaultOpen) {
+        ImGui::InputFloat("##Shape Size", &sizePercents);
+    }
+    if(sizePercents < 0)
+        sizePercents = 0;
 
     if (ImGui::CollapsingHeader("Shader"), ImGuiTreeNodeFlags_DefaultOpen) {
         auto allShaders = project->GetAllShaders();
@@ -671,6 +659,10 @@ ShapeEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &cam
                     shape->getLayer()->deleteShape(shape);
                     shape->changeLayer(layer);
                     layer->addShape(shape);
+                }
+
+                if(sizePercents != shape->GetScale()) {
+                    shape->Rescale(sizePercents);
                 }
             }
 

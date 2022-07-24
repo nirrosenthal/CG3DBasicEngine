@@ -190,6 +190,7 @@ void handlePicking(double xStart, double yStart, double xEnd, double yEnd, Proje
 //				break;
 
 			case GLFW_KEY_UP:
+
 				rndr->MoveCamera(0, scn->xRotate, 0.05f);
 				
 				break;

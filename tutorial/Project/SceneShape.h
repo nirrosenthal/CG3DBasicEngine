@@ -42,6 +42,12 @@ public:
     std::shared_ptr<ObjectMoverSplit> mover;
     ShapeSource getSource() {return source;};
     std::string getFile() {return file;};
+    float GetNormalizedScale();
+    float GetScale();
+    void Rescale(float newSize);
+    bool NeedsRescale(int id);
+    void MarkAsRescaled(int id);
+    std::vector<int> GetIds();
 
 private:
     std::shared_ptr<Layer> layer;
@@ -51,7 +57,9 @@ private:
     std::vector<int> children;
     ShapeSource source;
     std::string file;
-
+    float sizePercent;
+    float previousSize;
+    std::vector<int> idsToRescale;
 };
 
 

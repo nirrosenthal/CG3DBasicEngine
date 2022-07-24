@@ -100,10 +100,11 @@ public:
     std::vector<int> pickedShapes;
     void SetViewportWidth(int w);
     void SetViewportHeight(int w);
-
+    void DeleteShape(std::shared_ptr<SceneShape> shape);
     int VP_Width;
     int VP_Height;
     std::map<int, std::shared_ptr<SceneShape>> shapesGlobal;
+
 
 private:
     Renderer *renderer = nullptr;
@@ -126,6 +127,10 @@ private:
     igl::opengl::glfw::imgui::ImGuiMenu* menu;
     SplitCameraOption splitCameraOption;
     void SetSplitCameraOption(SplitCameraOption camera_option);
+    void CalculateShapePosition(int shapeIndex);
+    void CalculateShapeSize(int shapeIndex);
+    std::unordered_map<int, bool> deletedShapes;
+    bool isDeleted(int id);
 
 };
 
