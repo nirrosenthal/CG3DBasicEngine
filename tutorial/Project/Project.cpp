@@ -215,6 +215,13 @@ void Project::Init(float width, float height) {
     int mat3 = AddMaterial(texIDs + 2, slots + 2, 1);
     int mat4 = AddMaterial(texIDs + 3, slots + 3, 1);
 
+    for (size_t i = 0; i < 4; i++){
+        backgroundShape[i] = AddShape(Sphere, -1, TRIANGLES, i);
+        selected_data_index = backgroundShape[i];
+        ShapeTransformation(scaleAll, 1000, 0);
+        SetShapeStatic(backgroundShape[i]);
+    }
+
     std::vector<Eigen::Vector3f> points = {Eigen::Vector3f(0, 0, 0),
                                            Eigen::Vector3f(0, 20, 0),
                                            Eigen::Vector3f(-10, -10, -100),
@@ -238,12 +245,7 @@ void Project::Init(float width, float height) {
 
     shp->material = mat1;
 
-    for (size_t i = 0; i < 4; i++){
-        backgroundShape[i] = AddShape(Sphere, -1, TRIANGLES, i);
-        selected_data_index = backgroundShape[i];
-        ShapeTransformation(scaleAll, 1000, 0);
-        SetShapeStatic(backgroundShape[i]);
-    }
+
 //    selected_data_index = -1;
 
 
