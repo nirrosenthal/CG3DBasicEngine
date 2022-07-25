@@ -205,11 +205,12 @@ void handlePicking(double xStart, double yStart, double xEnd, double yEnd, Proje
 			switch (key)
 			{
 			case GLFW_KEY_ESCAPE:
-                if (escPressed)
-                    glfwSetWindowShouldClose(window, GLFW_TRUE);
-				else
-                    escPressed = true;
                 break;
+//                if (escPressed)
+//                    glfwSetWindowShouldClose(window, GLFW_TRUE);
+//				else
+//                    escPressed = true;
+//                break;
 
 //			case GLFW_KEY_SPACE:
 //				if (scn->IsActive())
