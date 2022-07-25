@@ -126,13 +126,26 @@ IGL_INLINE void Renderer::draw_by_info(int info_index){
             Clear(info->Clear_RGBA.x(), info->Clear_RGBA.y(), info->Clear_RGBA.z(), info->Clear_RGBA.w(),info->flags);
     }
 
+
+
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+
+
     scn->Draw(info->shaderIndx, Proj, View, info->viewportIndx, info->flags,info->property_id);
+
+
+    glBlendFunc( GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+
 }
 
 IGL_INLINE void Renderer::draw( GLFWwindow* window)
 {
 	using namespace std;
 	using namespace Eigen;
+
+
 
 	int width, height;
 	glfwGetFramebufferSize(window, &width, &height);
@@ -165,6 +178,7 @@ IGL_INLINE void Renderer::draw( GLFWwindow* window)
 		menu->post_draw();
 
 	}
+
 
 
 }
