@@ -80,19 +80,16 @@ Our engine - https://github.com/nadavhaik/CG3DBasicEngine
 
 ### Run Instruction:
 1. Clone or download the project from the github link
-2. Download Cmake from the link in the site
-3. Run Cmake, choose the project folder with "Browse Source".
-4. Copy the project folder path, and in "Where to build the binaries:", paste the path and add "/build" at the end
-5. Click configure -> yes -> finish
-6. When the configuration is done, click configure again
-7. When the second configuration is done, click Generate
-8. When the generation is done click Open Project
-9. Right click Project_bin, click "Set as Startup Project"
-10. Right click Project_bin, click "Properties", and under "Configuration Properties -> Debugging" change "Working Directory" from "$(ProjectDir)" to "$(SolutionDir)" 
-11. Press start in Visual Studio (Ctrl + F5)
-
-
-
+2. Open the project folder in CLion
+3. Open the Open Project Wizard, choose CMake and enter those params:
+    - Name: Debug
+    - Build type: Debug
+    - Toolchain: Use Default (Visual Studio)
+    - Generator: Use Default (Ninja)
+    - Build Directory: cmake-build-debug
+    - Build options: -j 6
+4. Choose the "Project_bin | Debug" configuration (open the menu next to the Run button)
+5. Press Run (Shift + F10)
 
 
 
