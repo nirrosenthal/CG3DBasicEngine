@@ -6,7 +6,6 @@
 #include "Project.h"
 #include "GuiState.h"
 #include <igl/project.h>
-#include <stack>
 
 #ifndef ASSIGNMENT1_CPP_PROJECTIMGUIMENU_H
 #define ASSIGNMENT1_CPP_PROJECTIMGUIMENU_H
