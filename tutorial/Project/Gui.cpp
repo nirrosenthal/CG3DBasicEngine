@@ -90,6 +90,8 @@ IGL_INLINE void Gui::draw_viewer_menu(igl::opengl::glfw::Viewer *viewer,
     ImVec2 winSize = ImGui::GetWindowSize();
     ImVec2 bottomRight(topLeft.x + winSize.x, topLeft.y + winSize.y);
     ((Project *)viewer)->UpdateWindowLocation(topLeft, bottomRight);
+    if(ImGui::IsKeyPressed(GLFW_KEY_ESCAPE))
+        ((Project *) viewer)->CloseCurrentWindow();
 
     ImGui::End();
 }
