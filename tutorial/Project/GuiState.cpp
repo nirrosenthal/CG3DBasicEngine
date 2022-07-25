@@ -178,6 +178,11 @@ void MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera
                 project->multiPickedShapes = newMPShapes;
             }
         }
+        if(ImGui::Button("Clear Selection")) {
+            for(auto shp : project->multiPickedShapes)
+                shp->isSelected = false;
+            project->multiPickedShapes.clear();
+        }
     }
     if(ImGui::Button("Create a new shape## new shape")){
         project->OpenNewWindow(std::make_shared<ShapeEditingState>());
