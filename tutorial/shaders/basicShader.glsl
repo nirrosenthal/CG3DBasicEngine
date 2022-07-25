@@ -9,6 +9,7 @@ in vec3 position0;
 uniform vec4 lightColor;
 uniform sampler2D sampler1;
 uniform vec4 lightDirection;
+uniform float transparency;
 
 out vec4 Color;
 void main()
@@ -50,4 +51,5 @@ void main()
 //	Color = texture2D(sampler1, vec2(position0.x,position0.y))* vec4(color0,1.0) - neighColor/numOfNeigh; //you must have gl_FragColor
 //	Color = texture2D(sampler1, texCoord0)* vec4(color0,1.0) - neighColor/numOfNeigh; //you must have gl_FragColor
 	Color = texture2D(sampler1, texCoord0)* vec4(color0,1.0) ; //you must have gl_FragColor
+	Color.w = transparency;
 }

@@ -9,6 +9,10 @@ in vec3 position0;
 uniform float global_time;
 uniform vec4 mouse;
 uniform vec4 resolution;
+uniform float transparency;
+
+
+
 vec2 uv = vec2(0);
 float hash(float n) { return fract(sin(n)*12345.0); }
 float old_noise(vec3 x, float c1, float c2) {
@@ -65,4 +69,5 @@ void main(){
     vec3 diff = vec3(0.3, 0.1, 0.0) * (0.5 * dt2 + 0.9 * dt );
     vec3 phong = vec3(1) * pow(dt, 64.0);
     gl_FragColor = vec4(tonemap(diff + phong), 1.0);
+    gl_FragColor.w = transparency;
 }

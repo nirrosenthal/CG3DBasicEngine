@@ -9,6 +9,9 @@ in vec3 position0;
 uniform float global_time;
 uniform vec4 mouse;
 uniform vec4 resolution;
+uniform float transparency;
+
+
 
 float snow(vec2 uv,float scale)
 {
@@ -42,4 +45,5 @@ void main(void){
     c+=snow(uv,5.);
     finalColor=(vec3(c));
     gl_FragColor = vec4(finalColor, 1);
+    gl_FragColor.w = transparency;
 }

@@ -9,6 +9,10 @@ in vec3 position0;
 uniform vec4 iResolution;
 uniform float iGlobalTime;
 #define PI 3.14159265
+uniform float transparency;
+
+
+
 
 // Hyperboloc functions from https://machinesdontcare.wordpress.com/2008/03/10/glsl-cosh-sinh-tanh/
 
@@ -164,4 +168,5 @@ void main(void)
     float c = 0.9-result.x/float(maxIterations)*50.0;
     vec3 color = hsv2rgb(vec3(result.z + time/15.0, 1.0, c));
     gl_FragColor = vec4(color, 1.0);
+    gl_FragColor.w = transparency;
 }

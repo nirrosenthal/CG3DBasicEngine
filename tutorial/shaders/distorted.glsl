@@ -9,7 +9,7 @@ in vec3 position0;
 uniform float time;
 uniform vec4 mouse;
 uniform vec4 resolution;
-
+uniform float transparency;
 
 // 2D Random
 float random (in vec2 st) {
@@ -78,4 +78,7 @@ void main( void ) {
 
 
     gl_FragColor = vec4(noise((col.yz * 0.5 - col.xz + col.xy)*lod + dt) * col.zyx*0.15, 1.0);
+//    lowp float grayscaleComponent = gl_FragColor.x*(1.0/3.0) + gl_FragColor.y*(1.0/3.0) + gl_FragColor.z*(1.0/3.0);
+//    gl_FragColor =  vec4(.0, .0, .0, grayscaleComponent);
+    gl_FragColor.w = transparency;
 }

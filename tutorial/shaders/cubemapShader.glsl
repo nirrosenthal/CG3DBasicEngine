@@ -9,6 +9,9 @@ in vec3 lookat; // direction vector representing a 3D texture coordinate
 uniform vec4 lightColor;
 uniform samplerCube sampler1;
 uniform vec4 lightDirection;
+uniform float transparency;
+
+
 
 out vec4 Color;
 void main()
@@ -48,6 +51,7 @@ float posScales0[5] = float[5]( 0.003765,	0.015019,	0.023792,	0.015019,	0.003765
 	Color = neighColor;
 
     Color = texture(sampler1, lookat);
+	Color.w = transparency;
 }  
 
 

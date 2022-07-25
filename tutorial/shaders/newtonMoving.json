@@ -6,5 +6,10 @@
   {
     "name": "iResolution",
     "type": "resolution"
+  },
+  {
+    "name": "transparency",
+    "type": "alpha",
+    "default": 0.0
   }
 ]

@@ -1,0 +1,7 @@
+[
+  {
+    "name": "transparency",
+    "type": "alpha",
+    "default": 0.0
+  }
+]

@@ -10,5 +10,10 @@
   {
     "name": "mouse",
     "type": "mouse_pos"
+  },
+  {
+    "name": "transparency",
+    "type": "alpha",
+    "default": 0.0
   }
 ]
