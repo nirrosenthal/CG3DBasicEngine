@@ -167,6 +167,7 @@ void handlePicking(double xStart, double yStart, double xEnd, double yEnd, Proje
 
         }
         auto &io = ImGui::GetIO();
+//        auto &io = ImGui::GetIO();
         if(scn->IsMousePressed() && !io.MouseDown[0] && !io.MouseDown[1]) {
             double xEnd, yEnd;
             glfwGetCursorPos(window, &xEnd, &yEnd);
@@ -188,6 +189,12 @@ void handlePicking(double xStart, double yStart, double xEnd, double yEnd, Proje
 	{
 		Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
 		Project* scn = (Project*)rndr->GetScene();
+        auto pickedShapes = scn->GetPickedShapes();
+        std::vector<std::shared_ptr<ObjectMover>> pickedMovers;
+        for(auto shp : pickedShapes) {
+            if(std::find(pickedMovers.begin(), pickedMovers.end(), shp->mover) == pickedMovers.end())
+                pickedMovers.push_back(shp->mover);
+        }
         if(scn->getAnimationStatus() == PLAYING)
             return;
 		//rndr->FreeShapes(2);
@@ -214,23 +221,62 @@ void handlePicking(double xStart, double yStart, double xEnd, double yEnd, Proje
                 scn->ChangeControlledCamera();
                 break;
 			case GLFW_KEY_UP:
-
-				rndr->MoveCamera(scn->GetConrolledCameraId(), scn->xRotate, 0.05f);
-				
+                if(pickedShapes.empty())
+				    rndr->MoveCamera(scn->GetConrolledCameraId(), scn->xRotate, 0.05f);
+                else
+                    for(auto mover : pickedMovers) {
+                        mover->shift(Eigen::Vector3f(0, 1, 0));
+                    }
 				break;
 			case GLFW_KEY_DOWN:
 				//scn->shapeTransformation(scn->xGlobalRotate,-5.f);
 				//cout<< "down: "<<endl;
-				rndr->MoveCamera(scn->GetConrolledCameraId(), scn->xRotate, -0.05f);
+                if(pickedShapes.empty())
+				    rndr->MoveCamera(scn->GetConrolledCameraId(), scn->xRotate, -0.05f);
+                else {
+                    for(auto mover : pickedMovers) {
+                        mover->shift(Eigen::Vector3f(0, -1, 0));
+                    }
+                }
 				break;
 			case GLFW_KEY_LEFT:
-				rndr->MoveCamera(scn->GetConrolledCameraId(), scn->yRotate, 0.05f);
+                if(pickedShapes.empty())
+				    rndr->MoveCamera(scn->GetConrolledCameraId(), scn->yRotate, 0.05f);
+                else {
+                    for(auto mover : pickedMovers) {
+                        mover->shift(Eigen::Vector3f(-1, 0, 0));
+                    }
+                }
 				break;
 			case GLFW_KEY_RIGHT:
 				//scn->shapeTransformation(scn->xGlobalRotate,-5.f);
 				//cout<< "down: "<<endl;
-				rndr->MoveCamera(scn->GetConrolledCameraId(), scn->yRotate, -0.05f);
+                if(pickedShapes.empty())
+				    rndr->MoveCamera(scn->GetConrolledCameraId(), scn->yRotate, -0.05f);
+                else {
+                    for(auto mover : pickedMovers) {
+                        mover->shift(Eigen::Vector3f(1, 0, 0));
+                    }
+                }
 				break;
+            case GLFW_KEY_KP_ADD:
+            case GLFW_KEY_EQUAL:
+                if(pickedShapes.empty()) { }
+                else {
+                    for(auto mover : pickedMovers) {
+                        mover->shift(Eigen::Vector3f(0, 0, 1));
+                    }
+                }
+                break;
+            case GLFW_KEY_KP_SUBTRACT:
+            case GLFW_KEY_MINUS:
+                if(pickedShapes.empty()) {}
+                else {
+                        for(auto mover : pickedMovers) {
+                            mover->shift(Eigen::Vector3f(0, 0, -1));
+                        }
+                    }
+                break;
 //			case GLFW_KEY_U:
 //				rndr->MoveCamera(0, scn->yTranslate, 0.25f);
 //				break;

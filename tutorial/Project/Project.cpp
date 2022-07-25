@@ -3,8 +3,6 @@
 #include <chrono>
 
 
-
-
 bool endsWith (std::string const &fullString, std::string const &ending) {
     if (fullString.length() >= ending.length()) {
         return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
@@ -196,6 +194,7 @@ void Project::Init(float width, float height) {
     globalTime = 0;
     controlledCamera = MAIN;
     mouseStatus = NOT_PRESSED;
+    shouldDrawPickingRectangle = false;
     unsigned int texIDs[3] = {1, 2, 3};
     unsigned int slots[3] = {1, 2, 3};
 
@@ -302,6 +301,11 @@ void Project::Update(const Eigen::Matrix4f& Proj, const Eigen::Matrix4f& View, c
         SetShapeMaterial(shapeIndx, scnShape->material);
         CalculateShapePosition(shapeIndx);
         CalculateShapeSize(shapeIndx);
+        auto posInWorld = scnShape->getPosition(globalTime);
+        auto pos4DInWorld = Eigen::Vector4f(posInWorld[0], posInWorld[1], 0, 1);
+        Eigen::Vector4f locationOnScreen4d = Proj.transpose() * View.transpose() * Model.transpose() * pos4DInWorld;
+
+        scnShape->locationsOnScreen[shapeIndx] = Eigen::Vector2f(locationOnScreen4d[0], locationOnScreen4d[1]);
     }
 
 	s->Bind();
@@ -644,21 +648,20 @@ float distance(Eigen::Vector2f first, Eigen::Vector2f second) {
 void Project::UpdateMouse(float x, float y) {
     mousePos = Eigen::Vector2f(x, y);
 
+    if((x >= windowLocation.topLeft.x && x <= windowLocation.bottomRight.x
+        && y >= windowLocation.topLeft.y && y <= windowLocation.bottomRight.y) ||
+        animationStatus == PLAYING)
+        return;
 
     if(mouseStatus == LEFT_CLICK && distance(mousePos, pressStartPosition) > 0.01) {
-        float xAngle = 1.2*(pressStartPosition[0]-x)/resolution[0];
-//        if(xAngle<0)
-//            xAngle += 360;
-        float yAngle = 1.2*(pressStartPosition[1]-y)/resolution[1];
-//        if(splitCameraOption == SPLITX)
-//            xAngle /= 2;
-//        else if(splitCameraOption == SPLITY)
-//            yAngle /= 2;
-////        if(yAngle < 0)
-////            yAngle += 360;
+        float xAngle = 1.2f*(pressStartPosition[0]-x)/resolution[0];
+        float yAngle = 1.2f*(pressStartPosition[1]-y)/resolution[1];
+
         renderer->MoveCamera(GetConrolledCameraId(), yRotate, xAngle);
         renderer->MoveCamera(GetConrolledCameraId(), xRotate, yAngle);
         pressStartPosition = mousePos;
+    } else if(mouseStatus == RIGHT_CLICK && x != pressStartPosition.x() && y != pressStartPosition.y()) {
+        UpdatePickingRectangle(BoundingRectangle(Eigen::Vector2f(x, y), pressStartPosition));
     }
 
 }
@@ -853,11 +856,15 @@ int Project::GetConrolledCameraId() {
 }
 
 void Project::RightClick(float x, float y) {
-    pressStartPosition = Eigen::Vector2f(x, y);
+//    multiPickedShapes.clear();
+//    shouldDrawPickingRectangle = true;
+//    pressStartPosition = Eigen::Vector2f(x, y);
     mouseStatus = RIGHT_CLICK;
 }
 
 void Project::LeftClick(float x, float y) {
+    multiPickedShapes.clear();
+    shouldDrawPickingRectangle = true;
     pressStartPosition = Eigen::Vector2f(x, y);
     mouseStatus = LEFT_CLICK;
 }
@@ -888,7 +895,36 @@ void Project::HandleLeftClickEnd(float x, float y) {
 }
 
 void Project::HandleRightClickEnd(float x, float y) {
+    if(x == pressStartPosition.x() || y == pressStartPosition.y())
+        return;
+//    Eigen::Matrix4f projection = renderer->cameras[GetConrolledCameraId()]->_projection;
+//    BoundingRectangle rec(pressStartPosition, Eigen::Vector2f(x, y));
+//    for(auto shp : getAllShapes()) {
+//        int matsId = shp->GetIds()[GetConrolledCameraId()];
+//        Eigen::Vector3f pos = shp->getPosition(globalTime);
+//        Eigen::Vector4f posVec = Eigen::Vector4f(pos.x(), pos.y(),pos.z(),1);
+//        // Proj *View * Model*
+//        Eigen::Vector4f res =  projection * posVec;
+//        Eigen::Vector2f unnormalizedPos2D(res[0], res[1]);
+//        Eigen::Vector2f pos2D = (unnormalizedPos2D+ resolution)/2.0f;
+//
+//        //(((2*num)/maxSize) - 1)
+//        //pos2D = 2 * Eigen::Vector2f(pos2D[0]/resolution[0], pos2D[1]/resolution[1]) - Eigen::Vector2f(1,1);
+//        if(controlledCamera == BOTTOM)
+//            pos2D.y() += resolution.y() / 2.0f;
+//        else if(controlledCamera == TOP)
+//            pos2D.y() -= resolution.y() / 2.0f;
+//        else if(controlledCamera == LEFT)
+//            pos2D.x() -= resolution.x() / 2.0f;
+//        else if(controlledCamera == RIGHT)
+//            pos2D.x() += resolution.x() / 2.0f;
+//        if(rec.Contains(pos2D)) {
+//            multiPickedShapes.push_back(shp);
+//            std::cout << "Picked: " << shp->name << std::endl;
+//        }
+//    }
 
+    shouldDrawPickingRectangle = false;
 }
 
 void Project::OpenNewWindow(std::shared_ptr<GuiState> state) {
@@ -905,6 +941,15 @@ bool Project::IsGuiInitialized() const {
 
 std::shared_ptr<GuiState> Project::GetCurrentWindow() {
     return guiStates.top();
+}
+
+void Project::UpdatePickingRectangle(BoundingRectangle rec) {
+    shouldDrawPickingRectangle = true;
+    pickingRectangle = std::move(rec);
+}
+
+std::vector<std::shared_ptr<SceneShape>> Project::GetPickedShapes() {
+    return multiPickedShapes;
 }
 
 

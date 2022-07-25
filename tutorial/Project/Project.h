@@ -5,6 +5,7 @@
 #include "SceneCamera.h"
 #include "igl/opengl/glfw/renderer.h"
 #include "ProjectViewerData.h"
+#include "BoundingRectangle.h"
 #include <stack>
 
 #  if __has_include(<filesystem>)
@@ -134,6 +135,8 @@ public:
     void OpenNewWindow(std::shared_ptr<GuiState> state);
     std::shared_ptr<GuiState> GetCurrentWindow();
     void CloseCurrentWindow();
+    std::vector<std::shared_ptr<SceneShape>> GetPickedShapes();
+    std::vector<std::shared_ptr<SceneShape>> multiPickedShapes;
 
 
 private:
@@ -176,6 +179,9 @@ private:
     std::string cameraScreen1;
     std::string cameraScreen2;
     std::string cameraScreenAnimation;
+    void UpdatePickingRectangle(BoundingRectangle rec);
+    bool shouldDrawPickingRectangle;
+    BoundingRectangle pickingRectangle;
 
 };
 

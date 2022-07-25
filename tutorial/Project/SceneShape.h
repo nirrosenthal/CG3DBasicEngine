@@ -48,6 +48,9 @@ public:
     bool NeedsRescale(int id);
     void MarkAsRescaled(int id);
     std::vector<int> GetIds();
+    std::map<int, Eigen::Vector2f> locationsOnScreen;
+    bool isSelected;
+
 
 private:
     std::shared_ptr<Layer> layer;

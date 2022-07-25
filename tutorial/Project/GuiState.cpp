@@ -163,9 +163,20 @@ void MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera
 //                project->DeleteShape(shp);
 //            }
 //            ImGui::SameLine();
+            ImGui::Checkbox(("## MOVE SHAPE" + shp->name).c_str(), &shp->isSelected);
+            ImGui::SameLine();
             if(ImGui::Button(shp->name.c_str()))
                 project->OpenNewWindow(std::make_shared<ShapeEditingState>(shp, project->GetShader(shp->shader)));
-
+            if(shp->isSelected && std::find(project->multiPickedShapes.begin(), project->multiPickedShapes.end(), shp) == project->multiPickedShapes.end())
+                project->multiPickedShapes.push_back(shp);
+            else if(!shp->isSelected && std::find(project->multiPickedShapes.begin(), project->multiPickedShapes.end(), shp) != project->multiPickedShapes.end()) {
+                std::vector<std::shared_ptr<SceneShape>> newMPShapes;
+                for(auto shape : project->multiPickedShapes){
+                    if(shape != shp)
+                        newMPShapes.push_back(shape);
+                }
+                project->multiPickedShapes = newMPShapes;
+            }
         }
     }
     if(ImGui::Button("Create a new shape## new shape")){
