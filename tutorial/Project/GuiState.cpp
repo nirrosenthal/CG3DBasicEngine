@@ -182,7 +182,7 @@ void MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera
     if(ImGui::Button("Create a new shape## new shape")){
         project->OpenNewWindow(std::make_shared<ShapeEditingState>());
     }
-    if (ImGui::CollapsingHeader("Search --For Shaders", ImGuiTreeNodeFlags_DefaultOpen)) {
+    if (ImGui::CollapsingHeader("Search##For Shaders", ImGuiTreeNodeFlags_DefaultOpen)) {
         ImGui::InputText("##shader search pattern", shadersSearchPattern, 30);
         if (ImGui::Button("Clear ##shadersSearchPattern"))
             shadersSearchPattern = strdup("");
