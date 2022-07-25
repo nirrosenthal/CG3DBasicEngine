@@ -182,6 +182,7 @@ private:
     void UpdatePickingRectangle(BoundingRectangle rec);
     bool shouldDrawPickingRectangle;
     BoundingRectangle pickingRectangle;
+    Eigen::Vector3f prevCamera;
 
 };
 

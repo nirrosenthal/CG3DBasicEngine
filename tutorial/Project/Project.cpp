@@ -28,8 +28,15 @@ long getCurrentUnixTime() {
 
 IGL_INLINE void Project::Draw(int shaderIndx, const Eigen::Matrix4f &Proj, const Eigen::Matrix4f &View, int viewportIndx, unsigned int flgs,unsigned int property_id)
 {
-    if(animationStatus == PLAYING && globalTime < maxTime())
+    if(animationStatus == PLAYING && globalTime < maxTime()) {
         ++globalTime;
+
+        Eigen::Vector3f cameraPos = GetCamera(cameraScreenAnimation)->mover->getPosition(globalTime);
+        auto delta = cameraPos - prevCamera;
+        renderer->MoveCamera(0, xTranslate, delta.x());
+        renderer->MoveCamera(0, yTranslate, delta.y());
+        renderer->MoveCamera(0, zTranslate, delta.z());
+    }
 
     Eigen::Matrix4f Normal;
 
@@ -405,6 +412,7 @@ AnimationStatus Project::getAnimationStatus() {return animationStatus;}
 
 void Project::Play() {
     previousState = GetSplitCameraOption();
+    prevCamera = Eigen::Vector3f::Zero();
     animationStatus = PLAYING;
     Unsplit();
 }

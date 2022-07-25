@@ -126,7 +126,7 @@ public:
              Eigen::Vector4i& viewWindow,std::vector<DrawInfo *> drawInfos,
              ImFont* font, ImFont *boldFont);
 private:
-    std::string cameraName;
+    char *cameraName = strdup("");
     EntityEditingMode editingMode;
     std::shared_ptr<ObjectMoverSplit> mover;
     float angle, relationWH, near, far;

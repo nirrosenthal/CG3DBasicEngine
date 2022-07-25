@@ -360,8 +360,12 @@ void MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera
 //                    ((Project*)viewer)->Play();
 //                }
                 if(ImGui::Button("Play")){
-                    project->OpenNewWindow(std::make_shared<MediaSliderState>());
-                    project->Play();
+                    if(project->GetCamera(project->GetCameraScreenAnimation()) == nullptr)
+                        OpenErrorWindow(project, "Cannot play without a main camera");
+                    else {
+                        project->OpenNewWindow(std::make_shared<MediaSliderState>());
+                        project->Play();
+                    }
                 }
                 ImGui::SameLine();
                 if(ImGui::Button("Stop")){
@@ -375,8 +379,12 @@ void MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera
                 break;
             case STOPPED:
                 if(ImGui::Button("Play")){
-                    project->OpenNewWindow(std::make_shared<MediaSliderState>());
-                    project->Play();
+                    if(project->GetCamera(project->GetCameraScreenAnimation()) == nullptr)
+                        OpenErrorWindow(project, "Cannot play without a main camera");
+                    else {
+                        project->OpenNewWindow(std::make_shared<MediaSliderState>());
+                        project->Play();
+                    }
                 }
                 break;
         }
@@ -783,7 +791,7 @@ ShaderEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &ca
 
 }
 
-CameraAddState::CameraAddState():GuiState(CAMERA_ADD),cameraName("666"),angle(0),relationWH(1),near(1),far(120) {}
+CameraAddState::CameraAddState():GuiState(CAMERA_ADD),angle(0),relationWH(1),near(1),far(120) {}
 
 //
 //    std::string name = "Camera" + project->GetAllCameras().size();
