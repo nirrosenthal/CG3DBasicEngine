@@ -19,6 +19,7 @@ public:
                      std::vector<igl::opengl::Camera*> &camera,
                      Eigen::Vector4i& viewWindow,std::vector<DrawInfo *> drawInfos,
                      ImFont* font, ImFont *boldFont)=0;
+    static void OpenErrorWindow(Project *project, std::string error);
 
 private:
     GuiStatus tag;

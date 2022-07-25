@@ -110,11 +110,14 @@ public:
     int VP_Height;
     void ChangeControlledCamera();
     int GetConrolledCameraId();
-    std::stack<std::shared_ptr<GuiState>> guiStates;
     void RightClick(float x, float y);
     void LeftClick(float x, float y);
     void UnpressMouse(float x, float y);
     bool IsMousePressed();
+    bool IsGuiInitialized() const;
+    void OpenNewWindow(std::shared_ptr<GuiState> state);
+    std::shared_ptr<GuiState> GetCurrentWindow();
+    void CloseCurrentWindow();
 
 
 private:
@@ -146,6 +149,7 @@ private:
     void CalculateShapeSize(int shapeIndex);
     std::unordered_map<int, bool> deletedShapes;
     bool isDeleted(int id);
+    std::stack<std::shared_ptr<GuiState>> guiStates;
     ControlledCamera controlledCamera;
     MouseStatus mouseStatus;
     Eigen::Vector2f pressStartPosition;

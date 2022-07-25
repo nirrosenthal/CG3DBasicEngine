@@ -826,6 +826,22 @@ void Project::HandleRightClickEnd(float x, float y) {
 
 }
 
+void Project::OpenNewWindow(std::shared_ptr<GuiState> state) {
+    guiStates.push(state);
+}
+
+void Project::CloseCurrentWindow() {
+    guiStates.pop();
+}
+
+bool Project::IsGuiInitialized() const {
+    return !guiStates.empty();
+}
+
+std::shared_ptr<GuiState> Project::GetCurrentWindow() {
+    return guiStates.top();
+}
+
 
 
 

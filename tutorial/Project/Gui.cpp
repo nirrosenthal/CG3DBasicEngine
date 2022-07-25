@@ -79,9 +79,11 @@ IGL_INLINE void Gui::draw_viewer_menu(igl::opengl::glfw::Viewer *viewer,
                                       std::vector<igl::opengl::Camera*> &camera,
                                       Eigen::Vector4i& viewWindow,
                                       std::vector<DrawInfo *> drawInfos) {
-    if(((Project *) viewer)->guiStates.empty())
-        ((Project *) viewer)->guiStates.push(std::make_shared<MenuState>(hidpi_scaling_, pixel_ratio_));
-    ((Project *) viewer)->guiStates.top()->Run((Project *)viewer, camera, viewWindow, drawInfos, font, boldFont);
+    if(!((Project *) viewer)->IsGuiInitialized()) {
+        ((Project *)viewer)->OpenNewWindow(std::make_shared<MenuState>(hidpi_scaling_, pixel_ratio_));
+    }
+
+    ((Project *) viewer)->GetCurrentWindow()->Run((Project *)viewer, camera, viewWindow, drawInfos, font, boldFont);
 
 
     ImVec2 topLeft = ImGui::GetWindowPos();
