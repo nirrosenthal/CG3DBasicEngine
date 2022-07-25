@@ -182,7 +182,8 @@ void handlePicking(double xStart, double yStart, double xEnd, double yEnd, Proje
         scn->UpdateResolution(width, height);
 		
 	}
-	
+
+    bool escPressed = false;
 	void glfw_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
 		Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
@@ -192,11 +193,16 @@ void handlePicking(double xStart, double yStart, double xEnd, double yEnd, Proje
 		//rndr->FreeShapes(2);
 		if (action == GLFW_PRESS || action == GLFW_REPEAT)
 		{
+            if (key != GLFW_KEY_ESCAPE)
+                escPressed = false;
 			switch (key)
 			{
-//			case GLFW_KEY_ESCAPE:
-//				glfwSetWindowShouldClose(window, GLFW_TRUE);
-//				break;
+			case GLFW_KEY_ESCAPE:
+                if (escPressed)
+                    glfwSetWindowShouldClose(window, GLFW_TRUE);
+				else
+                    escPressed = true;
+                break;
 
 //			case GLFW_KEY_SPACE:
 //				if (scn->IsActive())
