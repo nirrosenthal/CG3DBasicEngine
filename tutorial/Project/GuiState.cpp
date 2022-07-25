@@ -158,11 +158,11 @@ void MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera
     };
     if (ImGui::CollapsingHeader("Shapes", ImGuiTreeNodeFlags_DefaultOpen)){
         for(const auto& shp : project->getAllShapes()) {
-            std::string deleteButtonLabel = "X##" + shp->name;
-            if(ImGui::Button(deleteButtonLabel.c_str())){
-                project->DeleteShape(shp);
-            }
-            ImGui::SameLine();
+//            std::string deleteButtonLabel = "X##" + shp->name;
+//            if(ImGui::Button(deleteButtonLabel.c_str())){
+//                project->DeleteShape(shp);
+//            }
+//            ImGui::SameLine();
             if(ImGui::Button(shp->name.c_str()))
                 project->OpenNewWindow(std::make_shared<ShapeEditingState>(shp, project->GetShader(shp->shader)));
 
