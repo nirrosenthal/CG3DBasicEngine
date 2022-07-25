@@ -4,6 +4,7 @@
 #include "SceneShader.h"
 #include "igl/opengl/glfw/renderer.h"
 #include "ProjectViewerData.h"
+#include <stack>
 
 #  if __has_include(<filesystem>)
 #    include <filesystem>
