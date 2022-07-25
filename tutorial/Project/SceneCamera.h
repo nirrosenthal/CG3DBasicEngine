@@ -16,7 +16,7 @@ public:
     SceneCamera();
     std::shared_ptr<ObjectMoverSplit> mover;
     std::string name;
-    int id;
+    int id = 4;
     float angle;
     float relationWH;
     float near;

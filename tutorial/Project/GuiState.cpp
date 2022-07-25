@@ -797,13 +797,13 @@ void CameraAddState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
     ImGui::SameLine();
     ImGui::InputFloat("##relationWH", &relationWH);
 
-    ImGui::Text("Near: ");
-    ImGui::SameLine();
-    ImGui::InputFloat("##near", &near);
-
-    ImGui::Text("Far: ");
-    ImGui::SameLine();
-    ImGui::InputFloat("##far", &far);
+//    ImGui::Text("Near: ");
+//    ImGui::SameLine();
+//    ImGui::InputFloat("##near", &near);
+//
+//    ImGui::Text("Far: ");
+//    ImGui::SameLine();
+//    ImGui::InputFloat("##far", &far);
 
     if (ImGui::CollapsingHeader("Movement Curves", ImGuiTreeNodeFlags_DefaultOpen)) {
         auto allCurves = project->GetAllMovementCurves();

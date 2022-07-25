@@ -514,7 +514,6 @@ IGL_INLINE void Renderer::Init(igl::opengl::glfw::Viewer* scene, std::list<int>x
         for (++yit; yit != yViewport.end(); ++yit)
         {
             viewports.emplace_back(*std::prev(xit), *std::prev(yit), *xit - *std::prev(xit), *yit - *std::prev(yit));
-
             if ((1 << indx) & pickingBits) {
                 DrawInfo* new_draw_info = new DrawInfo(indx, camera, 0, 0,
                                                   1 | inAction | depthTest | stencilTest | passStencil | blackClear |

@@ -45,6 +45,7 @@ IGL_INLINE void Project::Draw(int shaderIndx, const Eigen::Matrix4f &Proj, const
         if(isDeleted(i) || (i != backgroundShape[0] && i != backgroundShape[1] && i != backgroundShape[2] &&
             i != backgroundShape[3] && !shapesGlobal[i]->isDrawn(globalTime)))
             continue;
+
         auto shape = data_list[i];
         if (shape->Is2Render(viewportIndx))
         {
@@ -608,20 +609,28 @@ std::shared_ptr<SceneCamera> Project::AddGlobalCamera(std::string _name, float _
     std::sort(allCameras.begin(), allCameras.end());
     createdCamerasByName.insert({scnCamera->GetName(), scnCamera});
     createdCamerasById.insert({scnCamera->GetId(), scnCamera});
+
+    return scnCamera;
 }
 
 
 void Project::SetCameraScreen1(std::string cameraName) {
     cameraScreen1 = cameraName;
-    // change to relevant camera in renderer
+
+    std::shared_ptr<SceneCamera> scnCamera = GetCamera(cameraName);
+    int renderCameraIndex = GetConrolledCameraId();
+//    renderer->SetViewport()
+
+
+    // change location of relevant viewport based on split screen
 }
 void Project::SetCameraScreen2(std::string cameraName) {
     cameraScreen2 = cameraName;
-    // change to relevant camera in renderer
+    // change to relevant camera in renderer based on split screen
 }
 void Project::SetCameraScreenAnimation(std::string cameraName) {
     cameraScreenAnimation = cameraName;
-    // change to relevant camera in renderer
+    // change to relevant camera in renderer based on split screen
 }
 
 void Project::UpdateResolution(float width, float height) {
