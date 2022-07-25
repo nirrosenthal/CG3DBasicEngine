@@ -4,6 +4,24 @@
 
 Graphics and animation Engine based on Libigl, with loads of groundbreaking features and crazy shaders!
 
+# Shaders
+### Basic Shaders:
+1) blackShader - paints the shape in black
+2) invisbleShader - makes a shape completely invinsible 
+
+### Special Shaders:
+1) basicShader - draws all keyboard characters in red on a shape
+2) cubemapShader - draws skyline on a shape
+3) distorted - time dynamic psycho blue/green drawings
+4) RGB_oneColor - paints shape with given vec4float RGB values
+5) mud - mouse dynamic mud drawings
+6) palette_oneColor - paints shape with color palette chosen value
+
+
+### Special Shaders specifically for the background:
+1) newtonMoving - draws a time dynamic Newton's fractal on big shapes
+2) overlay - draws color pallette on big shapes
+3) snow - paints snow on big shapes
 
 
 # Features
