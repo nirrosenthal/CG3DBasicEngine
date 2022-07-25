@@ -244,80 +244,90 @@ void MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera
         project->OpenNewWindow(std::make_shared<MovementCurveEditingState>());
     }
 
-    ImGui::Text("Camera split option");
-
-    const std::string splitOption = CAMERA_SPLIT_OPTIONS_REV[project->GetSplitCameraOption()];
-    if (ImGui::BeginCombo("##split options combo", splitOption.c_str())) {
-        for (auto entry: CAMERA_SPLIT_OPTIONS_REV) {
-            SplitCameraOption splitEnum = entry.first;
-            std::string splitString = entry.second;
-            bool isSelected = splitEnum == project->GetSplitCameraOption();
-            if (ImGui::Selectable(splitString.c_str(), isSelected)) {
-                // manually set camera options so that we could save the previous state when entering animation mode
-                switch (splitEnum) {
-                    case UNSPLIT:
-                        project->Unsplit();
-                        break;
-                    case SPLITX:
-                        project->SplitX();
-                        break;
-                    case SPLITY:
-                        project->SplitY();
-                        break;
+    if (ImGui::CollapsingHeader("Camera Options", ImGuiTreeNodeFlags_DefaultOpen)) {
+        const std::string splitOption = CAMERA_SPLIT_OPTIONS_REV[project->GetSplitCameraOption()];
+        if (ImGui::BeginCombo("##split options combo", splitOption.c_str())) {
+            for (auto entry: CAMERA_SPLIT_OPTIONS_REV) {
+                SplitCameraOption splitEnum = entry.first;
+                std::string splitString = entry.second;
+                bool isSelected = splitEnum == project->GetSplitCameraOption();
+                if (ImGui::Selectable(splitString.c_str(), isSelected)) {
+                    // manually set camera options so that we could save the previous state when entering animation mode
+                    switch (splitEnum) {
+                        case UNSPLIT:
+                            project->Unsplit();
+                            break;
+                        case SPLITX:
+                            project->SplitX();
+                            break;
+                        case SPLITY:
+                            project->SplitY();
+                            break;
+                    }
+                    project->SetPrevSplitCameraOption(project->GetSplitCameraOption());
                 }
-                project->SetPrevSplitCameraOption(project->GetSplitCameraOption());
+                if (isSelected) {
+                    ImGui::SetItemDefaultFocus();
+                }
             }
-            if (isSelected) {
-                ImGui::SetItemDefaultFocus();
-            }
-        }
-        ImGui::EndCombo();
-    }
-
-    ImGui::Text("Select Camera for screen 1:");
-    const std::string currentCamera1 = project->GetCameraScreen1();
-    if (ImGui::BeginCombo("##cameras combo 1", currentCamera1.c_str()))
-    {
-        for (auto cameraName: project->GetAllCameras())
-        {
-            bool is_selected = (currentCamera1 == cameraName);
-            if (ImGui::Selectable(cameraName.c_str(), is_selected))
-            {
-                project->SetCameraScreen1(cameraName);
-                std::cout << "Selected in camera screen 1 combo: " << currentCamera1 << std::endl;
-            }
-            if (is_selected){
-                ImGui::SetItemDefaultFocus();
-            }
+            ImGui::EndCombo();
         }
 
-        ImGui::EndCombo();
-    }
+        ImGui::Text("Select Camera for screen 1:");
+        const std::string currentCamera1 = project->GetCameraScreen1();
+        if (ImGui::BeginCombo("##cameras combo 1", currentCamera1.c_str())) {
+            for (auto cameraName: project->GetAllCameras()) {
+                bool is_selected = (currentCamera1 == cameraName);
+                if (ImGui::Selectable(cameraName.c_str(), is_selected)) {
+                    project->SetCameraScreen1(cameraName);
+                    std::cout << "Selected in camera screen 1 combo: " << currentCamera1 << std::endl;
+                }
+                if (is_selected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
 
-    ImGui::Text("Select Camera for screen 2:");
-    const std::string currentCamera2 = project->GetCameraScreen2();
-    if (ImGui::BeginCombo("##cameras combo 2", currentCamera2.c_str()))
-    {
-        for (auto cameraName: project->GetAllCameras())
-        {
-            bool is_selected = (currentCamera2 == cameraName);
-            if (ImGui::Selectable(cameraName.c_str(), is_selected))
-            {
-                project->SetCameraScreen2(cameraName);
-                std::cout << "Selected in camera screen 2 combo: " << currentCamera2 << std::endl;
-            }
-            if (is_selected){
-                ImGui::SetItemDefaultFocus();
-            }
+            ImGui::EndCombo();
         }
 
-        ImGui::EndCombo();
-    }
+        ImGui::Text("Select Camera for screen 2:");
+        const std::string currentCamera2 = project->GetCameraScreen2();
+        if (ImGui::BeginCombo("##cameras combo 2", currentCamera2.c_str())) {
+            for (auto cameraName: project->GetAllCameras()) {
+                bool is_selected = (currentCamera2 == cameraName);
+                if (ImGui::Selectable(cameraName.c_str(), is_selected)) {
+                    project->SetCameraScreen2(cameraName);
+                    std::cout << "Selected in camera screen 2 combo: " << currentCamera2 << std::endl;
+                }
+                if (is_selected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
 
-    if(ImGui::Button("Add Camera")){
-        project->guiStates.push(std::make_shared<CameraAddState>());
-    }
+            ImGui::EndCombo();
+        }
 
+        ImGui::Text("Select Camera for animation:");
+        const std::string currentCameraAnimation = project->GetCameraScreenAnimation();
+        if (ImGui::BeginCombo("##cameras combo animation", currentCameraAnimation.c_str())) {
+            for (auto cameraName: project->GetAllCameras()) {
+                bool is_selected = (currentCameraAnimation == cameraName);
+                if (ImGui::Selectable(cameraName.c_str(), is_selected)) {
+                    project->SetCameraScreenAnimation(cameraName);
+                    std::cout << "Selected in camera screen 2 combo: " << currentCameraAnimation << std::endl;
+                }
+                if (is_selected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+
+            ImGui::EndCombo();
+        }
+
+        if (ImGui::Button("Add Camera")) {
+            project->guiStates.push(std::make_shared<CameraAddState>());
+        }
+    }
 
     if (ImGui::CollapsingHeader("Animation", ImGuiTreeNodeFlags_DefaultOpen))
     {
@@ -358,47 +368,6 @@ void MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera
         if (ImGui::SliderFloat("##Time Scale", &time, 0, maxTime, "%.1f"))
         {
             project->SetGlobalTime((long)time);
-        }
-
-//        ImGui::Text("Select Camera for animation:");
-//        const char* current_item3 = (((ProjectViewerData *)project->data())->cameras.at(((ProjectViewerData *)project->data())->cameraAnimationIndx)).c_str();
-//
-//        if (ImGui::BeginCombo("##cameras combo animation", current_item3))
-//        {
-//            for (size_t n = 0; n < ((ProjectViewerData *)project->data())->cameras.size(); n++)
-//            {
-//                bool is_selected = (current_item3 == ((ProjectViewerData *)project->data())->cameras.at(n).c_str());
-//                if (ImGui::Selectable(((ProjectViewerData *)project->data())->cameras.at(n).c_str(), is_selected))
-//                {
-//                    current_item3 = ((ProjectViewerData *)project->data())->cameras.at(n).c_str();
-//                    ((ProjectViewerData *)project->data())->cameraAnimationIndx = n;
-//                    std::cout << "Selected in cameras animation combo: " << current_item3 << std::endl;
-//                }
-//                if (is_selected){
-//                    ImGui::SetItemDefaultFocus();
-//                }
-//            }
-//            ImGui::EndCombo();
-//        }
-
-        ImGui::Text("Select Camera for animation:");
-        const std::string currentCameraAnimation = project->GetCameraScreenAnimation();
-        if (ImGui::BeginCombo("##cameras combo animation", currentCameraAnimation.c_str()))
-        {
-            for (auto cameraName: project->GetAllCameras())
-            {
-                bool is_selected = (currentCameraAnimation == cameraName);
-                if (ImGui::Selectable(cameraName.c_str(), is_selected))
-                {
-                    project->SetCameraScreenAnimation(cameraName);
-                    std::cout << "Selected in camera screen 2 combo: " << currentCameraAnimation << std::endl;
-                }
-                if (is_selected){
-                    ImGui::SetItemDefaultFocus();
-                }
-            }
-
-            ImGui::EndCombo();
         }
 
 
