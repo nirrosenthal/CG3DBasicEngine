@@ -19,7 +19,8 @@ std::map<std::string, ParamType> TYPE_NAMES = {
         {"rgb", RGB},
         {"global_time", GLOBAL_TIME},
         {"resolution", RESOLUTION},
-        {"mouse_pos", MOUSE_POS}
+        {"mouse_pos", MOUSE_POS},
+        {"alpha", TRANSPARENCY}
 };
 
 
@@ -246,6 +247,13 @@ SceneShader::SceneShader(std::string name, int id, Shader *engineShader, std::st
             params.push_back(std::make_shared<ShaderResolutionParam>(paramName, engineShader));
         } else if(type == MOUSE_POS) {
             params.push_back(std::make_shared<ShaderMouseParam>(paramName, engineShader));
+        } else if(type == TRANSPARENCY) {
+            if(param.find("default") != param.end()) {
+                auto val = param["default"];
+                params.push_back(std::make_shared<ShaderTransparencyParam>(paramName,val,engineShader));
+            } else {
+                params.push_back(std::make_shared<ShaderTransparencyParam>(paramName, engineShader));
+            }
         }
 
     }
@@ -333,4 +341,27 @@ void ShaderMouseParam::uploadUniform(long globalTime, Eigen::Vector2f resolution
 
 std::shared_ptr<ShaderParam> ShaderMouseParam::clone() {
     return std::make_shared<ShaderMouseParam>(name, shader);
+}
+
+ShaderTransparencyParam::ShaderTransparencyParam(std::string name, float value, Shader *shader):
+        ShaderParam(name, TRANSPARENCY, shader, true), value(value)
+{
+
+}
+
+ShaderTransparencyParam::ShaderTransparencyParam(std::string name, Shader *shader):
+        ShaderParam(name, TRANSPARENCY, shader, false)
+{
+
+}
+
+void ShaderTransparencyParam::uploadUniform(long globalTime, Eigen::Vector2f resolution, Eigen::Vector2f mouse) {
+    if(isValueInitialized)
+        shader->SetUniform1f(getName(), value/100.0f);
+}
+
+std::shared_ptr<ShaderParam> ShaderTransparencyParam::clone() {
+    if(isValueInitialized)
+        return std::make_shared<ShaderTransparencyParam>(name, value, shader);
+    return std::make_shared<ShaderTransparencyParam>(name, shader);
 }

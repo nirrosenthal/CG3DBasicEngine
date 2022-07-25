@@ -12,7 +12,7 @@
 #include <memory>
 #include <nlohmann/json.hpp>
 
-enum ParamType {INT, VEC4_INT, FLOAT, VEC4_FLOAT, MAT4_FLOAT, RGB, GLOBAL_TIME, RESOLUTION, MOUSE_POS};
+enum ParamType {INT, VEC4_INT, FLOAT, VEC4_FLOAT, MAT4_FLOAT, RGB, GLOBAL_TIME, RESOLUTION, MOUSE_POS, TRANSPARENCY};
 class ShaderParam {
 public:
     ShaderParam(std::string name, ParamType tag, Shader *shader, bool isValueInitialized);
@@ -113,6 +113,15 @@ public:
     ShaderMouseParam(std::string name, Shader *shader);
     void uploadUniform(long globalTime, Eigen::Vector2f resolution, Eigen::Vector2f mouse);
     std::shared_ptr<ShaderParam> clone();
+};
+
+class ShaderTransparencyParam: public ShaderParam {
+public:
+    ShaderTransparencyParam(std::string name, float value, Shader *shader);
+    ShaderTransparencyParam(std::string name, Shader *shader);
+    void uploadUniform(long globalTime, Eigen::Vector2f resolution, Eigen::Vector2f mouse);
+    std::shared_ptr<ShaderParam> clone();
+    float value;
 };
 
 

@@ -765,6 +765,10 @@ ShaderEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &ca
                 auto rgb = std::dynamic_pointer_cast<ShaderRGBParam>(param);
                 ImGui::Text("%s", (param->getName() + ":").c_str());
                 ImGui::ColorPicker4(("##" + param->getName() + "COLOR PICKING").c_str(), rgb->value);
+            } else if(param->getTag() == TRANSPARENCY) {
+                std::string label = param->getName() + "##PARAM";
+                ImGui::SliderFloat(label.c_str(), &std::dynamic_pointer_cast<ShaderTransparencyParam>(param)->value,
+                                   0, 100, "%.1f");
             }
         }
     }
