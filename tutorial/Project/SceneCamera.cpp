@@ -13,8 +13,7 @@ SceneCamera::SceneCamera() {
 
 SceneCamera::SceneCamera(std::string _name, int _id, float _angle, float _relationWH, float _near, float _far,
                          std::shared_ptr<ObjectMoverSplit> _mover):
-        name(_name), id(_id), angle(_angle), relationWH(_relationWH), near(_near), far(_far), mover(_mover){}
-
+        name(_name), id(_id), angle(_angle), relationWH(_relationWH), near(_near), far(_far), mover(_mover) {}
 
 int SceneCamera::GetId() {
     return id;

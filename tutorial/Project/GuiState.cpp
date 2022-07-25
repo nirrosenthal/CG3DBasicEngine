@@ -234,6 +234,7 @@ void MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera
             }
         }
     }
+
     if (ImGui::CollapsingHeader("Movement Curves", ImGuiTreeNodeFlags_DefaultOpen)){
         for(const auto& curve : project->GetAllMovementCurves()) {
             if(ImGui::Button((curve + "##curve").c_str()))

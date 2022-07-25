@@ -131,7 +131,6 @@ private:
     std::shared_ptr<ObjectMoverSplit> mover;
     float angle, relationWH, near, far;
 
-
 };
 
 #endif //ASSIGNMENT1_CPP_GUISTATE_H

@@ -602,7 +602,6 @@ std::string Project::GetCameraScreenAnimation() {return cameraScreenAnimation;}
 std::shared_ptr<SceneCamera> Project::AddGlobalCamera(std::string _name, float _angle, float _relationWH, float _near, float _far,
                                                       std::shared_ptr<ObjectMoverSplit> _mover) {
 
-    // default index value - maybe need to create list of indexes
     std::shared_ptr<SceneCamera> scnCamera = std::make_shared<SceneCamera>(_name, -1000,  _angle, _relationWH, _near, _far, _mover);
 
     allCameras.push_back(scnCamera->GetName());
@@ -614,15 +613,16 @@ std::shared_ptr<SceneCamera> Project::AddGlobalCamera(std::string _name, float _
 
 void Project::SetCameraScreen1(std::string cameraName) {
     cameraScreen1 = cameraName;
+    // change to relevant camera in renderer
 }
 void Project::SetCameraScreen2(std::string cameraName) {
     cameraScreen2 = cameraName;
+    // change to relevant camera in renderer
 }
 void Project::SetCameraScreenAnimation(std::string cameraName) {
     cameraScreenAnimation = cameraName;
+    // change to relevant camera in renderer
 }
-
-
 
 void Project::UpdateResolution(float width, float height) {
     resolution = Eigen::Vector2f(width, height);
