@@ -15,6 +15,7 @@ public:
     int camera_split;
     int cameraScreen1Indx = 0;
     int cameraScreen2Indx = 0;
+    int cameraAnimationIndx = 0;
     std::vector<std::string> cameras;
     std::string camera_name;
     int material_indx = 0;

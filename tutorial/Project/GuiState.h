@@ -6,7 +6,7 @@
 
 #ifndef ASSIGNMENT1_CPP_GUISTATE_H
 #define ASSIGNMENT1_CPP_GUISTATE_H
-enum GuiStatus{MENU, ERROR, SHAPE_EDITING, SHADER_EDITING, CURVE_EDITING, MEDIA_SLIDER};
+enum GuiStatus{MENU, ERROR, SHAPE_EDITING, SHADER_EDITING, CURVE_EDITING, MEDIA_SLIDER, CAMERA_ADD};
 enum GuiStep{CONTINUE, NEW, EXIT};
 enum EntityEditingMode {CREATE_NEW, EDIT_EXISTING};
 
@@ -118,6 +118,20 @@ public:
                   ImFont* font, ImFont *boldFont);
 };
 
+class CameraAddState: public GuiState {
+public:
+    CameraAddState();
+    void Run(Project* project,
+             std::vector<igl::opengl::Camera*> &camera,
+             Eigen::Vector4i& viewWindow,std::vector<DrawInfo *> drawInfos,
+             ImFont* font, ImFont *boldFont);
+private:
+    std::string cameraName;
+    EntityEditingMode editingMode;
+    std::shared_ptr<ObjectMoverSplit> mover;
+    float angle, relationWH, near, far;
 
+
+};
 
 #endif //ASSIGNMENT1_CPP_GUISTATE_H

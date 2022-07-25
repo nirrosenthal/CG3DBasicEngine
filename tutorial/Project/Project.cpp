@@ -553,6 +553,7 @@ std::string Project::GetShaderName(int shaderId) {
         return "";
     return createdShadersById[shaderId]->getName();
 }
+
 int Project::GetShaderId(std::string shaderName) {
     auto shader = GetShader(shaderName);
     if(shader == nullptr)
@@ -569,6 +570,59 @@ bool Project::AddGlobalShader(std::shared_ptr<SceneShader> shader) {
     createdShadersById[shader->getId()] = shader;
     return true;
 }
+
+
+std::shared_ptr<SceneCamera> Project::GetCamera(const int cameraId) {
+    return createdCamerasById.at(cameraId);
+}
+
+std::shared_ptr<SceneCamera> Project::GetCamera(const std::string &cameraName) {
+    return createdCamerasByName.at(cameraName);
+}
+
+int Project::GetCameraId(std::string cameraName) {
+    // should return an error if cameraName doesn't exist
+    return GetCamera(cameraName)->GetId();
+}
+
+std::string Project::GetCameraName(int cameraId) {
+    return GetCamera(cameraId)->GetName();
+}
+
+std::vector<std::string> Project::GetAllCameras() {
+    return allCameras;
+}
+
+std::string Project::GetCameraScreen1() {return cameraScreen1;}
+
+std::string Project::GetCameraScreen2() {return cameraScreen2;}
+
+std::string Project::GetCameraScreenAnimation() {return cameraScreenAnimation;}
+
+std::shared_ptr<SceneCamera> Project::AddGlobalCamera(std::string _name, float _angle, float _relationWH, float _near, float _far,
+                                                      std::shared_ptr<ObjectMoverSplit> _mover) {
+
+    // default index value - maybe need to create list of indexes
+    std::shared_ptr<SceneCamera> scnCamera = std::make_shared<SceneCamera>(_name, -1000,  _angle, _relationWH, _near, _far, _mover);
+
+    allCameras.push_back(scnCamera->GetName());
+    std::sort(allCameras.begin(), allCameras.end());
+    createdCamerasByName.insert({scnCamera->GetName(), scnCamera});
+    createdCamerasById.insert({scnCamera->GetId(), scnCamera});
+}
+
+
+void Project::SetCameraScreen1(std::string cameraName) {
+    cameraScreen1 = cameraName;
+}
+void Project::SetCameraScreen2(std::string cameraName) {
+    cameraScreen2 = cameraName;
+}
+void Project::SetCameraScreenAnimation(std::string cameraName) {
+    cameraScreenAnimation = cameraName;
+}
+
+
 
 void Project::UpdateResolution(float width, float height) {
     resolution = Eigen::Vector2f(width, height);

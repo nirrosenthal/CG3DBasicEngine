@@ -171,7 +171,7 @@ void MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera
     if(ImGui::Button("Create a new shape## new shape")){
         project->OpenNewWindow(std::make_shared<ShapeEditingState>());
     }
-    if (ImGui::CollapsingHeader("Search For Shaders", ImGuiTreeNodeFlags_DefaultOpen)) {
+    if (ImGui::CollapsingHeader("Search --For Shaders", ImGuiTreeNodeFlags_DefaultOpen)) {
         ImGui::InputText("##shader search pattern", shadersSearchPattern, 30);
         if (ImGui::Button("Clear ##shadersSearchPattern"))
             shadersSearchPattern = strdup("");
@@ -244,32 +244,7 @@ void MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera
         project->OpenNewWindow(std::make_shared<MovementCurveEditingState>());
     }
 
-//    std::string tempStr = "material";
-//    const char* current_material_item = tempStr.c_str();
-//    if (ImGui::BeginCombo("##materials combo", current_material_item))
-//    {
-//        for (size_t n = 0; n < project->materials.size(); n++)
-//        {
-//            bool is_selected = strcmp(current_material_item ,("material" + (std::to_string(n))).c_str())==0;
-//            std::cout<<"compare: "<<std::string(current_material_item)<<" with "<<("material" + (std::to_string(n))).c_str()<<std::endl;
-//            if (ImGui::Selectable(("material" + (std::to_string(n))).c_str(), is_selected))
-//            {
-//                current_material_item = ("material" + (std::to_string(n))).c_str();
-//                ((ProjectViewerData *)project->data())->material_indx = n;
-//                // implement add material
-//            }
-//            if (is_selected){
-//                ImGui::SetItemDefaultFocus();
-//            }
-//        }
-//
-//        ImGui::EndCombo();
-//    }
-
-
-
-        ImGui::Text("Camera split option");
-
+    if (ImGui::CollapsingHeader("Camera Options", ImGuiTreeNodeFlags_DefaultOpen)) {
         const std::string splitOption = CAMERA_SPLIT_OPTIONS_REV[project->GetSplitCameraOption()];
         if (ImGui::BeginCombo("##split options combo", splitOption.c_str())) {
             for (auto entry: CAMERA_SPLIT_OPTIONS_REV) {
@@ -298,54 +273,61 @@ void MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera
             ImGui::EndCombo();
         }
 
-
         ImGui::Text("Select Camera for screen 1:");
-        const char* current_item = ((ProjectViewerData *)project->data())->cameras.at(((ProjectViewerData *)project->data())->cameraScreen1Indx).c_str();
-        if (ImGui::BeginCombo("##cameras combo 1", current_item))
-        {
-            for (size_t n = 0; n < ((ProjectViewerData *)project->data())->cameras.size(); n++)
-            {
-                bool is_selected = (current_item == ((ProjectViewerData *)project->data())->cameras.at(n).c_str());
-                if (ImGui::Selectable(((ProjectViewerData *)project->data())->cameras.at(n).c_str(), is_selected))
-                {
-                    current_item = ((ProjectViewerData *)project->data())->cameras.at(n).c_str();
-                    ((ProjectViewerData *)project->data())->cameraScreen1Indx = n;
-                    std::cout<<"Selected in combo: "<<current_item<<std::endl;
+        const std::string currentCamera1 = project->GetCameraScreen1();
+        if (ImGui::BeginCombo("##cameras combo 1", currentCamera1.c_str())) {
+            for (auto cameraName: project->GetAllCameras()) {
+                bool is_selected = (currentCamera1 == cameraName);
+                if (ImGui::Selectable(cameraName.c_str(), is_selected)) {
+                    project->SetCameraScreen1(cameraName);
+                    std::cout << "Selected in camera screen 1 combo: " << currentCamera1 << std::endl;
                 }
-                if (is_selected){
+                if (is_selected) {
                     ImGui::SetItemDefaultFocus();
                 }
             }
 
             ImGui::EndCombo();
         }
+
         ImGui::Text("Select Camera for screen 2:");
-        const char* current_item2 = (((ProjectViewerData *)project->data())->cameras.at(((ProjectViewerData *)project->data())->cameraScreen2Indx)).c_str();
-
-        if (ImGui::BeginCombo("##cameras combo 2", current_item2))
-        {
-            for (size_t n = 0; n < ((ProjectViewerData *)project->data())->cameras.size(); n++)
-            {
-                bool is_selected = (current_item2 == ((ProjectViewerData *)project->data())->cameras.at(n).c_str());
-                if (ImGui::Selectable(((ProjectViewerData *)project->data())->cameras.at(n).c_str(), is_selected))
-                {
-                    current_item2 = ((ProjectViewerData *)project->data())->cameras.at(n).c_str();
-                    ((ProjectViewerData *)project->data())->cameraScreen2Indx = n;
-                    std::cout<<"Selected in combo: "<<current_item2<<std::endl;
+        const std::string currentCamera2 = project->GetCameraScreen2();
+        if (ImGui::BeginCombo("##cameras combo 2", currentCamera2.c_str())) {
+            for (auto cameraName: project->GetAllCameras()) {
+                bool is_selected = (currentCamera2 == cameraName);
+                if (ImGui::Selectable(cameraName.c_str(), is_selected)) {
+                    project->SetCameraScreen2(cameraName);
+                    std::cout << "Selected in camera screen 2 combo: " << currentCamera2 << std::endl;
                 }
-                if (is_selected){
+                if (is_selected) {
                     ImGui::SetItemDefaultFocus();
                 }
             }
+
             ImGui::EndCombo();
         }
-        ImGui::Text("Camera name:");
-        ImGui::InputText("##@@@.",(((ProjectViewerData *)project->data())->camera_name));
-        if(ImGui::Button("Add Camera")){
-            ((ProjectViewerData *)project->data())->cameras.push_back(((ProjectViewerData *)project->data())->camera_name);
-            // implement add camera
+
+        ImGui::Text("Select Camera for animation:");
+        const std::string currentCameraAnimation = project->GetCameraScreenAnimation();
+        if (ImGui::BeginCombo("##cameras combo animation", currentCameraAnimation.c_str())) {
+            for (auto cameraName: project->GetAllCameras()) {
+                bool is_selected = (currentCameraAnimation == cameraName);
+                if (ImGui::Selectable(cameraName.c_str(), is_selected)) {
+                    project->SetCameraScreenAnimation(cameraName);
+                    std::cout << "Selected in camera screen 2 combo: " << currentCameraAnimation << std::endl;
+                }
+                if (is_selected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+
+            ImGui::EndCombo();
         }
 
+        if (ImGui::Button("Add Camera")) {
+            project->guiStates.push(std::make_shared<CameraAddState>());
+        }
+    }
 
     if (ImGui::CollapsingHeader("Animation", ImGuiTreeNodeFlags_DefaultOpen))
     {
@@ -555,8 +537,7 @@ ShapeEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &cam
     if(ImGui::CollapsingHeader("Size"), ImGuiTreeNodeFlags_DefaultOpen) {
         ImGui::InputFloat("##Shape Size", &sizePercents);
     }
-    if(sizePercents < 0)
-        sizePercents = 0;
+
 
     if (ImGui::CollapsingHeader("Shader"), ImGuiTreeNodeFlags_DefaultOpen) {
         auto allShaders = project->GetAllShaders();
@@ -784,6 +765,84 @@ ShaderEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &ca
     }
 
 }
+
+CameraAddState::CameraAddState():GuiState(CAMERA_ADD),cameraName("666"),angle(0),relationWH(1),near(1),far(120) {}
+
+//
+//    std::string name = "Camera" + project->GetAllCameras().size();
+//    float angle = 0,relationWH = 1, near = 1, far = 120;
+
+
+
+void CameraAddState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera, Eigen::Vector4i &viewWindow,
+                         std::vector<DrawInfo *> drawInfos, ImFont *font, ImFont *boldFont) {
+    BeginCentered("Camera Add");
+    std::string header;
+    // not sure why it's needed
+    if (editingMode == CREATE_NEW) {
+        header = "Add Camera";
+        Header(header.c_str(), boldFont);
+    }
+
+    ImGui::Text("Name: ");
+    ImGui::SameLine();
+    ImGui::InputText("##Name", cameraName, 30);
+
+    ImGui::Text("Angle: ");
+    ImGui::SameLine();
+    ImGui::InputFloat("##angle", &angle);
+
+    ImGui::Text("RelationWH: ");
+    ImGui::SameLine();
+    ImGui::InputFloat("##relationWH", &relationWH);
+
+    ImGui::Text("Near: ");
+    ImGui::SameLine();
+    ImGui::InputFloat("##near", &near);
+
+    ImGui::Text("Far: ");
+    ImGui::SameLine();
+    ImGui::InputFloat("##far", &far);
+
+    if (ImGui::CollapsingHeader("Movement Curves", ImGuiTreeNodeFlags_DefaultOpen)) {
+        auto allCurves = project->GetAllMovementCurves();
+        std::string moverName;
+        if (mover != nullptr)
+            moverName = mover->name;
+        if (ImGui::BeginCombo("##Mover combo", moverName.c_str())) {
+            for (auto curve: allCurves) {
+                bool isSelected = moverName == curve;
+                if (ImGui::Selectable(curve.c_str(), isSelected)) {
+                    mover = project->GetCurve(curve);
+                }
+                if (isSelected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+            ImGui::EndCombo();
+        }
+    }
+
+    if (ImGui::Button("Save ")) {
+        bool saveSuccess = true;
+        if (std::string(cameraName).empty()) {
+            OpenErrorWindow(project, "Name cannot be empty!");
+            saveSuccess = false;
+        }
+        if (saveSuccess) {
+            project->AddGlobalCamera(cameraName, angle, relationWH, near, far, mover);
+            project->guiStates.pop();
+        }
+    }
+    ImGui::SameLine();
+
+    if (ImGui::Button("Close")) {
+        project->guiStates.pop();
+    }
+
+}
+
+
 
 MovementCurveEditingState::MovementCurveEditingState(std::string name, std::shared_ptr<ObjectMoverSplit> mover):
     GuiState(CURVE_EDITING), curveName(strdup(name.c_str())), editingMode(EDIT_EXISTING),

@@ -2,6 +2,7 @@
 #include "igl/opengl/glfw/Viewer.h"
 #include "SceneShape.h"
 #include "SceneShader.h"
+#include "SceneCamera.h"
 #include "igl/opengl/glfw/renderer.h"
 #include "ProjectViewerData.h"
 #include <stack>
@@ -111,10 +112,24 @@ public:
     int VP_Height;
     void ChangeControlledCamera();
     int GetConrolledCameraId();
+    std::stack<std::shared_ptr<GuiState>> guiStates;
     void RightClick(float x, float y);
     void LeftClick(float x, float y);
     void UnpressMouse(float x, float y);
     bool IsMousePressed();
+    std::shared_ptr<SceneCamera> GetCamera(const std::string& cameraName);
+    std::shared_ptr<SceneCamera> GetCamera(const int cameraId);
+    int GetCameraId(std::string cameraName);
+    std::string GetCameraName(int cameraId);
+    std::vector<std::string> GetAllCameras();
+    std::shared_ptr<SceneCamera> AddGlobalCamera(std::string _name, float _angle, float _relationWH, float _near, float _far,
+                                                 std::shared_ptr<ObjectMoverSplit> _mover);
+    std::string GetCameraScreen1();
+    std::string GetCameraScreen2();
+    std::string GetCameraScreenAnimation();
+    void SetCameraScreen1(std::string cameraName);
+    void SetCameraScreen2(std::string cameraName);
+    void SetCameraScreenAnimation(std::string cameraName);
     bool IsGuiInitialized() const;
     void OpenNewWindow(std::shared_ptr<GuiState> state);
     std::shared_ptr<GuiState> GetCurrentWindow();
@@ -135,6 +150,9 @@ private:
     std::map<int, std::shared_ptr<SceneShader>> createdShadersById;
     std::vector<std::string> allShaders;
     std::vector<std::string> allShapeFiles;
+    std::vector<std::string> allCameras;
+    std::map<int, std::shared_ptr<SceneCamera>> createdCamerasById;
+    std::map<std::string, std::shared_ptr<SceneCamera>> createdCamerasByName;
     void RefreshShadersList();
     void RefreshShapeFilesList();
     long lastFileSystemRefreshingTimeSeconds;
@@ -150,12 +168,14 @@ private:
     void CalculateShapeSize(int shapeIndex);
     std::unordered_map<int, bool> deletedShapes;
     bool isDeleted(int id);
-    std::stack<std::shared_ptr<GuiState>> guiStates;
     ControlledCamera controlledCamera;
     MouseStatus mouseStatus;
     Eigen::Vector2f pressStartPosition;
     void HandleLeftClickEnd(float x, float y);
     void HandleRightClickEnd(float x, float y);
+    std::string cameraScreen1;
+    std::string cameraScreen2;
+    std::string cameraScreenAnimation;
 
 };
 
