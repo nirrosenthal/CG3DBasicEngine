@@ -1,7 +1,0 @@
-[
-  {
-    "name": "rgb",
-    "type": "vec4_float",
-    "default": [0.0, 0.0, 0.0, 0.0]
-  }
-]
