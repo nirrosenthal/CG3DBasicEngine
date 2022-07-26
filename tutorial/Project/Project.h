@@ -159,7 +159,7 @@ private:
     std::map<std::string, std::shared_ptr<ObjectMoverSplit>> movementCurves;
     Display *display;
     igl::opengl::glfw::imgui::ImGuiMenu* menu;
-    void ResetRenderer(ControlledCamera contCam, SplitCameraOption camSplit, Eigen::Vector3d posMainCamera, Eigen::Vector3d posCamera2);
+    void ResetRenderer(ControlledCamera contCam, SplitCameraOption camSplit, Eigen::Vector3d posCamera1, Eigen::Vector3d posCamera2);
     SplitCameraOption splitCameraOption;
     SplitCameraOption prevSplitCameraOption;
     void SetSplitCameraOption(SplitCameraOption cameraOption);
@@ -173,7 +173,9 @@ private:
     void HandleLeftClickEnd(float x, float y);
     void HandleRightClickEnd(float x, float y);
     std::string cameraScreen1;
+    Eigen::Vector3d cameraScreen1Position;
     std::string cameraScreen2;
+    Eigen::Vector3d cameraScreen2Position;
     std::string cameraScreenAnimation;
     void UpdatePickingRectangle(BoundingRectangle rec);
     bool shouldDrawPickingRectangle;
