@@ -4,16 +4,13 @@
 
 #include "SceneCamera.h"
 
-SceneCamera::SceneCamera() {
-    angle = 0.0f;
-    relationWH = 0;
-    near = 1.0f;
-    far = 120.0f;
-}
-
-SceneCamera::SceneCamera(std::string _name, int _id, float _angle, float _relationWH, float _near, float _far,
+SceneCamera::SceneCamera(std::string _name, int _id, Eigen::Vector3d _pos,
                          std::shared_ptr<ObjectMoverSplit> _mover):
-        name(_name), id(_id), angle(_angle), relationWH(_relationWH), near(_near), far(_far), mover(_mover) {}
+        name(_name), id(_id), pos(_pos), mover(_mover) {}
+
+Eigen::Vector3d SceneCamera::GetPosition() {
+    return pos;
+}
 
 int SceneCamera::GetId() {
     return id;

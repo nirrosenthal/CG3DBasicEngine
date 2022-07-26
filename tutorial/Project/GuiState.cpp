@@ -330,8 +330,13 @@ void MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera
             for (auto cameraName: project->GetAllCameras()) {
                 bool is_selected = (currentCameraAnimation == cameraName);
                 if (ImGui::Selectable(cameraName.c_str(), is_selected)) {
-                    project->SetCameraScreenAnimation(cameraName);
-                    std::cout << "Selected in camera screen 2 combo: " << currentCameraAnimation << std::endl;
+                    if(project->GetCamera(cameraName)->mover==nullptr) {
+                        OpenErrorWindow(project, "Animation Camera Mover cannot be empty");
+                    }
+                    else {
+                        project->SetCameraScreenAnimation(cameraName);
+                        std::cout << "Selected in camera screen 2 combo: " << currentCameraAnimation << std::endl;
+                    }
                 }
                 if (is_selected) {
                     ImGui::SetItemDefaultFocus();
@@ -791,7 +796,7 @@ ShaderEditingState::Run(Project *project, std::vector<igl::opengl::Camera *> &ca
 
 }
 
-CameraAddState::CameraAddState():GuiState(CAMERA_ADD),angle(0),relationWH(1),near(1),far(120) {}
+CameraAddState::CameraAddState():GuiState(CAMERA_ADD),position(new float[3]{0,0,0}) {}
 
 //
 //    std::string name = "Camera" + project->GetAllCameras().size();
@@ -812,14 +817,16 @@ void CameraAddState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
     ImGui::Text("Name: ");
     ImGui::SameLine();
     ImGui::InputText("##Name", cameraName, 30);
+    ImGui::Text("Position (x,y,z)");
+    ImGui::InputFloat3("##Camera Position", position);
 
-    ImGui::Text("Angle: ");
-    ImGui::SameLine();
-    ImGui::InputFloat("##angle", &angle);
-
-    ImGui::Text("RelationWH: ");
-    ImGui::SameLine();
-    ImGui::InputFloat("##relationWH", &relationWH);
+//    ImGui::Text("Angle: ");
+//    ImGui::SameLine();
+//    ImGui::InputFloat("##angle", &angle);
+//
+//    ImGui::Text("RelationWH: ");
+//    ImGui::SameLine();
+//    ImGui::InputFloat("##relationWH", &relationWH);
 
 //    ImGui::Text("Near: ");
 //    ImGui::SameLine();
@@ -855,7 +862,7 @@ void CameraAddState::Run(Project *project, std::vector<igl::opengl::Camera *> &c
             saveSuccess = false;
         }
         if (saveSuccess) {
-            project->AddGlobalCamera(cameraName, angle, relationWH, near, far, mover);
+            project->AddGlobalCamera(cameraName, Eigen::Vector3d(position[0],position[1],position[2]), mover);
             project->guiStates.pop();
         }
     }

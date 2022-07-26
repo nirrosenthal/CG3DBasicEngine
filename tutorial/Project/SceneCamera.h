@@ -11,18 +11,14 @@
 
 class SceneCamera {
 public:
-    SceneCamera(std::string _name, int _id, float _angle, float _relationWH, float _near, float _far, std::shared_ptr<ObjectMoverSplit> _mover);
-    // constructor with default values
-    SceneCamera();
+    SceneCamera(std::string _name, int _id, Eigen::Vector3d _pos, std::shared_ptr<ObjectMoverSplit> _mover);
     std::shared_ptr<ObjectMoverSplit> mover;
     std::string name;
     int id = 4;
-    float angle;
-    float relationWH;
-    float near;
-    float far;
+    Eigen::Vector3d pos;
     int GetId();
     std::string GetName();
+    Eigen::Vector3d  GetPosition();
 private:
 
 };

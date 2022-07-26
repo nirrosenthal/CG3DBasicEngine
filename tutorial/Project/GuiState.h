@@ -129,8 +129,7 @@ private:
     char *cameraName = strdup("");
     EntityEditingMode editingMode;
     std::shared_ptr<ObjectMoverSplit> mover;
-    float angle, relationWH, near, far;
-
+    float* position;
 };
 
 #endif //ASSIGNMENT1_CPP_GUISTATE_H

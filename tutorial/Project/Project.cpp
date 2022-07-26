@@ -585,22 +585,8 @@ bool Project::AddGlobalShader(std::shared_ptr<SceneShader> shader) {
     return true;
 }
 
-
-std::shared_ptr<SceneCamera> Project::GetCamera(const int cameraId) {
-    return createdCamerasById.at(cameraId);
-}
-
 std::shared_ptr<SceneCamera> Project::GetCamera(const std::string &cameraName) {
     return createdCamerasByName.at(cameraName);
-}
-
-int Project::GetCameraId(std::string cameraName) {
-    // should return an error if cameraName doesn't exist
-    return GetCamera(cameraName)->GetId();
-}
-
-std::string Project::GetCameraName(int cameraId) {
-    return GetCamera(cameraId)->GetName();
 }
 
 std::vector<std::string> Project::GetAllCameras() {
@@ -613,37 +599,16 @@ std::string Project::GetCameraScreen2() {return cameraScreen2;}
 
 std::string Project::GetCameraScreenAnimation() {return cameraScreenAnimation;}
 
-std::shared_ptr<SceneCamera> Project::AddGlobalCamera(std::string _name, float _angle, float _relationWH, float _near, float _far,
+std::shared_ptr<SceneCamera> Project::AddGlobalCamera(std::string _name, Eigen::Vector3d _pos,
                                                       std::shared_ptr<ObjectMoverSplit> _mover) {
 
-    std::shared_ptr<SceneCamera> scnCamera = std::make_shared<SceneCamera>(_name, -1000,  _angle, _relationWH, _near, _far, _mover);
+    std::shared_ptr<SceneCamera> scnCamera = std::make_shared<SceneCamera>(_name, -1,  _pos, _mover);
 
     allCameras.push_back(scnCamera->GetName());
     std::sort(allCameras.begin(), allCameras.end());
     createdCamerasByName.insert({scnCamera->GetName(), scnCamera});
-    createdCamerasById.insert({scnCamera->GetId(), scnCamera});
 
     return scnCamera;
-}
-
-
-void Project::SetCameraScreen1(std::string cameraName) {
-    cameraScreen1 = cameraName;
-
-    std::shared_ptr<SceneCamera> scnCamera = GetCamera(cameraName);
-    int renderCameraIndex = GetConrolledCameraId();
-//    renderer->SetViewport()
-
-
-    // change location of relevant viewport based on split screen
-}
-void Project::SetCameraScreen2(std::string cameraName) {
-    cameraScreen2 = cameraName;
-    // change to relevant camera in renderer based on split screen
-}
-void Project::SetCameraScreenAnimation(std::string cameraName) {
-    cameraScreenAnimation = cameraName;
-    // change to relevant camera in renderer based on split screen
 }
 
 void Project::UpdateResolution(float width, float height) {
@@ -740,84 +705,107 @@ void Project::SetPrevSplitCameraOption(SplitCameraOption prevCameraOption) {
     prevSplitCameraOption = prevCameraOption;
 }
 
-void Project::SplitX() {
+
+void Project::ResetRenderer(ControlledCamera contCam, SplitCameraOption camSplit,
+                            Eigen::Vector3d posMainCamera, Eigen::Vector3d posCamera2) {
     std::list<int> x, y;
-    x.push_back(resolution[0]/2);
-    x.push_back(resolution[0]);
-    y.push_back(resolution[1]-1);
-    y.push_back(resolution[1]);
+
     auto oldRenderer = renderer;
     float CAMERA_ANGLE = 45.0f;
     const float NEAR = 1.0f;
-    //igl::opengl::glfw::imgui::ImGuiMenu* newMenu = menu->clone();
-    //newMenu->init(display, false);
-
 
     renderer = new Renderer(CAMERA_ANGLE, (float)resolution[0]/(float)resolution[1], NEAR, FAR);
+
     renderer->AddCamera(Eigen::Vector3d(0,0,0), 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 1);
     renderer->AddCamera(Eigen::Vector3d(0,0,0), 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 2);
     renderer->AddCamera(Eigen::Vector3d(0,0,0), 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 3);
+
+
+    if(camSplit == SPLITX) {
+        x.push_back(resolution[0]/2);
+        x.push_back(resolution[0]);
+        y.push_back(resolution[1]-1);
+        y.push_back(resolution[1]);
+//        renderer->AddCamera(posMainCamera, 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 1);
+//        renderer->AddCamera(Eigen::Vector3d(0,0,0), 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 2);
+//        renderer->AddCamera(posCamera2, 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 3);
+    }
+
+    else if (camSplit == SPLITY) {
+        x.push_back(resolution[0]-1);
+        x.push_back(resolution[0]);
+        y.push_back(resolution[1]/2);
+        y.push_back(resolution[1]);
+//        renderer->AddCamera(posCamera2, 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 1);
+//        renderer->AddCamera(posMainCamera, 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 2);
+//        renderer->AddCamera(Eigen::Vector3d(0,0,0), 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 3);
+    }
+
+    else if (camSplit == UNSPLIT) {
+        x.push_back(resolution[0]-1);
+        x.push_back(resolution[0]);
+        y.push_back(resolution[1]-1);
+        y.push_back(resolution[1]);
+//        renderer->AddCamera(posMainCamera, 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 1);
+//        renderer->AddCamera(Eigen::Vector3d(0,0,0), 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 2);
+//        renderer->AddCamera(Eigen::Vector3d(0,0,0), 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 3);
+    }
     renderer->Init(this,x,y,1, menu);
 
-    controlledCamera = LEFT;
-    //renderer->Init(this,x,y,1, me);
     display->SetRenderer(renderer);
     delete oldRenderer;
-    SetSplitCameraOption(SPLITX);
+    controlledCamera = contCam;
+    SetSplitCameraOption(camSplit);
     display->launch_rendering(renderer);
+}
 
-
+void Project::SplitX() {
+    ResetRenderer(LEFT, SPLITX, Eigen::Vector3d(0,0,0), Eigen::Vector3d(0,0,0));
 }
 
 void Project::SplitY() {
-    std::list<int> x, y;
-    x.push_back(resolution[0]-1);
-    x.push_back(resolution[0]);
-    y.push_back(resolution[1]/2);
-    y.push_back(resolution[1]);
-    auto oldRenderer = renderer;
-    float CAMERA_ANGLE = 45.0f;
-    const float NEAR = 1.0f;
-    //igl::opengl::glfw::imgui::ImGuiMenu* newMenu = menu->clone();
-    //newMenu->init(display, false);
-    controlledCamera = TOP;
-    renderer = new Renderer(CAMERA_ANGLE, (float)resolution[0]/(float)resolution[1], NEAR, FAR);
-    renderer->AddCamera(Eigen::Vector3d(0,0,0), 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 1);
-    renderer->AddCamera(Eigen::Vector3d(0,0,0), 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 2);
-    renderer->AddCamera(Eigen::Vector3d(0,0,0), 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 3);
-    renderer->Init(this,x,y,1, menu);
-
-
-    //renderer->Init(this,x,y,1, me);
-    display->SetRenderer(renderer);
-    delete oldRenderer;
-    SetSplitCameraOption(SPLITY);
-    display->launch_rendering(renderer);
+    ResetRenderer(TOP, SPLITY, Eigen::Vector3d(0,0,0), Eigen::Vector3d(0,0,0));
 }
 
 void Project::Unsplit() {
-    std::list<int> x, y;
-    x.push_back(resolution[0]-1);
-    x.push_back(resolution[0]);
-    y.push_back(resolution[1]-1);
-    y.push_back(resolution[1]);
-    auto oldRenderer = renderer;
-    float CAMERA_ANGLE = 45.0f;
-    const float NEAR = 1.0f;
-
-    controlledCamera = MAIN;
-    renderer = new Renderer(CAMERA_ANGLE, (float)resolution[0]/(float)resolution[1], NEAR, FAR);
-    renderer->AddCamera(Eigen::Vector3d(0,0,0), 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 1);
-    renderer->AddCamera(Eigen::Vector3d(0,0,0), 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 2);
-    renderer->AddCamera(Eigen::Vector3d(0,0,0), 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 3);
-    renderer->Init(this,x,y,1, menu);
-
-
-    display->SetRenderer(renderer);
-    delete oldRenderer;
-    SetSplitCameraOption(UNSPLIT);
-    display->launch_rendering(renderer);
+    ResetRenderer(MAIN, UNSPLIT, Eigen::Vector3d(0,0,0), Eigen::Vector3d(0,0,0));
 }
+
+void Project::SetCameraScreen1(std::string cameraName) {
+    cameraScreen1 = cameraName;
+    // need to get a way to extract current location of viewport
+    std::shared_ptr<SceneCamera> scnCamera = GetCamera(cameraName);
+    auto camera1Pos = scnCamera->GetPosition();
+    std::cout<<"camera pos "<<camera1Pos;
+    // current location of subviewport
+    auto camera2Pos = Eigen::Vector3d(0,0,0);
+    switch(splitCameraOption) {
+        case UNSPLIT:
+            ResetRenderer(MAIN, UNSPLIT, camera1Pos, camera2Pos);
+            break;
+        case SPLITX:
+            ResetRenderer(LEFT, SPLITX, camera1Pos, camera2Pos);
+
+            break;
+        case SPLITY:
+            ResetRenderer(TOP, SPLITY, camera1Pos, camera2Pos);
+            break;
+    }
+
+}
+
+
+void Project::SetCameraScreen2(std::string cameraName) {
+    cameraScreen2 = cameraName;
+    // change to relevant camera in renderer based on split screen
+}
+
+
+void Project::SetCameraScreenAnimation(std::string cameraName) {
+    cameraScreenAnimation = cameraName;
+    // change to relevant camera in renderer based on split screen
+}
+
 
 bool Project::isDeleted(int id) {
     return deletedShapes.find(id) != deletedShapes.end();

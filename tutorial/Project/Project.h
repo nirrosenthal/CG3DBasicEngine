@@ -119,11 +119,8 @@ public:
     void UnpressMouse(float x, float y);
     bool IsMousePressed();
     std::shared_ptr<SceneCamera> GetCamera(const std::string& cameraName);
-    std::shared_ptr<SceneCamera> GetCamera(const int cameraId);
-    int GetCameraId(std::string cameraName);
-    std::string GetCameraName(int cameraId);
     std::vector<std::string> GetAllCameras();
-    std::shared_ptr<SceneCamera> AddGlobalCamera(std::string _name, float _angle, float _relationWH, float _near, float _far,
+    std::shared_ptr<SceneCamera> AddGlobalCamera(std::string _name, Eigen::Vector3d _pos,
                                                  std::shared_ptr<ObjectMoverSplit> _mover);
     std::string GetCameraScreen1();
     std::string GetCameraScreen2();
@@ -137,7 +134,6 @@ public:
     void CloseCurrentWindow();
     std::vector<std::shared_ptr<SceneShape>> GetPickedShapes();
     std::vector<std::shared_ptr<SceneShape>> multiPickedShapes;
-
 
 private:
     const float FAR = 20000.0f;
@@ -154,7 +150,6 @@ private:
     std::vector<std::string> allShaders;
     std::vector<std::string> allShapeFiles;
     std::vector<std::string> allCameras;
-    std::map<int, std::shared_ptr<SceneCamera>> createdCamerasById;
     std::map<std::string, std::shared_ptr<SceneCamera>> createdCamerasByName;
     void RefreshShadersList();
     void RefreshShapeFilesList();
@@ -164,6 +159,7 @@ private:
     std::map<std::string, std::shared_ptr<ObjectMoverSplit>> movementCurves;
     Display *display;
     igl::opengl::glfw::imgui::ImGuiMenu* menu;
+    void ResetRenderer(ControlledCamera contCam, SplitCameraOption camSplit, Eigen::Vector3d posMainCamera, Eigen::Vector3d posCamera2);
     SplitCameraOption splitCameraOption;
     SplitCameraOption prevSplitCameraOption;
     void SetSplitCameraOption(SplitCameraOption cameraOption);
