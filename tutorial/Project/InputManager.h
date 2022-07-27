@@ -6,55 +6,7 @@
 
 
 
-bool holdsLeft;
 double xStart, yStart;
-
-float normelize(float num, int maxSize){
-    return (((2*num)/maxSize) - 1);
-}
-
-bool  inside(float xStart,float yStart,float xEnd,float yEnd,float screenX,float screenY){
-    if (xStart > xEnd){
-        float tmp = xStart;
-        xStart = xEnd;
-        xEnd = tmp;
-    }
-    if (yStart > yEnd){
-        float tmp = yStart;
-        yStart = yEnd;
-        yEnd = tmp;
-    }
-    bool goodX = xStart <= screenX && screenX<=xEnd;
-    bool goodY = yStart <= screenY && screenY <= yEnd;
-    return goodX && goodY;
-}
-//TODO check projection in point Mult scale/ratio
-void handlePicking(double xStart, double yStart, double xEnd, double yEnd, Project *scn, Renderer* rndr) {
-    xStart = normelize(xStart,scn->VP_Width);
-    xEnd = normelize(xEnd,scn->VP_Width);
-    yStart = normelize(yStart, scn->VP_Height);
-    yEnd= normelize(yEnd, scn->VP_Height);
-    for (auto shape: scn->pickedShapes) {
-        scn->SetShapeViewport(shape, -3);
-    }
-    scn->pickedShapes.clear();
-    Eigen::Matrix4f projection = rndr->cameras[0]->_projection;
-    for (auto shape: scn->getAllShapes()) {
-        if (shape->index != 0 && shape->index != 4){
-            Eigen::Vector3f pos = shape->getPosition(0);
-            Eigen::Vector4f posVec = Eigen::Vector4f(pos.x(), pos.y(),pos.z(),1);
-            Eigen::Vector4f res =  projection * posVec;
-            float screenX, screenY;
-            screenX = res.x();
-            screenY = res.y();
-            if(inside(xStart,yStart,xEnd,yEnd,screenX,screenY)){
-                scn->SetShapeViewport(shape->index, 2);
-                scn->pickedShapes.push_back(shape->index);
-            }
-        }
-    }
-
-}
 
 
 
@@ -154,7 +106,6 @@ void handlePicking(double xStart, double yStart, double xEnd, double yEnd, Proje
             else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE && rndr->IsPressed() ){
                 double xEnd, yEnd;
                 glfwGetCursorPos(window, &xEnd, &yEnd);
-                handlePicking(xStart, yStart, xEnd, yEnd, scn, rndr);
                 rndr->Pressed();
                 scn->UnpressMouse(xEnd, yEnd);
 
