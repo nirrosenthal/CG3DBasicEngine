@@ -247,13 +247,18 @@ void Project::Init(float width, float height) {
 
     std::vector<std::shared_ptr<ObjectMover>> movers = {bez, constMover, bezRev};
     AddMovementCurve(std::make_shared<ObjectMoverSplit>(movers, "default"));
+
     std::shared_ptr<ObjectMoverSplit> mover = GetCurve("default");
     auto defaultLayer = layerManager.addLayer("default");
     std::shared_ptr<SceneShape> shp = AddGlobalShape("test", Cube, mover, defaultLayer, "basicShader");
 
     shp->material = mat1;
 
-    AddGlobalCamera("default", Eigen::Vector3d(0,0,0),GetCurve("default"));
+
+    auto constZeroMover = std::make_shared<ObjectMoverConstant>(Eigen::Vector3f(0, 0, 0), 0, 1050);
+    AddMovementCurve(std::make_shared<ObjectMoverSplit>(std::vector<std::shared_ptr<ObjectMover>>({constZeroMover}),
+                                                        "constZero"));
+    AddGlobalCamera("default", Eigen::Vector3d(0,0,0),GetCurve("constZero"));
     cameraScreen1 = "default";
     cameraScreen2 = "default";
     cameraScreenAnimation = "default";
