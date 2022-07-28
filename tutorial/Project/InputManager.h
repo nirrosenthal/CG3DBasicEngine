@@ -65,7 +65,8 @@ double xStart, yStart;
         }
         else
         {
-            rndr->MoveCamera(scn->GetConrolledCameraId(), rndr->zTranslate, -(float)yoffset);
+            scn->MoveCamera(Renderer::zTranslate,-(float)yoffset);
+//            rndr->MoveCamera(scn->GetConrolledCameraId(), rndr->zTranslate, -(float)yoffset);
         }
 
 
@@ -174,7 +175,8 @@ double xStart, yStart;
                 break;
 			case GLFW_KEY_UP:
                 if(pickedShapes.empty())
-				    rndr->MoveCamera(scn->GetConrolledCameraId(), scn->xRotate, 0.05f);
+                    scn->MoveCamera(Renderer::xRotate, 0.05f);
+//				    rndr->MoveCamera(scn->GetConrolledCameraId(), scn->xRotate, 0.05f);
                 else
                     for(auto mover : pickedMovers) {
                         mover->shift(Eigen::Vector3f(0, 1, 0));
@@ -184,7 +186,8 @@ double xStart, yStart;
 				//scn->shapeTransformation(scn->xGlobalRotate,-5.f);
 				//cout<< "down: "<<endl;
                 if(pickedShapes.empty())
-				    rndr->MoveCamera(scn->GetConrolledCameraId(), scn->xRotate, -0.05f);
+                    scn->MoveCamera(Renderer::xRotate, -0.05f);
+//				    rndr->MoveCamera(scn->GetConrolledCameraId(), scn->xRotate, -0.05f);
                 else {
                     for(auto mover : pickedMovers) {
                         mover->shift(Eigen::Vector3f(0, -1, 0));
@@ -193,7 +196,8 @@ double xStart, yStart;
 				break;
 			case GLFW_KEY_LEFT:
                 if(pickedShapes.empty())
-				    rndr->MoveCamera(scn->GetConrolledCameraId(), scn->yRotate, 0.05f);
+                    scn->MoveCamera(Renderer::yRotate, 0.05f);
+//				    rndr->MoveCamera(scn->GetConrolledCameraId(), scn->yRotate, 0.05f);
                 else {
                     for(auto mover : pickedMovers) {
                         mover->shift(Eigen::Vector3f(-1, 0, 0));
@@ -204,7 +208,8 @@ double xStart, yStart;
 				//scn->shapeTransformation(scn->xGlobalRotate,-5.f);
 				//cout<< "down: "<<endl;
                 if(pickedShapes.empty())
-				    rndr->MoveCamera(scn->GetConrolledCameraId(), scn->yRotate, -0.05f);
+                    scn->MoveCamera(Renderer::yRotate, -0.05f);
+//                    rndr->MoveCamera(scn->GetConrolledCameraId(), scn->yRotate, -0.05f);
                 else {
                     for(auto mover : pickedMovers) {
                         mover->shift(Eigen::Vector3f(1, 0, 0));

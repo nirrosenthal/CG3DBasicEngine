@@ -254,13 +254,13 @@ void Project::Init(float width, float height) {
 
     shp->material = mat1;
 
-
     auto constZeroMover = std::make_shared<ObjectMoverConstant>(Eigen::Vector3f(0, 0, 0), 0, 1050);
     AddMovementCurve(std::make_shared<ObjectMoverSplit>(std::vector<std::shared_ptr<ObjectMover>>({constZeroMover}),
                                                         "constZero"));
     AddGlobalCamera("default", Eigen::Vector3d(0,0,0),GetCurve("constZero"));
     cameraScreen1 = "default";
     cameraScreen2 = "default";
+    cameraScreen1Position = Eigen::Vector3d(0, 0, 0);
     cameraScreenAnimation = "default";
     cameraScreen2Position = Eigen::Vector3d(0, 0, 0);
 //    selected_data_index = -1;
@@ -643,14 +643,6 @@ void Project::UpdateMouse(float x, float y) {
         renderer->MoveCamera(GetConrolledCameraId(), yRotate, xAngle);
         renderer->MoveCamera(GetConrolledCameraId(), xRotate, yAngle);
         pressStartPosition = mousePos;
-        //Todo ********************************************************************************************8
-        // update camera locations of both screens after mouse left click, not working becuase of renderer
-//        if(controlledCamera == MAIN || controlledCamera == LEFT || controlledCamera == TOP){
-//            cameraScreen1Position = Eigen::Vector3d(pressStartPosition[0]/resolution[0],pressStartPosition[1]/resolution[1],cameraScreen1Position[2]);
-//        }
-//        else if (controlledCamera == RIGHT || controlledCamera == BOTTOM) {
-//            cameraScreen1Position = Eigen::Vector3d(pressStartPosition[0]/resolution[0],pressStartPosition[1]/resolution[1],cameraScreen2Position[2]);
-//        }
     } else if(mouseStatus == RIGHT_CLICK && x != pressStartPosition.x() && y != pressStartPosition.y()) {
         UpdatePickingRectangle(BoundingRectangle(Eigen::Vector2f(x, y), pressStartPosition));
     }
@@ -723,6 +715,36 @@ void Project::SetPrevSplitCameraOption(SplitCameraOption prevCameraOption) {
 }
 
 
+void Project::MoveCamera(Renderer::transformations transformation, float amt) {
+    switch(transformation) {
+        case Renderer::xRotate:
+            if (controlledCamera == MAIN || controlledCamera == TOP || controlledCamera == LEFT) {
+                cameraScreen1Position += Eigen::Vector3d(0, amt, 0);
+            } else {
+                cameraScreen2Position += Eigen::Vector3d(0, amt, 0);
+            }
+            break;
+        case yRotate:
+            if (controlledCamera == MAIN || controlledCamera == TOP || controlledCamera == LEFT) {
+                cameraScreen1Position += Eigen::Vector3d(amt, 0, 0);
+            } else {
+                cameraScreen2Position += Eigen::Vector3d(amt, 0, 0);
+            }
+            break;
+        case zRotate:
+            if (controlledCamera == MAIN || controlledCamera == TOP || controlledCamera == LEFT) {
+                cameraScreen1Position += Eigen::Vector3d(0, 0, amt);
+            } else {
+                cameraScreen2Position += Eigen::Vector3d(0, 0, amt);
+            }
+            break;
+    }
+    std::cout<<"updated Position 1:"<<cameraScreen1Position[0]<<std::endl;
+    renderer->MoveCamera(GetConrolledCameraId(), transformation, amt);
+
+}
+
+
 void Project::ResetRenderer(ControlledCamera contCam, SplitCameraOption camSplit,
                             Eigen::Vector3d posCamera1, Eigen::Vector3d posCamera2) {
     std::list<int> x, y;
@@ -737,13 +759,19 @@ void Project::ResetRenderer(ControlledCamera contCam, SplitCameraOption camSplit
     renderer->AddCamera(Eigen::Vector3d(0,0,0), 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 2);
     renderer->AddCamera(Eigen::Vector3d(0,0,0), 45, (float)resolution[0]/(float)resolution[1], NEAR, FAR, 3);
 
+
     if(camSplit == SPLITX) {
         x.push_back(resolution[0]/2);
         x.push_back(resolution[0]);
         y.push_back(resolution[1]-1);
         y.push_back(resolution[1]);
-        renderer->cameras[0]->MyTranslate(posCamera1, false);
-        renderer->cameras[2]->MyTranslate(posCamera2,false);
+        renderer->MoveCamera(0,yRotate,posCamera1[0]);
+        renderer->MoveCamera(0,xRotate,posCamera1[1]);
+        renderer->MoveCamera(0,zRotate,posCamera1[2]);
+        renderer->MoveCamera(2,yRotate,posCamera2[0]);
+        renderer->MoveCamera(2,xRotate,posCamera2[1]);
+        renderer->MoveCamera(2,zRotate,posCamera2[2]);
+
     }
 
     else if (camSplit == SPLITY) {
@@ -751,8 +779,14 @@ void Project::ResetRenderer(ControlledCamera contCam, SplitCameraOption camSplit
         x.push_back(resolution[0]);
         y.push_back(resolution[1]/2);
         y.push_back(resolution[1]);
-        renderer->cameras[1]->MyTranslate(posCamera1, false);
-        renderer->cameras[0]->MyTranslate(posCamera2,false);
+        renderer->MoveCamera(1,yRotate,posCamera1[0]);
+        renderer->MoveCamera(1,xRotate,posCamera1[1]);
+        renderer->MoveCamera(1,zRotate,posCamera1[2]);
+        renderer->MoveCamera(0,yRotate,posCamera2[0]);
+        renderer->MoveCamera(0,xRotate,posCamera2[1]);
+        renderer->MoveCamera(0,zRotate,posCamera2[2]);
+//        renderer->cameras[1]->MyTranslate(posCamera1, false);
+//        renderer->cameras[0]->MyTranslate(posCamera2,false);
     }
 
     else if (camSplit == UNSPLIT) {
@@ -760,7 +794,9 @@ void Project::ResetRenderer(ControlledCamera contCam, SplitCameraOption camSplit
         x.push_back(resolution[0]);
         y.push_back(resolution[1]-1);
         y.push_back(resolution[1]);
-        renderer->cameras[0]->MyTranslate(posCamera1, false);
+        renderer->MoveCamera(0,yRotate,posCamera1[0]);
+        renderer->MoveCamera(0,xRotate,posCamera1[1]);
+        renderer->MoveCamera(0,zRotate,posCamera1[2]);
     }
     renderer->Init(this,x,y,1, menu);
 
@@ -788,36 +824,35 @@ void Project::Unsplit() {
 
 void Project::SetCameraScreen1(std::string cameraName) {
     cameraScreen1 = cameraName;
-    auto camera1Pos = GetCamera(cameraScreen1)->GetPosition();
+    auto posCamera1 = GetCamera(cameraScreen1)->GetPosition();
 
     switch(splitCameraOption) {
         case UNSPLIT:
-            ResetRenderer(MAIN, UNSPLIT, camera1Pos, cameraScreen2Position);
+            ResetRenderer(MAIN, UNSPLIT, posCamera1, cameraScreen2Position);
             break;
         case SPLITX:
-            ResetRenderer(LEFT, SPLITX, camera1Pos, cameraScreen2Position);
+            ResetRenderer(LEFT, SPLITX, posCamera1, cameraScreen2Position);
             break;
         case SPLITY:
-            ResetRenderer(TOP, SPLITY, camera1Pos, cameraScreen2Position);
+            ResetRenderer(TOP, SPLITY, posCamera1, cameraScreen2Position);
             break;
     }
 
 }
 
-
 void Project::SetCameraScreen2(std::string cameraName) {
     cameraScreen2 = cameraName;
-    auto camera2Pos = GetCamera(cameraScreen2)->GetPosition();
+    auto posCamera2 = GetCamera(cameraScreen2)->GetPosition();
 
     switch(splitCameraOption) {
         case UNSPLIT:
-            ResetRenderer(MAIN, UNSPLIT, cameraScreen1Position, camera2Pos);
+            ResetRenderer(MAIN, UNSPLIT, cameraScreen1Position, posCamera2);
             break;
         case SPLITX:
-            ResetRenderer(LEFT, SPLITX, cameraScreen1Position, camera2Pos);
+            ResetRenderer(LEFT, SPLITX, cameraScreen1Position, posCamera2);
             break;
         case SPLITY:
-            ResetRenderer(TOP, SPLITY, cameraScreen1Position, camera2Pos);
+            ResetRenderer(TOP, SPLITY, cameraScreen1Position, posCamera2);
             break;
     }
 }

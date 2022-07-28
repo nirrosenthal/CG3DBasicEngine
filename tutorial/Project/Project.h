@@ -134,6 +134,7 @@ public:
     void CloseCurrentWindow();
     std::vector<std::shared_ptr<SceneShape>> GetPickedShapes();
     std::vector<std::shared_ptr<SceneShape>> multiPickedShapes;
+    void MoveCamera(Renderer::transformations transformation, float amt);
 
 private:
     const float FAR = 20000.0f;
