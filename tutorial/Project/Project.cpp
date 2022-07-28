@@ -424,7 +424,7 @@ void Project::Play() {
     previousState = GetSplitCameraOption();
     prevCamera = Eigen::Vector3f::Zero();
     animationStatus = PLAYING;
-    Unsplit();
+    ResetRenderer(MAIN, UNSPLIT, GetCamera(cameraScreenAnimation)->GetPosition(), cameraScreen2Position);
 }
 
 void Project::Pause() {

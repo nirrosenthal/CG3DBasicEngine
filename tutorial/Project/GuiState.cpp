@@ -335,7 +335,7 @@ void MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera
                     }
                     else {
                         project->SetCameraScreenAnimation(cameraName);
-                        std::cout << "Selected in camera screen 2 combo: " << currentCameraAnimation << std::endl;
+                        std::cout << "Selected in camera screen animation combo: " << currentCameraAnimation << std::endl;
                     }
                 }
                 if (is_selected) {
