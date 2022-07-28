@@ -27,38 +27,42 @@ Graphics and animation Engine based on Libigl, with loads of groundbreaking feat
 # Features
 
 ## Menu Features
+#### Pop-up mechanics
+- The GUI is based on pop-up windows. When a window closes, the previous window automatically opens!
 #### Theme 
 - Choose between light and dark mode for the menu
 #### Background Shader 
 - Change the shader for the background of the scene
-#### Viewing Options
-- Center Object - $ $ $ $ $ $ $ $ $ $ $ 
-- Fov slider - $ $ $ $ $ $ $ $ $ $ $ 
-- Orthographic view - $ $ $ $ $ $ $ $ $ $ $ 
 #### Shapes : 
 ###### Create a new shape:
 - Name - choose a name for the new shape
-- Source - choose to load a basic shape type or load a shape type from file!
+- Source:
+  - Choose to load a basic shape type or load a shape type from file!
+  - Simplicity - the gui automatically filters all the ".obj" files. No special dialog box is needed in order to locate them.
 - Size - choose the size of the shape
 - Shader - choose a shader for the shape from a menu of shaders!
 - Layer - choose a layer for the new shape!
-- Movement Curves - choose a bezier curve for the shape from the movement curves you defined!
+- Movement Curves - choose a Bézier curve for the shape from the movement curves you defined!
+- The checkbox automatically picks the shape and enables moving it with the keyboard.
 ###### Existing shape edit - Click on a shape name to edit the shape:
 - Size - change the size of the shape
 - Shader - change the shader of the shape
 - Layer - change the layer of the shape
 - Movement curve - change the movement curve of the shape
  #### Search for Shaders and Edit Selected Shader
-- Search a shader to show it under Edit Selected Shader! Edit the shader's parameters, or control it's transparency! Each shader requires different parameters, so we recommend to try all of them! 
+- Search a shader to show it under Edit Selected Shader! Edit the shader's parameters, or control it's transparency! Each shader requires different parameters, so we recommend to try all of them!
+- #### Shaders :
+- Adding a json file to the shader makes it editable, and allows the user to edit its uniforms.
+- The json also supports global parameters - like mouse position, global time, etc.
  #### Layers
 - Show/hide layers from the list
 - Create a new layer
-- Delete a layer (layer list should not be less than 1!)
+- Delete a layer (if it has no shapes).
 #### Movement Curves
 ###### add a movement curve:
 - Add a name to the curve
 - Add a start time for the curve, in what time should the curve begin movement
-- Add movers: $ $ $ $ $ $ $ $ $ $ $ 
+- Add movers - with a specific form
 #### Cameras
 - Camera split option - choose the screen split mode for the design mode IN RUNTIME! choose between vertical split (split X) and horizontal split (split Y)
 - Select camera for screen 1 - choose the camera you want to see on the left screen (if split X is active) or on the top screen (if split Y is active)
@@ -72,9 +76,10 @@ Graphics and animation Engine based on Libigl, with loads of groundbreaking feat
 - Click and drag with the left mouse button to move the camera around
 - Click and drag with the right mouse button to pick a zone in the screen which you can zoom in to, or move the shapes in it by clicking and dragging with the left mouse button
 #### Keyboard keys
-- Double click ESC to exit the window
+- ESC closes the current pop-up window.
 - Click CTRL in split screen mode to switch the camera control from screen 1 to screen 2
-- Use the arrows to move the camera up/down/left/right
+- Use the arrows to move the camera up/down/left/right when no object is selected.
+- When objects are selected, use the arrows and the +/- buttons to move it.
 # GitHub links:
 Our engine - https://github.com/nadavhaik/CG3DBasicEngine
 
