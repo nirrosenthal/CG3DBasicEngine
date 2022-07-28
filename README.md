@@ -67,7 +67,8 @@ Graphics and animation Engine based on Libigl, with loads of groundbreaking feat
 - Camera split option - choose the screen split mode for the design mode IN RUNTIME! choose between vertical split (split X) and horizontal split (split Y)
 - Select camera for screen 1 - choose the camera you want to see on the left screen (if split X is active) or on the top screen (if split Y is active)
 - Select camera for screen 2 - choose the camera you want to see on the right screen (if split X is active) or on the bottom screen (if split Y is active)
-- Add Camera: choose the name, angle, width/height ration, near, far and a movement curve for a new camera you want to add
+- Select camera for screen animation - choose the camera you want to see when in animation mode
+- Add Camera: choose the position (x,y,z) and movement curve for the new camera
 #### Animation
 - Play the animation: cancels the screen splitting and changes the camera to be the camera set for the animation mode. choose to pause/stop/replay the animation!
 
