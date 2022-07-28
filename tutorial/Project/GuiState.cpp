@@ -112,50 +112,6 @@ void MenuState::Run(Project *project, std::vector<igl::opengl::Camera *> &camera
         }
     }
 
-    // Viewing options
-    if (ImGui::CollapsingHeader("Viewing Options", ImGuiTreeNodeFlags_DefaultOpen))
-    {
-        if (ImGui::Button("Center object", ImVec2(-1, 0)))
-        {
-            std::cout << "not implemented yet" << std::endl;
-//      core[1].align_camera_center(viewer->data().V, viewer->data().F); TODO: add function like this to camera
-        }
-        //if (ImGui::Button("Snap canonical view", ImVec2(-1, 0)))
-        //{
-        //  core[1].snap_to_canonical_quaternion();
-        //}
-
-        // Zoom
-        ImGui::PushItemWidth(80 * menu_scaling());
-        if (camera[0]->_ortho)
-            ImGui::DragFloat("Zoom", &(camera[0]->_length), 0.05f, 0.1f, 20.0f);
-        else
-            ImGui::DragFloat("Fov", &(camera[0]->_fov), 0.05f, 30.0f, 90.0f);
-
-        // Select rotation type
-        static Eigen::Quaternionf trackball_angle = Eigen::Quaternionf::Identity();
-        static bool orthographic = true;
-
-        // Orthographic view
-        ImGui::Checkbox("Orthographic view", &(camera[0]->_ortho));
-        if (camera[0]->_ortho) {
-            camera[0]->SetProjection(0,camera[0]->_relationWH);
-        }
-        else {
-            camera[0]->SetProjection(camera[0]->_fov > 0 ? camera[0]->_fov : 45,camera[0]->_relationWH);
-        }
-
-        ImGui::PopItemWidth();
-    }
-
-    // Helper for setting viewport specific mesh options
-    auto make_checkbox = [&](const char *label, unsigned int &option)
-    {
-        return ImGui::Checkbox(label,
-                               [&]() { return drawInfos[1]->is_set(option); },
-                               [&](bool value) { return drawInfos[1]->set(option, value); }
-        );
-    };
     if (ImGui::CollapsingHeader("Shapes", ImGuiTreeNodeFlags_DefaultOpen)){
         for(const auto& shp : project->getAllShapes()) {
 //            std::string deleteButtonLabel = "X##" + shp->name;
