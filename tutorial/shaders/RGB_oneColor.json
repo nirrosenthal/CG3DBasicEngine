@@ -1,7 +1,7 @@
 [
   {
     "name": "rgb",
-    "type": "vec4_float",
+    "type": "rgb",
     "default": [0.0, 0.0, 0.0, 0.0]
   },
   {
