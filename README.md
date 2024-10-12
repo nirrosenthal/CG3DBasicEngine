@@ -81,8 +81,6 @@ Graphics and animation Engine based on Libigl, with loads of groundbreaking feat
 - Click CTRL in split screen mode to switch the camera control from screen 1 to screen 2
 - Use the arrows to move the camera up/down/left/right when no object is selected.
 - When objects are selected, use the arrows and the +/- buttons to move it.
-# GitHub links:
-Our engine - https://github.com/nadavhaik/CG3DBasicEngine
 
 ### Run Instruction:
 1. Clone or download the project from the github link
